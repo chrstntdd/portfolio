@@ -3,9 +3,9 @@ const {
   SVGPlugin,
   CSSPlugin,
   SassPlugin,
-  CSSModules,
   QuantumPlugin,
   WebIndexPlugin,
+  CSSResourcePlugin,
   Sparky
 } = require('fuse-box');
 
@@ -31,7 +31,7 @@ Sparky.task('config', () => {
         SassPlugin({
           outputStyle: 'compressed'
         }),
-        CSSModules(),
+        CSSResourcePlugin({ inline: true }),
         CSSPlugin()
       ],
       WebIndexPlugin({
@@ -54,12 +54,14 @@ Sparky.task('config', () => {
   app = fuse.bundle('app').instructions('!> [index.ts]');
 });
 
-Sparky.task('default', ['clean', 'config'], () => {
+Sparky.task('default', ['clean', 'config', 'copy-assets'], () => {
   fuse.dev({ root: './dist' });
-  // add dev instructions
-  app.watch().hmr();
+  app.watch();
+  app.hmr();
   return fuse.run();
 });
+
+Sparky.task('copy-assets', () => Sparky.src('./assets/**/*.**').dest('./dist'));
 
 Sparky.task('clean', () => Sparky.src('dist/*').clean('dist/'));
 Sparky.task('prod-env', ['clean'], () => {

@@ -1,0 +1,172 @@
+/* UTILITIES */
+@function between($to, $from, $toWidth, $fromWidth) {
+  $slope: ($to - $from) / ($toWidth - $fromWidth);
+  $base: $from - $slope * $fromWidth;
+  @return calc(#{$base} + #{100vw * $slope});
+}
+/* BREAKPOINTS */
+$bp-xxsmall: 320px;
+$bp-xsmall: 576px;
+$bp-small: 768px;
+$bp-medium: 1024px;
+$bp-large: 1366px;
+$bp-xlarge: 1920px;
+$bp-xxlarge: 2560px;
+
+/* GLOBALS */
+html * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+:root {
+  font-size: 10px;
+
+  @media (min-width: $bp-xsmall) {
+    font-size: between(18px, 10px, $bp-medium, $bp-xsmall);
+  }
+
+  @media (min-width: $bp-medium) {
+    font-size: 18px;
+  }
+}
+
+html,
+body {
+  height: 100%;
+  font-family: Helvetica;
+  overflow-x: hidden;
+}
+
+/**
+ * Here lies all of the styles for the page
+ */
+
+header {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  #hero-img {
+    background-color: lighten(grey, 25%);
+    // background-image: url('../assets/samuel-zeller-34751-min.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+  }
+}
+
+nav {
+  ul {
+    background-color: lighten(black, 15%);
+    margin: 0;
+    padding: 1.2rem;
+    padding-left: 0;
+    display: flex;
+    justify-content: space-around;
+    li {
+      list-style: none;
+      a {
+        text-decoration: none;
+        font-size: 1.5rem;
+        color: white;
+      }
+    }
+  }
+}
+
+#about {
+  height: 100vh;
+  width: 100vw;
+  background-color: darken(grey, 25%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  p {
+    margin: 0 auto;
+    @media (min-width: $bp-xxsmall) {
+      line-height: 1.95;
+      width: between(310px, 720px, $bp-xxsmall, $bp-large);
+    }
+  }
+}
+#portfolio {
+  width: 100vw;
+  min-height: 100vh;
+  background-color: lighten(grey, 25%);
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  .project-card {
+    width: 300px;
+    margin: 2%;
+    @media (min-width: $bp-xxsmall) {
+      width: between(300px, $bp-large/ 3, $bp-xxsmall, $bp-xlarge);
+    }
+
+    background-color: lighten(grey, 15%);
+    h1 {
+      font-weight: 100;
+      color: black;
+    }
+    #img {
+      margin: auto;
+      height: 200px;
+      width: 200px;
+      background-color: darken(grey, 10%);
+    }
+    .tech-container {
+      width: 100%;
+      height: 50px;
+      background-color: grey;
+      svg {
+        height: 50px;
+      }
+    }
+  }
+}
+
+#contact {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  ul {
+    padding-left: 0;
+    display: flex;
+    justify-content: center;
+    li {
+      margin: auto 10%;
+      list-style: none;
+      a {
+        text-decoration: none;
+        font-size: 3rem;
+        color: white;
+      }
+    }
+  }
+}
+
+footer {
+  background-color: darken(grey, 5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
