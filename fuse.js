@@ -32,7 +32,9 @@ Sparky.task('config', () => {
           outputStyle: 'compressed'
         }),
         CSSResourcePlugin({ inline: true }),
-        CSSPlugin()
+        CSSPlugin({
+          outFile: file => `./docs/${file}`
+        })
       ],
       WebIndexPlugin({
         template: 'src/index.html',
