@@ -1,0 +1,23 @@
+{
+  "name": "final-portfolio",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "watch": "node fuse.js",
+    "dist": "node fuse.js dist"
+  },
+  "devDependencies": {
+    "fuse-box": "^2.2.2",
+    "node-sass": "^4.5.3",
+    "postcss-modules": "^0.8.0",
+    "prettier": "^1.6.1",
+    "tslint": "^5.7.0",
+    "tslint-config-airbnb": "^5.2.1",
+    "tslint-config-prettier": "^1.4.0",
+    "typescript": "^2.5.2"
+  },
+  "dependencies": {
+    "gsap": "^1.20.2"
+  }
+}
