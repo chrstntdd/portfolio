@@ -59,19 +59,19 @@ const techIcons = {
 const portfolioData = [
   {
     title: 'Quantified',
+    demo: 'https://developer-madeline-27128.netlify.com/',
+    repo: 'https://github.com/chrstntdd/bby-react',
     imageData: [
       { src: '../assets/q1-ss-min.png', alt: '' },
       { src: '../assets/q2-ss-min.png', alt: '' },
       { src: '../assets/q3-ss-min.png', alt: '' }
     ],
     techStack: [
-      techIcons.babel,
       techIcons.javascript,
       techIcons.react,
       techIcons.redux,
       techIcons.jest,
       techIcons.sass,
-      techIcons.html5,
       techIcons.typescript,
       techIcons.nodejs,
       techIcons.express,
@@ -83,6 +83,8 @@ const portfolioData = [
   },
   {
     title: 'VinylDB',
+    demo: 'https://obscure-island-83164.herokuapp.com/',
+    repo: 'https://github.com/chrstntdd/vinyl-db',
     imageData: [
       { src: '../assets/vdb-ss-1-min.png', alt: 'desc' },
       { src: '../assets/vdb-ss-2-min.png', alt: 'desc' },
@@ -103,6 +105,8 @@ const portfolioData = [
   },
   {
     title: 'Roaster Nexus',
+    demo: 'https://chrstntdd.github.io/roaster-nexus/',
+    repo: 'https://github.com/chrstntdd/roaster-nexus',
     imageData: [
       { src: '../assets/rn-ss-1-min.png', alt: 'des' },
       { src: '../assets/rn-ss-2-min.png', alt: 'des' },
@@ -143,9 +147,11 @@ const state = {
 /* $document.ready */
 d.addEventListener('DOMContentLoaded', event => {
   renderProjects(portfolioData);
-  // renderSliders()
-
+  renderSliders();
+});
+const renderSliders = () => {
   const sliders = Array.from(d.getElementsByClassName('slider'));
+
   sliders.forEach(slider => {
     const buttons = slider.getElementsByTagName('button');
 
@@ -165,33 +171,34 @@ d.addEventListener('DOMContentLoaded', event => {
           });
     });
   });
-
   const setTransform = (imgThumbList, nextIndex) => {
-    imgThumbList.style['transform'] = `translate3d(${nextIndex *
-      imgThumbList.offsetWidth}px, 0 , 0)`;
-    console.log(state);
+    imgThumbList.style['transform'] = `translate3d(${-(
+      nextIndex * imgThumbList.offsetWidth
+    )}px, 0 , 0)`;
   };
 
   /* Increment current slider's index of visible picture */
   const nextThumb = (buttonId: string, currentIndex: number) => {
     const btnIndex = buttonId.match(/\d/)[0];
     const nextIndex = currentIndex + 1;
-    state[`slider${btnIndex}`] = nextIndex;
+    const pos = Math.min(nextIndex, 2);
+    state[`slider${btnIndex}`] = pos;
 
     const c = d.getElementById(`imgThumbList${btnIndex}`);
-    setTransform(c, nextIndex);
+    setTransform(c, pos);
   };
 
   /* Decrement current slider's index of visible picture */
   const prevThumb = (buttonId: string, currentIndex: number) => {
     const btnIndex = buttonId.match(/\d/)[0];
     const nextIndex = currentIndex - 1;
-    state[`slider${btnIndex}`] = nextIndex;
+    const pos = Math.max(nextIndex, 0);
+    state[`slider${btnIndex}`] = pos;
 
     const c = d.getElementById(`imgThumbList${btnIndex}`);
-    setTransform(c, nextIndex);
+    setTransform(c, pos);
   };
-});
+};
 
 const genImgTags = (imgData: ImageData[]): string[] => {
   return imgData.map(img => `<img src=${img.src} alt=${img.alt}/>`);
@@ -203,9 +210,9 @@ const genImageSlider = (imageTags: string[], i: number): string => {
 
   const sliderTemp = `
   <div class='slider' id='sliderId${i}'>
-  <button id='nextBtn${i}'><</button>
-  <button id='prevBtn${i}'>></button>
+  <button id='nextBtn${i}'><<</button>
   <ul id='imgThumbList${i}'>${listImages.join('')}</ul>
+  <button id='prevBtn${i}'>>></button>
   </div>
   `;
 
@@ -213,7 +220,7 @@ const genImageSlider = (imageTags: string[], i: number): string => {
 };
 
 const createProjectCard = (project: Project, i: number): string => {
-  const { title, imageData, techStack, description } = project;
+  const { title, imageData, techStack, description, demo, repo } = project;
 
   const imageSlider = genImageSlider(genImgTags(imageData), i);
 
@@ -224,7 +231,8 @@ const createProjectCard = (project: Project, i: number): string => {
   <div class="tech-container">
   ${techStack.join('')}
   </div>
-  <p>Description: ${description}</p>
+  <p class='links'> <a href='${repo}'>Repo</a> | <a href='${demo}'>Demo</a> </p>
+  <p class='description'>${description}</p>
   </div>
   `;
 };
@@ -233,5 +241,5 @@ const renderProjects = (portfolioData: Project[]): void => {
   const projectHTML = portfolioData.map((project, i) =>
     createProjectCard(project, i)
   );
-  document.getElementById('portfolio').innerHTML += projectHTML.join('');
+  document.getElementById('port-hook').innerHTML += projectHTML.join('');
 };
