@@ -56,8 +56,8 @@ header {
   height: 100vh;
   width: 100vw;
   #hero-img {
-    background-color: lighten(grey, 25%);
-    // background-image: url('../assets/samuel-zeller-34751-min.jpg');
+    // background-color: lighten(grey, 25%);
+    background-image: url('../assets/samuel-zeller-34751-min.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -125,10 +125,24 @@ nav {
       font-weight: 100;
       color: black;
     }
-    #img {
+    .slider {
+      flex: 1;
+      overflow: hidden;
+      ul {
+        padding-left: 0;
+        list-style: none;
+        white-space: nowrap;
+        transition: transform 1s ease-in-out;
+        li {
+          display: inline-block;
+        }
+      }
+    }
+    img {
       margin: auto;
       height: 200px;
-      width: 200px;
+      max-width: 100%;
+
       background-color: darken(grey, 10%);
     }
     .tech-container {
@@ -137,6 +151,7 @@ nav {
       background-color: grey;
       svg {
         height: 50px;
+        width: 50px;
       }
     }
   }
@@ -147,6 +162,7 @@ nav {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  background-color: lighten(grey, 20%);
   ul {
     padding-left: 0;
     display: flex;
