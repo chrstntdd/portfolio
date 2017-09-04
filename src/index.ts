@@ -62,9 +62,9 @@ const portfolioData = [
     demo: 'https://developer-madeline-27128.netlify.com/',
     repo: 'https://github.com/chrstntdd/bby-react',
     imageData: [
-      { src: '../assets/q1-ss-min.png', alt: '' },
-      { src: '../assets/q2-ss-min.png', alt: '' },
-      { src: '../assets/q3-ss-min.png', alt: '' }
+      { src: './assets/q1-ss-min.png', alt: '' },
+      { src: './assets/q2-ss-min.png', alt: '' },
+      { src: './assets/q3-ss-min.png', alt: '' }
     ],
     techStack: [
       techIcons.javascript,
@@ -86,9 +86,9 @@ const portfolioData = [
     demo: 'https://obscure-island-83164.herokuapp.com/',
     repo: 'https://github.com/chrstntdd/vinyl-db',
     imageData: [
-      { src: '../assets/vdb-ss-1-min.png', alt: 'desc' },
-      { src: '../assets/vdb-ss-2-min.png', alt: 'desc' },
-      { src: '../assets/vdb-ss-3-min.png', alt: 'desc' }
+      { src: './assets/vdb-ss-1-min.png', alt: 'desc' },
+      { src: './assets/vdb-ss-2-min.png', alt: 'desc' },
+      { src: './assets/vdb-ss-3-min.png', alt: 'desc' }
     ],
     techStack: [
       techIcons.nodejs,
@@ -108,9 +108,9 @@ const portfolioData = [
     demo: 'https://chrstntdd.github.io/roaster-nexus/',
     repo: 'https://github.com/chrstntdd/roaster-nexus',
     imageData: [
-      { src: '../assets/rn-ss-1-min.png', alt: 'des' },
-      { src: '../assets/rn-ss-2-min.png', alt: 'des' },
-      { src: '../assets/rn-ss-3-min.png', alt: 'des' }
+      { src: './assets/rn-ss-1-min.png', alt: 'des' },
+      { src: './assets/rn-ss-2-min.png', alt: 'des' },
+      { src: './assets/rn-ss-3-min.png', alt: 'des' }
     ],
     techStack: [
       techIcons.google,
@@ -174,7 +174,6 @@ d.addEventListener('DOMContentLoaded', event => {
             document.body.parentNode ||
             document.body).scrollTop;
 
-    console.log(nav);
     scrollTop > 120
       ? (nav.className = 'nav-container sticky')
       : (nav.className = 'nav-container');

@@ -12,26 +12,40 @@
 </head>
 
 <body>
-  <header>
+  <header role='banner'>
     <div id="hero-img"></div>
-    <h1>Christian Todd</h1>
-    <h3>Full stack web developer passionate about functional programming and designing UI</h3>
+    <div id="hero-text">
+      <h1>Christian Todd</h1>
+      <h3>Full stack web developer passionate about functional programming and designing UI</h3>
+    </div>
   </header>
-  <nav>
-    <ul>
-      <li>
-        <a href="#about">About</a>
-      </li>
-      <li>
-        <a href="#portfolio">Portfolio</a>
-      </li>
-      <li>
-        <a href="#contact">Contact</a>
-      </li>
-    </ul>
-  </nav>
-  <main>
+  <div id='nav-id' class="nav-container">
+
+
+    <div class="mobile-toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <nav role='navigation'>
+      <ul>
+        <li>
+          <a id='about-link' href="">About</a>
+        </li>
+        <li>
+          <a id='portfolio-link' href="">Portfolio</a>
+        </li>
+        <li>
+          <a id='contact-link' href="">Contact</a>
+        </li>
+      </ul>
+    </nav>
+
+
+  </div>
+  <main role='main'>
     <section id='about'>
+      <h1>About me</h1>
       <p>Hi, my name is Christian. I first got introduced to code as a college student studying mechanical engineering. From
         there it ignited a unforseen passion that has continually driven me to explore the exciting and ever expanding world
         of programming. I fell in love web development because of how accessible and vast the landscape is - there's always
@@ -40,38 +54,13 @@
         a workout at the gym, or just reading.</p>
     </section>
     <section id='portfolio'>
-      <div class='project-card'>
-        <h1>Project Name</h1>
-        <div id='img'></div>
-        <div class="tech-container">
-
-        </div>
-        <p>Description: Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi accusantium quo fugit natus pariatur
-          quibusdam soluta harum quia, facere, voluptatum cum, quidem debitis. At quam incidunt ex vel autem inventore.</p>
-      </div>
-      <div class='project-card'>
-        <h1>Project Name</h1>
-        <div id='img'></div>
-        <div class="tech-container">
-
-        </div>
-        <p>Description: Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi accusantium quo fugit natus pariatur
-          quibusdam soluta harum quia, facere, voluptatum cum, quidem debitis. At quam incidunt ex vel autem inventore.</p>
-      </div>
-      <div class='project-card'>
-        <h1>Project Name</h1>
-        <div id='img'></div>
-        <div class="tech-container">
-
-        </div>
-        <p>Description: Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi accusantium quo fugit natus pariatur
-          quibusdam soluta harum quia, facere, voluptatum cum, quidem debitis. At quam incidunt ex vel autem inventore.</p>
-      </div>
+      <h1 id='port-header'>Previous work</h1>
+      <div id="port-hook"></div>
     </section>
     <section id='contact'>
-      <p>Want to get in touch?</p>
-      <p>Email: christian.todd7@gmail.com</p>
-      <p>Or here too is fine</p>
+      <p>Get in touch with me through email:</p>
+      <p class='email'>christian.todd7@gmail.com</p>
+      <p>Email too oldschool? I'm availabe here as well:</p>
       <ul>
         <li>
           <a target='_blank' href="https://github.com/chrstntdd"><i class="fa fa-github" aria-hidden="true"></i>
@@ -88,13 +77,13 @@
       </ul>
     </section>
   </main>
-  <footer>
+  <footer role='contentinfo'>
     <p>Made with <i class="fa fa-coffee" aria-hidden="true"></i></p>
 
     <p>2017 Christian Todd</p>
   </footer>
 </body>
-<script type="text/javascript" src="/a321a11d-vendor.js"></script>
-<script type="text/javascript" src="/4f8c7111-app.js"></script>
+<script type="text/javascript" src="./a321a11d-vendor.js"></script>
+<script type="text/javascript" src="./20677248-app.js"></script>
 
 </html>
