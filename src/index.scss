@@ -19,6 +19,11 @@ html * {
   -moz-osx-font-smoothing: grayscale;
 }
 
+$MAIN_COLOR: #28666e;
+$OFF_WHITE: #f2f2f2;
+$ACCENT_COLOR1: #2f4550;
+$ACCENT_COLOR2: #183a37;
+
 *,
 *::after,
 *::before {
@@ -26,22 +31,26 @@ html * {
 }
 
 :root {
-  font-size: 10px;
+  font-size: 14px;
 
   @media (min-width: $bp-xsmall) {
-    font-size: between(18px, 10px, $bp-medium, $bp-xsmall);
+    font-size: between(20px, 14px, $bp-medium, $bp-xsmall);
   }
 
   @media (min-width: $bp-medium) {
-    font-size: 18px;
+    font-size: 20px;
   }
 }
 
 html,
 body {
-  height: 100%;
   font-family: Helvetica;
   overflow-x: hidden;
+  background-color: #f2f2f2;
+}
+
+html {
+  height: 100%;
 }
 
 /**
@@ -57,7 +66,12 @@ header {
   width: 100vw;
   #hero-img {
     background-color: lighten(grey, 25%);
-    // background-image: url('../assets/samuel-zeller-34751-min.jpg');
+    background-image: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0.6)
+      ),
+      url('../assets/samuel-zeller-34751-min.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -66,24 +80,78 @@ header {
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: -1;
+    z-index: 0;
+  }
+  #hero-text {
+    z-index: 10;
+    h1,
+    h3 {
+      color: #f2f2f2;
+      text-align: center;
+      font-weight: 100;
+    }
+    h1 {
+      font-size: 3rem;
+      letter-spacing: 0.1rem;
+    }
+    h3 {
+      font-style: italic;
+    }
   }
 }
 
-nav {
-  ul {
-    background-color: lighten(black, 15%);
-    margin: 0;
-    padding: 1.2rem;
-    padding-left: 0;
-    display: flex;
-    justify-content: space-around;
-    li {
-      list-style: none;
-      a {
-        text-decoration: none;
-        font-size: 1.5rem;
-        color: white;
+#nav-id.sticky {
+  background-color: rgba(255, 255, 255, 0.93);
+  opacity: 1 !important;
+  top: 0px;
+}
+
+.nav-container {
+  box-shadow: 0px 3px 35px 1px rgba(0, 0, 0, 0.82);
+  position: fixed;
+  top: 0px;
+  max-height: 70px;
+  z-index: 999;
+  width: 100%;
+  padding-top: 17px;
+  background: none;
+  overflow: hidden;
+  transition: all 0.3s;
+  opacity: 0;
+  padding: 0;
+  .mobile-toggle {
+    display: none;
+    cursor: pointer;
+    font-size: 20px;
+    position: absolute;
+    right: 22px;
+    top: 0;
+    width: 30px;
+    -webkit-transition: all 200ms ease-in;
+    -moz-transition: all 200ms ease-in;
+    transition: all 200ms ease-in;
+  }
+  @media only screen and (max-width: 766px) {
+    .mobile-toggle {
+      display: block;
+    }
+  }
+  nav {
+    ul {
+      margin: 0;
+      background-color: darken(#2c2c34, 10%);
+      padding: 1.2rem;
+      padding-left: 0;
+      display: flex;
+      justify-content: flex-end;
+      li {
+        margin: 0 2%;
+        list-style: none;
+        a {
+          text-decoration: none;
+          font-size: 1.2rem;
+          color: white;
+        }
       }
     }
   }
@@ -92,11 +160,12 @@ nav {
 #about {
   height: 100vh;
   width: 100vw;
-  background-color: darken(grey, 25%);
+  background-color: $OFF_WHITE;
   display: flex;
   justify-content: center;
+  flex-direction: column;
   align-items: center;
-  color: white;
+  color: black;
   p {
     margin: 0 auto;
     @media (min-width: $bp-xxsmall) {
@@ -104,39 +173,105 @@ nav {
       width: between(310px, 720px, $bp-xxsmall, $bp-large);
     }
   }
+  h1 {
+    text-transform: uppercase;
+  }
 }
 #portfolio {
-  width: 100vw;
-  min-height: 100vh;
-  background-color: lighten(grey, 25%);
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
-  align-items: center;
-  .project-card {
-    width: 300px;
-    margin: 2%;
-    @media (min-width: $bp-xxsmall) {
-      width: between(300px, $bp-large/ 3, $bp-xxsmall, $bp-xlarge);
-    }
+  #port-header {
+    text-align: center;
+    background-color: $ACCENT_COLOR2;
+    color: $OFF_WHITE;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 1.8rem;
+  }
+  #port-hook {
+    width: 100vw;
+    min-height: 100vh;
+    background-color: $ACCENT_COLOR2;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
 
-    background-color: lighten(grey, 15%);
-    h1 {
-      font-weight: 100;
-      color: black;
-    }
-    #img {
-      margin: auto;
-      height: 200px;
-      width: 200px;
-      background-color: darken(grey, 10%);
-    }
-    .tech-container {
-      width: 100%;
-      height: 50px;
-      background-color: grey;
-      svg {
-        height: 50px;
+    .project-card {
+      box-shadow: 0px 13px 35px 1px rgba(0, 0, 0, 0.82);
+      width: 300px;
+      margin-top: 2%;
+      margin-bottom: 2%;
+      @media (min-width: $bp-xxsmall) {
+        width: between(300px, $bp-large/ 2.9, $bp-xxsmall, $bp-medium);
+      }
+
+      background-color: $OFF_WHITE;
+      h1 {
+        font-weight: 100;
+        text-align: center;
+        color: black;
+      }
+      .slider {
+        display: flex;
+        align-items: stretch;
+        overflow: hidden;
+        button {
+          position: relative;
+          outline: none;
+          background: $OFF_WHITE;
+          border: none;
+          text-align: center;
+          transition: opacity 300ms ease-out;
+          z-index: 99;
+          color: BLACK;
+        }
+        ul {
+          padding-left: 0;
+          list-style: none;
+          white-space: nowrap;
+          transition: transform 1s ease-in-out;
+          li {
+            display: inline-block;
+            vertical-align: top;
+            width: 100%;
+            img {
+              max-width: 100%;
+              max-height: 100%;
+            }
+          }
+        }
+      }
+      .tech-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid darken($OFF_WHITE, 15%);
+        svg {
+          margin-left: 1%;
+          margin-right: 1;
+          @media (min-width: $bp-xxsmall) {
+            height: between(25px, 50px, $bp-xxsmall, $bp-xlarge);
+            width: between(25px, 50px, $bp-xxsmall, $bp-xlarge);
+          }
+          height: 50px;
+          width: 50px;
+        }
+      }
+      .links {
+        text-align: center;
+        margin-bottom: 0;
+        a {
+          font-weight: 600;
+          color: $ACCENT_COLOR1;
+          transition: all 0.3s;
+
+          &:hover {
+            color: lighten($ACCENT_COLOR2, 15%);
+          }
+        }
+      }
+      .description {
+        color: black;
+        padding: 0.5rem;
       }
     }
   }
@@ -147,6 +282,16 @@ nav {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  background-color: $OFF_WHITE;
+  padding: 0.8rem;
+  p {
+    margin: 0.5rem auto;
+  }
+  .email {
+    font-style: italic;
+    color: $ACCENT_COLOR2;
+    font-weight: 600;
+  }
   ul {
     padding-left: 0;
     display: flex;
@@ -157,16 +302,26 @@ nav {
       a {
         text-decoration: none;
         font-size: 3rem;
-        color: white;
+        color: $ACCENT_COLOR2;
+        transition: all 0.3s;
+
+        &:hover {
+          color: lighten($ACCENT_COLOR2, 15%);
+        }
       }
     }
   }
 }
 
 footer {
-  background-color: darken(grey, 5);
+  background-color: $ACCENT_COLOR2;
+  color: $OFF_WHITE;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  height: 5rem;
+  p {
+    margin: 0.5rem;
+  }
 }
