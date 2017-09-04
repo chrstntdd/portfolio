@@ -148,7 +148,51 @@ const state = {
 d.addEventListener('DOMContentLoaded', event => {
   renderProjects(portfolioData);
   renderSliders();
+  const about = d.getElementById('about');
+  const port = d.getElementById('portfolio');
+  const contact = d.getElementById('contact');
+  const nav = d.getElementById('nav-id');
+
+  d.getElementById('about-link').onclick = e => {
+    e.preventDefault();
+    scrollTo(d.body, about.offsetTop, 300);
+  };
+  d.getElementById('portfolio-link').onclick = e => {
+    e.preventDefault();
+    scrollTo(d.body, port.offsetTop, 300);
+  };
+  d.getElementById('contact-link').onclick = e => {
+    e.preventDefault();
+    scrollTo(d.body, contact.offsetTop, 300);
+  };
+
+  window.onscroll = () => {
+    const scrollTop =
+      window.pageYOffset !== undefined
+        ? window.pageYOffset
+        : (document.documentElement ||
+            document.body.parentNode ||
+            document.body).scrollTop;
+
+    console.log(nav);
+    scrollTop > 120
+      ? (nav.className = 'nav-container sticky')
+      : (nav.className = 'nav-container');
+  };
 });
+
+const scrollTo = (element: HTMLElement, to: number, duration: number) => {
+  if (duration <= 0) return;
+  const difference = to - element.scrollTop;
+  const perTick = difference / duration * 10;
+
+  setTimeout(() => {
+    element.scrollTop = element.scrollTop + perTick;
+    if (element.scrollTop === to) return;
+    scrollTo(element, to, duration - 10);
+  }, 10);
+};
+
 const renderSliders = () => {
   const sliders = Array.from(d.getElementsByClassName('slider'));
 
