@@ -86,15 +86,9 @@ const portfolioData = [
     demo: 'https://obscure-island-83164.herokuapp.com/',
     repo: 'https://github.com/chrstntdd/vinyl-db',
     imageData: [
-<<<<<<< HEAD
       { src: './assets/vdb-ss-1-min.png', alt: 'desc' },
       { src: './assets/vdb-ss-2-min.png', alt: 'desc' },
       { src: './assets/vdb-ss-3-min.png', alt: 'desc' }
-=======
-      { src: '../assets/vdb-ss-1-min.png', alt: '' },
-      { src: '../assets/vdb-ss-2-min.png', alt: '' },
-      { src: '../assets/vdb-ss-3-min.png', alt: '' }
->>>>>>> master
     ],
     techStack: [
       techIcons.html5,
@@ -115,15 +109,9 @@ const portfolioData = [
     demo: 'https://chrstntdd.github.io/roaster-nexus/',
     repo: 'https://github.com/chrstntdd/roaster-nexus',
     imageData: [
-<<<<<<< HEAD
       { src: './assets/rn-ss-1-min.png', alt: 'des' },
       { src: './assets/rn-ss-2-min.png', alt: 'des' },
       { src: './assets/rn-ss-3-min.png', alt: 'des' }
-=======
-      { src: '../assets/rn-ss-1-min.png', alt: '' },
-      { src: '../assets/rn-ss-2-min.png', alt: '' },
-      { src: '../assets/rn-ss-3-min.png', alt: '' }
->>>>>>> master
     ],
     techStack: [
       techIcons.html5,
@@ -191,10 +179,6 @@ d.addEventListener('DOMContentLoaded', event => {
         : (document.documentElement ||
             document.body.parentNode ||
             document.body).scrollTop;
-<<<<<<< HEAD
-
-=======
->>>>>>> master
     scrollTop > 120
       ? (nav.className = 'nav-container sticky')
       : (nav.className = 'nav-container');
