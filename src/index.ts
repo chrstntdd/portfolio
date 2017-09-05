@@ -67,11 +67,11 @@ const portfolioData = [
       { src: '../assets/q3-ss-min.png', alt: '' }
     ],
     techStack: [
-      techIcons.javascript,
       techIcons.react,
       techIcons.redux,
       techIcons.jest,
       techIcons.sass,
+      techIcons.javascript,
       techIcons.typescript,
       techIcons.nodejs,
       techIcons.express,
@@ -79,26 +79,27 @@ const portfolioData = [
       techIcons.travisCI
     ],
     description:
-      'Full stack React/Redux application with separate API powered by the Best Buy API that allows users to organize product data into a table.'
+      'Full stack React/Redux application with standalone express API powered by the Best Buy API that allows users to scan and organize product data into a table.'
   },
   {
     title: 'VinylDB',
     demo: 'https://obscure-island-83164.herokuapp.com/',
     repo: 'https://github.com/chrstntdd/vinyl-db',
     imageData: [
-      { src: '../assets/vdb-ss-1-min.png', alt: 'desc' },
-      { src: '../assets/vdb-ss-2-min.png', alt: 'desc' },
-      { src: '../assets/vdb-ss-3-min.png', alt: 'desc' }
+      { src: '../assets/vdb-ss-1-min.png', alt: '' },
+      { src: '../assets/vdb-ss-2-min.png', alt: '' },
+      { src: '../assets/vdb-ss-3-min.png', alt: '' }
     ],
     techStack: [
-      techIcons.nodejs,
-      techIcons.express,
+      techIcons.html5,
       techIcons.sass,
       techIcons.javascript,
       techIcons.jquery,
-      techIcons.html5,
+      techIcons.nodejs,
+      techIcons.express,
       techIcons.mocha,
-      techIcons.mongo
+      techIcons.mongo,
+      techIcons.travisCI
     ],
     description:
       "Full stack Javascript web application utilizing the Discogs API to manage/track user's vinyl collection."
@@ -108,18 +109,18 @@ const portfolioData = [
     demo: 'https://chrstntdd.github.io/roaster-nexus/',
     repo: 'https://github.com/chrstntdd/roaster-nexus',
     imageData: [
-      { src: '../assets/rn-ss-1-min.png', alt: 'des' },
-      { src: '../assets/rn-ss-2-min.png', alt: 'des' },
-      { src: '../assets/rn-ss-3-min.png', alt: 'des' }
+      { src: '../assets/rn-ss-1-min.png', alt: '' },
+      { src: '../assets/rn-ss-2-min.png', alt: '' },
+      { src: '../assets/rn-ss-3-min.png', alt: '' }
     ],
     techStack: [
-      techIcons.google,
+      techIcons.html5,
       techIcons.sass,
       techIcons.jquery,
-      techIcons.html5
+      techIcons.google
     ],
     description:
-      'Web app powered by the Google Maps API and Jquery that connects users with local coffee roasters.'
+      'Web app powered by the Google Maps API and jQuery that connects users with local coffee roasters.'
   }
 ];
 
@@ -144,15 +145,19 @@ const state = {
   slider1: 0,
   slider2: 0
 };
+
 /* $document.ready */
 d.addEventListener('DOMContentLoaded', event => {
   renderProjects(portfolioData);
   renderSliders();
+
+  /* grab pertinent elements */
   const about = d.getElementById('about');
   const port = d.getElementById('portfolio');
   const contact = d.getElementById('contact');
   const nav = d.getElementById('nav-id');
 
+  /* Attach onClick handlers to each link for scrollTo feature */
   d.getElementById('about-link').onclick = e => {
     e.preventDefault();
     scrollTo(d.body, about.offsetTop, 300);
@@ -166,6 +171,7 @@ d.addEventListener('DOMContentLoaded', event => {
     scrollTo(d.body, contact.offsetTop, 300);
   };
 
+  /* check for when to show navigation */
   window.onscroll = () => {
     const scrollTop =
       window.pageYOffset !== undefined
@@ -173,14 +179,13 @@ d.addEventListener('DOMContentLoaded', event => {
         : (document.documentElement ||
             document.body.parentNode ||
             document.body).scrollTop;
-
-    console.log(nav);
     scrollTop > 120
       ? (nav.className = 'nav-container sticky')
       : (nav.className = 'nav-container');
   };
 });
 
+/* Utility scroll to function */
 const scrollTo = (element: HTMLElement, to: number, duration: number) => {
   if (duration <= 0) return;
   const difference = to - element.scrollTop;
@@ -193,7 +198,8 @@ const scrollTo = (element: HTMLElement, to: number, duration: number) => {
   }, 10);
 };
 
-const renderSliders = () => {
+/* Renders the sliders into the DOM */
+const renderSliders = (): void => {
   const sliders = Array.from(d.getElementsByClassName('slider'));
 
   sliders.forEach(slider => {
@@ -202,45 +208,55 @@ const renderSliders = () => {
     Array.from(buttons).forEach((button, i) => {
       i === 0
         ? button.addEventListener('click', e => {
-            const buttonId = e.target.id;
-            const stateKey = `slider${Number(buttonId.match(/\d/)[0])}`;
+            if (e.srcElement.tagName !== 'BUTTON') {
+              return;
+            } else {
+              const buttonId = e.target.id;
+              const stateKey = `slider${Number(buttonId.match(/\d/)[0])}`;
 
-            prevThumb(button.id, state[stateKey]);
+              prevThumb(button.id, state[stateKey]);
+            }
           })
         : button.addEventListener('click', e => {
-            const buttonId = e.target.id;
-            const stateKey = `slider${Number(buttonId.match(/\d/)[0])}`;
+            if (e.srcElement.tagName !== 'BUTTON') {
+              return;
+            } else {
+              const buttonId = e.target.id;
+              const stateKey = `slider${Number(buttonId.match(/\d/)[0])}`;
 
-            nextThumb(button.id, state[stateKey]);
+              nextThumb(button.id, state[stateKey]);
+            }
           });
     });
   });
-  const setTransform = (imgThumbList, nextIndex) => {
-    imgThumbList.style['transform'] = `translate3d(${-(
-      nextIndex * imgThumbList.offsetWidth
+
+  /* animates the image */
+  const setTransform = (el: HTMLElement, nextIndex: number) => {
+    el.style['transform'] = `translate3d(${-(
+      nextIndex * el.offsetWidth
     )}px, 0 , 0)`;
   };
 
-  /* Increment current slider's index of visible picture */
-  const nextThumb = (buttonId: string, currentIndex: number) => {
+  /* Increment current slider's index of visible picture and call to setTransform animation */
+  const nextThumb = (buttonId: string, currentIndex: number): void => {
     const btnIndex = buttonId.match(/\d/)[0];
     const nextIndex = currentIndex + 1;
     const pos = Math.min(nextIndex, 2);
     state[`slider${btnIndex}`] = pos;
 
-    const c = d.getElementById(`imgThumbList${btnIndex}`);
-    setTransform(c, pos);
+    const list = d.getElementById(`imgThumbList${btnIndex}`);
+    setTransform(list, pos);
   };
 
-  /* Decrement current slider's index of visible picture */
-  const prevThumb = (buttonId: string, currentIndex: number) => {
+  /* Decrement current slider's index of visible picture and call to setTransform animation */
+  const prevThumb = (buttonId: string, currentIndex: number): void => {
     const btnIndex = buttonId.match(/\d/)[0];
     const nextIndex = currentIndex - 1;
     const pos = Math.max(nextIndex, 0);
     state[`slider${btnIndex}`] = pos;
 
-    const c = d.getElementById(`imgThumbList${btnIndex}`);
-    setTransform(c, pos);
+    const list = d.getElementById(`imgThumbList${btnIndex}`);
+    setTransform(list, pos);
   };
 };
 
@@ -248,21 +264,23 @@ const genImgTags = (imgData: ImageData[]): string[] => {
   return imgData.map(img => `<img src=${img.src} alt=${img.alt}/>`);
 };
 
+/* returns html string of the image slider */
 const genImageSlider = (imageTags: string[], i: number): string => {
   /* wrap image tags in list element */
   const listImages = imageTags.map(imgTag => `<li>${imgTag}</li>`);
 
   const sliderTemp = `
   <div class='slider' id='sliderId${i}'>
-  <button id='nextBtn${i}'><<</button>
+  <button id='nextBtn${i}'><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
   <ul id='imgThumbList${i}'>${listImages.join('')}</ul>
-  <button id='prevBtn${i}'>>></button>
+  <button id='prevBtn${i}'><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
   </div>
   `;
 
   return sliderTemp;
 };
 
+/* returns html for a single project card */
 const createProjectCard = (project: Project, i: number): string => {
   const { title, imageData, techStack, description, demo, repo } = project;
 

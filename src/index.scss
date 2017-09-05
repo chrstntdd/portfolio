@@ -107,7 +107,7 @@ header {
 }
 
 .nav-container {
-  box-shadow: 0px 3px 35px 1px rgba(0, 0, 0, 0.82);
+  box-shadow: 0px 1px 20px 1px rgba(0, 0, 0, 0.82);
   position: fixed;
   top: 0px;
   max-height: 70px;
@@ -119,23 +119,6 @@ header {
   transition: all 0.3s;
   opacity: 0;
   padding: 0;
-  .mobile-toggle {
-    display: none;
-    cursor: pointer;
-    font-size: 20px;
-    position: absolute;
-    right: 22px;
-    top: 0;
-    width: 30px;
-    -webkit-transition: all 200ms ease-in;
-    -moz-transition: all 200ms ease-in;
-    transition: all 200ms ease-in;
-  }
-  @media only screen and (max-width: 766px) {
-    .mobile-toggle {
-      display: block;
-    }
-  }
   nav {
     ul {
       margin: 0;
@@ -214,6 +197,7 @@ header {
         align-items: stretch;
         overflow: hidden;
         button {
+          cursor: pointer;
           position: relative;
           outline: none;
           background: $OFF_WHITE;
@@ -301,10 +285,10 @@ header {
       list-style: none;
       a {
         text-decoration: none;
-        font-size: 3rem;
+        font-size: 2.5rem;
         color: $ACCENT_COLOR2;
         transition: all 0.3s;
-
+        margin-bottom: 0;
         &:hover {
           color: lighten($ACCENT_COLOR2, 15%);
         }
