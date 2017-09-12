@@ -1,10 +1,9 @@
 import './index.scss';
 
+const d = document;
+const body = document.body;
 /* $document.ready */
 d.addEventListener('DOMContentLoaded', event => {
-  const d = document;
-  const body = document.body;
-
   const state = {
     slider0: 0,
     slider1: 0,
