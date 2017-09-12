@@ -9,6 +9,8 @@ const {
   Sparky
 } = require('fuse-box');
 
+const outDir = 'dist';
+
 let fuse,
   app,
   vendor,
@@ -17,7 +19,7 @@ let fuse,
 Sparky.task('config', () => {
   fuse = new FuseBox({
     homeDir: 'src/',
-    output: 'docs/$name.js',
+    output: `${outDir}/$name.js`,
     log: true,
     experimentalFeatures: true,
     target: 'browser',
@@ -33,12 +35,12 @@ Sparky.task('config', () => {
         }),
         CSSResourcePlugin({ inline: true }),
         CSSPlugin({
-          outFile: file => `./docs/${file}`
+          outFile: file => `./${outDir}/${file}`
         })
       ],
       WebIndexPlugin({
         template: 'src/index.html',
-        title: 'Christian Todd'
+        title: 'Christian Todd | Web Developer'
       }),
       isProduction &&
         QuantumPlugin({
@@ -57,15 +59,17 @@ Sparky.task('config', () => {
 });
 
 Sparky.task('default', ['clean', 'config', 'copy-assets'], () => {
-  fuse.dev({ root: './docs' });
+  fuse.dev({ root: `./${outDir}` });
   app.watch();
   app.hmr();
   return fuse.run();
 });
 
-Sparky.task('copy-assets', () => Sparky.src('./assets/**/*.**').dest('./docs'));
+Sparky.task('copy-assets', () =>
+  Sparky.src(`./assets/**/*.**`).dest(`./${outDir}`)
+);
 
-Sparky.task('clean', () => Sparky.src('docs/*').clean('docs/'));
+Sparky.task('clean', () => Sparky.src(`${outDir}/*`).clean(`${outDir}/`));
 Sparky.task('prod-env', ['clean'], () => {
   isProduction = true;
 });
