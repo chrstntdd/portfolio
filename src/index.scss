@@ -149,17 +149,19 @@ header {
   flex-direction: column;
   align-items: center;
   color: black;
+  padding: 5%;
   p {
     margin: 0 auto;
-    @media (min-width: $bp-xxsmall) {
-      line-height: 1.95;
-      width: between(310px, 720px, $bp-xxsmall, $bp-large);
+    line-height: 1.95;
+    @media (min-width: $bp-medium) {
+      width: between(310px, 720px, $bp-medium, $bp-large);
     }
   }
   h1 {
     text-transform: uppercase;
   }
 }
+
 #portfolio {
   #port-header {
     text-align: center;
@@ -170,22 +172,23 @@ header {
     padding: 1.8rem;
   }
   #port-hook {
-    width: 100vw;
-    min-height: 100vh;
+    @media (min-width: $bp-xxsmall) {
+      padding-left: between(10px, 15px, $bp-xxsmall, $bp-xlarge);
+      padding-right: between(10px, 15px, $bp-xxsmall, $bp-xlarge);
+      padding-bottom: between(10px, 15px, $bp-xxsmall, $bp-xlarge);
+    }
     background-color: $ACCENT_COLOR2;
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
-
+    align-items: baseline;
     .project-card {
       box-shadow: 0px 13px 35px 1px rgba(0, 0, 0, 0.82);
       width: 300px;
-      margin-top: 2%;
-      margin-bottom: 2%;
+      margin-bottom: 5%;
       @media (min-width: $bp-xxsmall) {
-        width: between(300px, $bp-large/ 2.9, $bp-xxsmall, $bp-medium);
+        width: between(300px, 640px, $bp-xxsmall, $bp-xlarge);
       }
-
       background-color: $OFF_WHITE;
       h1 {
         font-weight: 100;
@@ -193,6 +196,7 @@ header {
         color: black;
       }
       .slider {
+        max-width: 100%;
         display: flex;
         align-items: stretch;
         overflow: hidden;
@@ -225,19 +229,25 @@ header {
       }
       .tech-container {
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
         width: 100%;
         padding-bottom: 0.5rem;
         border-bottom: 2px solid darken($OFF_WHITE, 15%);
         svg {
           margin-left: 1%;
-          margin-right: 1;
+          margin-right: 1%;
+          height: 25px;
+          width: 25px;
+
           @media (min-width: $bp-xxsmall) {
-            height: between(25px, 50px, $bp-xxsmall, $bp-xlarge);
-            width: between(25px, 50px, $bp-xxsmall, $bp-xlarge);
+            height: between(25px, 50px, 320px, $bp-xlarge);
+            width: between(25px, 50px, 320px, $bp-xlarge);
           }
-          height: 50px;
-          width: 50px;
+          @media (min-wdith: $bp-medium) {
+            height: 50px;
+            width: 50px;
+          }
         }
       }
       .links {
@@ -255,7 +265,7 @@ header {
       }
       .description {
         color: black;
-        padding: 0.5rem;
+        padding: 0.8rem;
       }
     }
   }

@@ -139,6 +139,7 @@ interface ImageData {
 }
 
 const d = document;
+const body = document.body;
 
 const state = {
   slider0: 0,
@@ -150,7 +151,6 @@ const state = {
 d.addEventListener('DOMContentLoaded', event => {
   renderProjects(portfolioData);
   renderSliders();
-
   /* grab pertinent elements */
   const about = d.getElementById('about');
   const port = d.getElementById('portfolio');
@@ -160,15 +160,15 @@ d.addEventListener('DOMContentLoaded', event => {
   /* Attach onClick handlers to each link for scrollTo feature */
   d.getElementById('about-link').onclick = e => {
     e.preventDefault();
-    scrollTo(d.body, about.offsetTop, 300);
+    scrollTo(d.body, about.offsetTop, 450);
   };
   d.getElementById('portfolio-link').onclick = e => {
     e.preventDefault();
-    scrollTo(d.body, port.offsetTop, 300);
+    scrollTo(d.body, port.offsetTop - 50, 450);
   };
   d.getElementById('contact-link').onclick = e => {
     e.preventDefault();
-    scrollTo(d.body, contact.offsetTop, 300);
+    scrollTo(d.body, contact.offsetTop, 450);
   };
 
   /* check for when to show navigation */
@@ -187,15 +187,30 @@ d.addEventListener('DOMContentLoaded', event => {
 
 /* Utility scroll to function */
 const scrollTo = (element: HTMLElement, to: number, duration: number) => {
-  if (duration <= 0) return;
-  const difference = to - element.scrollTop;
-  const perTick = difference / duration * 10;
+  const start = element.scrollTop;
+  const change = to - start;
+  const increment = 20;
+  let timeOut;
 
-  setTimeout(() => {
-    element.scrollTop = element.scrollTop + perTick;
-    if (element.scrollTop === to) return;
-    scrollTo(element, to, duration - 10);
-  }, 10);
+  const animateScroll = elapsedTime => {
+    elapsedTime += increment;
+    const position = easeInOut(elapsedTime, start, change, duration);
+    element.scrollTop = position;
+    if (elapsedTime < duration) {
+      timeOut = setTimeout(() => animateScroll(elapsedTime), increment);
+    }
+  };
+
+  animateScroll(0);
+};
+
+const easeInOut = (currentTime, start, change, duration) => {
+  currentTime /= duration / 2;
+  if (currentTime < 1) {
+    return change / 2 * currentTime * currentTime + start;
+  }
+  currentTime -= 1;
+  return -change / 2 * (currentTime * (currentTime - 2) - 1) + start;
 };
 
 /* Renders the sliders into the DOM */
@@ -271,9 +286,9 @@ const genImageSlider = (imageTags: string[], i: number): string => {
 
   const sliderTemp = `
   <div class='slider' id='sliderId${i}'>
-  <button id='nextBtn${i}'><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
+  <button id='nextBtn${i}'>⇐</i></button>
   <ul id='imgThumbList${i}'>${listImages.join('')}</ul>
-  <button id='prevBtn${i}'><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+  <button id='prevBtn${i}'>⇒</i></button>
   </div>
   `;
 
