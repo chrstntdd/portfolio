@@ -2,13 +2,13 @@ import './index.scss';
 
 const d = document;
 const body = document.body;
+const state = {
+  slider0: 0,
+  slider1: 0,
+  slider2: 0
+};
 /* $document.ready */
 d.addEventListener('DOMContentLoaded', event => {
-  const state = {
-    slider0: 0,
-    slider1: 0,
-    slider2: 0
-  };
   attachSliderHandlers();
   /* grab pertinent elements */
   const about = d.getElementById('about');
@@ -43,7 +43,6 @@ d.addEventListener('DOMContentLoaded', event => {
       : (nav.className = 'nav-container');
   };
 });
-
 /* Utility scroll to function */
 const scrollTo = (element: HTMLElement, to: number, duration: number) => {
   const start = element.scrollTop;
