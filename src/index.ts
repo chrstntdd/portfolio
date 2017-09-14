@@ -8,7 +8,6 @@ const portfolioAppState = {
 
 /* $document.ready */
 document.addEventListener('DOMContentLoaded', event => {
-  attachSliderHandlers();
   /* grab pertinent elements */
   const about = document.getElementById('about');
   const port = document.getElementById('portfolio');
@@ -71,64 +70,66 @@ const easeInOut = (currentTime, start, change, duration) => {
   return -change / 2 * (currentTime * (currentTime - 2) - 1) + start;
 };
 
-/* Renders the sliders into the DOM */
-const attachSliderHandlers = (): void => {
-  const sliders = Array.from(document.getElementsByClassName('slider'));
+/* No more animated slider :( */
 
-  sliders.forEach(slider => {
-    const buttons = slider.getElementsByTagName('button');
+// /* Renders the sliders into the DOM */
+// const attachSliderHandlers = (): void => {
+//   const sliders = Array.from(document.getElementsByClassName('slider'));
 
-    Array.from(buttons).forEach((button, i) => {
-      i === 0
-        ? button.addEventListener('click', e => {
-            if (e.srcElement.tagName !== 'BUTTON') {
-              return;
-            } else {
-              const buttonId = e.target.id;
-              const stateKey = `slider${Number(buttonId.match(/\d/)[0])}`;
+//   sliders.forEach(slider => {
+//     const buttons = slider.getElementsByTagName('button');
 
-              prevThumb(button.id, portfolioAppState[stateKey]);
-            }
-          })
-        : button.addEventListener('click', e => {
-            if (e.srcElement.tagName !== 'BUTTON') {
-              return;
-            } else {
-              const buttonId = e.target.id;
-              const stateKey = `slider${Number(buttonId.match(/\d/)[0])}`;
+//     Array.from(buttons).forEach((button, i) => {
+//       i === 0
+//         ? button.addEventListener('click', e => {
+//             if (e.srcElement.tagName !== 'BUTTON') {
+//               return;
+//             } else {
+//               const buttonId = e.target.id;
+//               const stateKey = `slider${Number(buttonId.match(/\d/)[0])}`;
 
-              nextThumb(button.id, portfolioAppState[stateKey]);
-            }
-          });
-    });
-  });
+//               prevThumb(button.id, portfolioAppState[stateKey]);
+//             }
+//           })
+//         : button.addEventListener('click', e => {
+//             if (e.srcElement.tagName !== 'BUTTON') {
+//               return;
+//             } else {
+//               const buttonId = e.target.id;
+//               const stateKey = `slider${Number(buttonId.match(/\d/)[0])}`;
 
-  /* animates the image */
-  const setTransform = (el: HTMLElement, nextIndex: number) => {
-    el.style['transform'] = `translate3d(${-(
-      nextIndex * el.offsetWidth
-    )}px, 0 , 0)`;
-  };
+//               nextThumb(button.id, portfolioAppState[stateKey]);
+//             }
+//           });
+//     });
+//   });
 
-  /* Increment current slider's index of visible picture and call to setTransform animation */
-  const nextThumb = (buttonId: string, currentIndex: number): void => {
-    const btnIndex = buttonId.match(/\d/)[0];
-    const nextIndex = currentIndex + 1;
-    const pos = Math.min(nextIndex, 2);
-    portfolioAppState[`slider${btnIndex}`] = pos;
+//   /* animates the image */
+//   const setTransform = (el: HTMLElement, nextIndex: number) => {
+//     el.style['transform'] = `translate3d(${-(
+//       nextIndex * el.offsetWidth
+//     )}px, 0 , 0)`;
+//   };
 
-    const list = document.getElementById(`imgThumbList${btnIndex}`);
-    setTransform(list, pos);
-  };
+//   /* Increment current slider's index of visible picture and call to setTransform animation */
+//   const nextThumb = (buttonId: string, currentIndex: number): void => {
+//     const btnIndex = buttonId.match(/\d/)[0];
+//     const nextIndex = currentIndex + 1;
+//     const pos = Math.min(nextIndex, 2);
+//     portfolioAppState[`slider${btnIndex}`] = pos;
 
-  /* Decrement current slider's index of visible picture and call to setTransform animation */
-  const prevThumb = (buttonId: string, currentIndex: number): void => {
-    const btnIndex = buttonId.match(/\d/)[0];
-    const nextIndex = currentIndex - 1;
-    const pos = Math.max(nextIndex, 0);
-    portfolioAppState[`slider${btnIndex}`] = pos;
+//     const list = document.getElementById(`imgThumbList${btnIndex}`);
+//     setTransform(list, pos);
+//   };
 
-    const list = document.getElementById(`imgThumbList${btnIndex}`);
-    setTransform(list, pos);
-  };
-};
+//   /* Decrement current slider's index of visible picture and call to setTransform animation */
+//   const prevThumb = (buttonId: string, currentIndex: number): void => {
+//     const btnIndex = buttonId.match(/\d/)[0];
+//     const nextIndex = currentIndex - 1;
+//     const pos = Math.max(nextIndex, 0);
+//     portfolioAppState[`slider${btnIndex}`] = pos;
+
+//     const list = document.getElementById(`imgThumbList${btnIndex}`);
+//     setTransform(list, pos);
+//   };
+// };

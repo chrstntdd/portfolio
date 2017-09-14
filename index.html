@@ -61,7 +61,7 @@
     <section id="about">
       <div id="about-container">
         <h1>About me</h1>
-        <img src="assets/portrait.jpg" alt="portrait">
+        <img src="./assets/portrait.jpg" alt="portrait">
         <p>Hi, my name is Christian. I first got introduced to code as a college student studying mechanical engineering. From
           there it ignited a unforseen passion that has continually driven me to explore the exciting and ever expanding
           world of programming. I was drawn to web development because of how accessible and vast the landscape is - there's
@@ -75,15 +75,11 @@
       <div id='quantified' class="project-card">
         <h1>Quantified</h1>
 
-        <div class="slider" id="sliderId0">
-          <button id="nextBtn0">⇦</button>
-          <ul id="imgThumbList0">
-            <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/q1-ss-min.png" alt="/"></li>
-            <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/q2-ss-min.png" alt="/"></li>
-            <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/q3-ss-min.png" alt="/"></li>
-          </ul>
-          <button id="prevBtn0">⇨</button>
-        </div>
+        <ul class="proj-thumbnails">
+          <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/q1-ss-min.png" alt="/"></li>
+          <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/q2-ss-min.png" alt="/"></li>
+          <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/q3-ss-min.png" alt="/"></li>
+        </ul>
 
         <div class="tech-container">
           <h4>Technology</h4>
@@ -109,15 +105,11 @@
       <div id='vinyl-db' class="project-card">
         <h1>VinylDB</h1>
 
-        <div class="slider" id="sliderId1">
-          <button id="nextBtn1">⇦</button>
-          <ul id="imgThumbList1">
-            <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/vdb-ss-1-min.png" alt="desc/"></li>
-            <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/vdb-ss-2-min.png" alt="desc/"></li>
-            <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/vdb-ss-3-min.png" alt="desc/"></li>
-          </ul>
-          <button id="prevBtn1">⇨</button>
-        </div>
+        <ul class="proj-thumbnails">
+          <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/vdb-ss-1-min.png" alt="desc/"></li>
+          <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/vdb-ss-2-min.png" alt="desc/"></li>
+          <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/vdb-ss-3-min.png" alt="desc/"></li>
+        </ul>
 
         <div class="tech-container">
           <h4>Technology</h4>
@@ -125,16 +117,16 @@
             <li>HTML5</li>
             <li>PUG</li>
             <li>SCSS / CSS</li>
-            <li>Javascript & jQuery</li>
-            <li>NodeJS & Express</li>
-            <li>Mocha w/ Chai</li>
+            <li>Javascript / jQuery</li>
+            <li>NodeJS / Express</li>
+            <li>Mocha / Chai</li>
             <li>MongoDB / Mongoose</li>
             <li>TravisCI</li>
           </ul>
 
         </div>
         <p class="links"> <a href="https://github.com/chrstntdd/vinyl-db">Repo</a> | <a href="https://obscure-island-83164.herokuapp.com/">Demo</a>          </p>
-        <p class="description">Server side Javascript web application utilizing the Discogs API. VinylDB tracks, manages, and organizes user's Vinyl
+        <p class="description">Server side Javascript web application utilizing the Discogs API. VinylDB tracks, manages, and organizes user's vinyl
           collection so that no matter how far away they are from their collection, they will know exactly what they already
           own.
         </p>
@@ -143,15 +135,11 @@
       <div id='roaster-nexus' class="project-card">
         <h1>Roaster Nexus</h1>
 
-        <div class="slider" id="sliderId2">
-          <button id="nextBtn2">⇦</button>
-          <ul id="imgThumbList2">
-            <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/rn-ss-1-min.png" alt="des/"></li>
-            <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/rn-ss-2-min.png" alt="des/"></li>
-            <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/rn-ss-3-min.png" alt="des/"></li>
-          </ul>
-          <button id="prevBtn2">⇨</button>
-        </div>
+        <ul class="proj-thumbnails">
+          <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/rn-ss-1-min.png" alt="des/"></li>
+          <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/rn-ss-2-min.png" alt="des/"></li>
+          <li><img src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' data-src="./assets/rn-ss-3-min.png" alt="des/"></li>
+        </ul>
 
         <div class="tech-container">
           <h4>Technology</h4>
@@ -206,7 +194,7 @@
   window.onload = init;
 
 </script>
-<script defer type="text/javascript" src="a321a11d-vendor.js"></script>
-<script defer type="text/javascript" src="54246e17-app.js"></script>
+<script defer type="text/javascript" src="./a321a11d-vendor.js"></script>
+<script defer type="text/javascript" src="./fa8f7975-app.js"></script>
 
 </html>

@@ -44,7 +44,7 @@ html,
 body {
   font-family: Helvetica;
   overflow-x: hidden;
-  background-color: #f2f2f2;
+  background-color: $DARK_BG_COLOR;
 }
 
 html {
@@ -201,24 +201,20 @@ header {
       GradientType=0
     );
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
-  grid-gap: 1.5rem;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 1.2rem;
   #port-header {
-    grid-column: auto / span 2;
+    grid-column: auto / span 3;
     text-align: center;
     color: darken($OFF_WHITE, 70%);
     text-transform: uppercase;
     font-weight: 100;
     font-size: 2.2rem;
   }
-  #quantified {
-    align-self: center;
-    grid-column: auto / span 2;
-  }
 
   .project-card {
-    @media (max-width: $bp-small) {
-      grid-column: auto / span 2;
+    @media (max-width: $bp-medium) {
+      grid-column: auto / span 3;
     }
     box-shadow: 0px 13px 35px 1px rgba(0, 0, 0, 0.82);
     background-color: $OFF_WHITE;
@@ -230,41 +226,25 @@ header {
       text-align: center;
       color: black;
     }
-    .slider {
-      max-width: 100%;
+
+    ul {
+      width: 100%;
+      padding-left: 0;
+      list-style: none;
       display: flex;
-      align-items: stretch;
-      overflow: hidden;
-      button {
-        text-transform: uppercase;
-        font-size: 1.5rem;
-        cursor: pointer;
-        position: relative;
-        outline: none;
-        background: $OFF_WHITE;
-        border: none;
-        text-align: center;
-        transition: opacity 300ms ease-out;
-        z-index: 99;
-        color: BLACK;
-      }
-      ul {
-        padding-left: 0;
-        list-style: none;
-        white-space: nowrap;
-        transition: transform 1s ease-in-out;
-        li {
-          display: inline-block;
-          vertical-align: top;
-          width: 100%;
-          img {
-            vertical-align: top;
-            max-width: 100%;
-            max-height: 100%;
-          }
+      flex-flow: row wrap;
+      justify-content: center;
+      li {
+        padding: 1%;
+        width: 90%;
+
+        img {
+          max-width: 100%;
+          max-height: 100%;
         }
       }
     }
+
     .tech-container {
       width: 100%;
       border-bottom: 2px solid darken($OFF_WHITE, 15%);
@@ -282,6 +262,8 @@ header {
         li {
           list-style: none;
           justify-self: center;
+          align-self: center;
+          text-align: center;
         }
       }
     }
@@ -305,6 +287,7 @@ header {
       text-align: center;
       max-width: 960px;
       line-height: 1.8rem;
+      align-self: flex-end;
       a {
         color: darken($OFF_WHITE, 40%);
 
