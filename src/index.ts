@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', event => {
   /* Attach onClick handlers to each link for scrollTo feature */
   document.getElementById('about-link').onclick = e => {
     e.preventDefault();
-    scrollTo(document.body, about.offsetTop, 450);
+    scrollTo(document.body, about.offsetTop - 50, 450);
   };
   document.getElementById('portfolio-link').onclick = e => {
     e.preventDefault();
