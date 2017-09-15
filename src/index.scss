@@ -120,7 +120,7 @@ header {
   box-shadow: 0px 1px 20px 1px rgba(0, 0, 0, 0.82);
   position: fixed;
   top: 0px;
-  max-height: 70px;
+  max-height: 80px;
   z-index: 999;
   width: 100%;
   padding-top: 17px;
@@ -130,15 +130,31 @@ header {
   opacity: 0;
   padding: 0;
   nav {
+    background-color: $DARK_BG_COLOR;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    height: auto;
+    svg {
+      margin-left: 1%;
+      @media (min-width: $bp-xsmall) {
+        height: between(50px, 80px, $bp-xsmall, $bp-xlarge);
+        width: between(50px, 80px, $bp-xsmall, $bp-xlarge);
+      }
+
+      height: 50px;
+      width: 50px;
+    }
     ul {
-      margin: 0;
-      background-color: darken(#2c2c34, 10%);
-      padding: 1.2rem;
       padding-left: 0;
-      display: flex;
-      justify-content: flex-end;
+      margin-right: 1.5%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr;
+      grid-gap: 1rem;
       li {
-        margin: 0 2%;
+        text-align: center;
         list-style: none;
         a {
           text-decoration: none;
