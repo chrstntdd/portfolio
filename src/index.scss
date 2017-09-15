@@ -55,6 +55,19 @@ html {
  * Here lies all of the styles for the page
  */
 
+.fadeOut {
+  animation: fadeOut 2.5s ease-out;
+  animation-fill-mode: forwards;
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}
+
 header {
   display: flex;
   align-items: center;
@@ -73,6 +86,18 @@ header {
     left: 50%;
     top: 50%;
     transform: translate(-50%, 320%);
+    animation: pulse 2s infinite;
+    @keyframes pulse {
+      0% {
+        fill: $OFF_WHITE;
+      }
+      50% {
+        fill: darken($OFF_WHITE, 50%);
+      }
+      100% {
+        fill: $OFF_WHITE;
+      }
+    }
   }
   #hero-img {
     background-color: lighten(grey, 25%);
@@ -126,7 +151,7 @@ header {
   padding-top: 17px;
   background: none;
   overflow: hidden;
-  transition: all 0.3s;
+  transition: all 0.5s;
   opacity: 0;
   padding: 0;
   nav {

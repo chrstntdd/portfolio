@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', event => {
   const port = document.getElementById('portfolio');
   const contact = document.getElementById('contact');
   const nav = document.getElementById('nav-id');
+  const downArrow = document.getElementById('down-arrow');
 
   /* Attach onClick handlers to each link for scrollTo feature */
   document.getElementById('about-link').onclick = e => {
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', event => {
 
   /* check for when to show navigation */
   window.onscroll = () => {
+    const scrollPos = document.getElementsByTagName('body')[0].scrollTop;
     const scrollTop =
       window.pageYOffset !== undefined
         ? window.pageYOffset
@@ -39,6 +41,10 @@ document.addEventListener('DOMContentLoaded', event => {
     scrollTop > 120
       ? (nav.className = 'nav-container sticky')
       : (nav.className = 'nav-container');
+
+    downArrow.getBoundingClientRect().top < scrollTop
+      ? (downArrow.classList = 'fadeOut')
+      : (downArrow.classList = '');
   };
 });
 
