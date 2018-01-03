@@ -1,4 +1,5 @@
 @import '../node_modules/tachyons/css/tachyons.min';
+@import '../node_modules/font-awesome/css/font-awesome.min';
 
 /* UTILITIES */
 @function between($to, $from, $toWidth, $fromWidth) {
@@ -106,7 +107,7 @@ header {
         rgba(0, 0, 0, 0),
         rgba(0, 0, 0, 0.6)
       ),
-      url('../assets/samuel-zeller-34751-min.jpg');
+      url('./assets/samuel-zeller-34751-min.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -115,7 +116,7 @@ header {
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 0;
+    z-index: -1;
   }
   #hero-text {
     z-index: 10;
@@ -240,104 +241,107 @@ header {
       endColorstr='#14161e',
       GradientType=0
     );
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-gap: 1.2rem;
+  display: flex;
+  flex-direction: column;
   #port-header {
-    grid-column: auto / span 3;
     text-align: center;
     color: darken($OFF_WHITE, 70%);
     text-transform: uppercase;
     font-weight: 100;
     font-size: 2.2rem;
+    width: 100%;
   }
-
-  .project-card {
-    @media (max-width: $bp-medium) {
-      grid-column: auto / span 3;
-    }
-    box-shadow: 0px 13px 35px 1px rgba(0, 0, 0, 0.82);
-    background-color: $OFF_WHITE;
+  
+  #project-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    h1 {
-      font-weight: 100;
-      text-align: center;
-      color: black;
+    justify-content: center;
+    @media(max-width: $bp-small){
+      flex-wrap: wrap;
     }
-
-    ul {
-      width: 100%;
-      padding-left: 0;
-      list-style: none;
+    .project-card {
+      width: between(300px, 600px, $bp-xxsmall, $bp-xlarge);
+      @media(max-width: $bp-xsmall ){
+        flex-wrap: wrap;
+      }
+      margin: 0.5rem;
+      box-shadow: 0px 13px 35px 1px rgba(0, 0, 0, 0.82);
+      background-color: $OFF_WHITE;
       display: flex;
-      flex-flow: row wrap;
-      justify-content: center;
-      li {
-        padding: 1%;
-        width: 90%;
-        img {
-          max-width: 100%;
-          max-height: 100%;
-          box-shadow: 0px 13px 35px 1px rgba(0, 0, 0, 0.82);
+      flex-direction: column;
+      align-items: center;
+      h1 {
+        font-weight: 100;
+        text-align: center;
+        color: black;
+      }
+  
+      ul {
+        width: 100%;
+        padding-left: 0;
+        list-style: none;
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        li {
+          padding: 1%;
+          width: 90%;
+          img {
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: 0px 13px 35px 1px rgba(0, 0, 0, 0.82);
+          }
         }
       }
-    }
-
-    .tech-container {
-      width: 100%;
-      border-bottom: 2px solid darken($OFF_WHITE, 15%);
-      h4 {
-        text-align: center;
-      }
-      ul {
-        padding-left: 1%;
-        padding-right: 2%;
-        margin-bottom: 0, 0, 0.5rem, 0;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: repeat(auto-fill, minmax(50%, 1fr));
-        grid-gap: 0.5rem;
-        li {
-          list-style: none;
-          justify-self: center;
-          align-self: center;
+  
+      .tech-container {
+        width: 100%;
+        border-bottom: 2px solid darken($OFF_WHITE, 15%);
+        h4 {
           text-align: center;
         }
-      }
-    }
-    .links {
-      text-align: center;
-      margin-bottom: 0;
-      a {
-        text-transform: uppercase;
-        font-weight: 600;
-        color: darken($OFF_WHITE, 40%);
-        transition: all 0.5s;
-        text-decoration: none;
-        &:hover {
-          color: darken($OFF_WHITE, 60%);
+        ul {
+         display: flex;
+         flex-wrap: wrap;
+          li {
+            list-style: none;
+            text-align: center;
+            width: 50%;
+          }
         }
       }
-    }
-    .description {
-      color: black;
-      padding: 0.8rem;
-      text-align: center;
-      max-width: 960px;
-      line-height: 1.8rem;
-      align-self: flex-end;
-      a {
-        color: darken($OFF_WHITE, 40%);
-
-        text-decoration: none;
-        &:hover {
-          color: darken($OFF_WHITE, 60%);
+      .links {
+        text-align: center;
+        margin-bottom: 0;
+        a {
+          text-transform: uppercase;
+          font-weight: 600;
+          color: darken($OFF_WHITE, 40%);
+          transition: all 0.5s;
+          text-decoration: none;
+          &:hover {
+            color: darken($OFF_WHITE, 60%);
+          }
+        }
+      }
+      .description {
+        color: black;
+        padding: 0.8rem;
+        text-align: center;
+        max-width: 960px;
+        line-height: 1.8rem;
+        align-self: flex-end;
+        a {
+          color: darken($OFF_WHITE, 40%);
+  
+          text-decoration: none;
+          &:hover {
+            color: darken($OFF_WHITE, 60%);
+          }
         }
       }
     }
   }
+
 }
 
 #contact {

@@ -13,6 +13,7 @@ const {
 const { ElmPlugin } = require('fuse-box-elm-plugin');
 const autoprefixer = require('autoprefixer');
 const { join } = require('path');
+const express = require('express');
 
 const POSTCSS_PLUGINS = [
   require('postcss-flexibility'),
@@ -41,7 +42,7 @@ Sparky.task('build', () => {
     sourceMaps: !isProduction,
     target: 'browser@es5',
     experimentalFeatures: true,
-    cache: true,
+    cache: false,
     plugins: [
       isProduction
         ? ElmPlugin()
@@ -83,7 +84,15 @@ Sparky.task('build', () => {
 
   /* Configure dev server */
   if (isProduction === false) {
-    fuse.dev({ open: true });
+    const serverOpts = { root: false, open: false };
+
+    fuse.dev(serverOpts, server => {
+      const app = server.httpServer.app;
+      app.use(express.static(outDir));
+      app.get('*', (req, res) => {
+        res.sendFile(join(outDir, '/index.html'));
+      });
+    });
   }
 
   /* Main bundle */
@@ -97,7 +106,15 @@ Sparky.task('build', () => {
 });
 
 Sparky.task('copy-assets', () =>
-  Sparky.src(`./assets/**/*.**`).dest(`./${outDir}`)
+  Sparky.src('./**/**.*', {
+    base: './src/assets/'
+  }).dest(`${outDir}`)
+);
+
+Sparky.task('copy-font', () =>
+  Sparky.src('./**/**.*', { base: './node_modules/font-awesome/fonts/' }).dest(
+    './dist/fonts'
+  )
 );
 
 Sparky.task('clean', () => Sparky.src(`${outDir}/*`).clean(`${outDir}/`));
@@ -105,7 +122,7 @@ Sparky.task('prod-env', ['clean'], () => {
   isProduction = true;
 });
 
-Sparky.task('default', ['clean', 'build'], () =>
+Sparky.task('default', ['clean', 'copy-assets', 'copy-font', 'build'], () =>
   console.info('👊 Development server is live. GET TO WORK! 👊')
 );
 Sparky.task('dist', ['prod-env', 'clean', 'build'], () =>
