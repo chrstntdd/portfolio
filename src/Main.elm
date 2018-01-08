@@ -1,10 +1,31 @@
 port module Main exposing (..)
 
-import Html exposing (Html, a, div, h1, h3, h4, header, i, img, li, main_, p, program, section, text, ul)
+import Html exposing (Html, a, div, h1, h3, h4, nav, header, i, img, li, main_, p, program, section, text, ul)
 import Html.Attributes exposing (alt, class, for, href, id, placeholder, src, type_)
+import Navigation exposing (Location, newUrl)
+import Routes exposing (..)
 
 
--- import Html.Events exposing (..)
+-- Outgoing port
+
+
+port scrollTop : Float -> Cmd msg
+
+
+port offsetTop : String -> Cmd msg
+
+
+
+-- Incoming port
+
+
+port scrollOrResize : (ScreenData -> msg) -> Sub msg
+
+
+port offsetTopVal : (ElementData -> msg) -> Sub msg
+
+
+
 {- MODEL -}
 
 
@@ -13,6 +34,12 @@ type alias ScreenData =
     , pageHeight : Int
     , viewportHeight : Int
     , viewportWidth : Int
+    }
+
+
+type alias ElementData =
+    { offsetTop : Float
+    , id_ : String
     }
 
 
@@ -34,6 +61,10 @@ type alias Project =
 
 type alias Model =
     { screenData : Maybe ScreenData
+    , elementData : Maybe ElementData
+    , showNav : Bool
+    , navOpen : Bool
+    , page : Page
     , projects : List Project
     }
 
@@ -41,6 +72,10 @@ type alias Model =
 initialModel : Model
 initialModel =
     { screenData = Nothing
+    , elementData = Nothing
+    , showNav = True
+    , navOpen = False
+    , page = Home
     , projects =
         [ { title = "Quantified"
           , imageData =
@@ -111,12 +146,59 @@ initialModel =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ aboveTheFold model
-        , about model
-        , portfolio model
-        , contact model
-        , footer model
+    let
+        { page } =
+            model
+    in
+        case page of
+            Home ->
+                div []
+                    [ navBar model
+                    , aboveTheFold model
+                    , footer model
+                    ]
+
+            About ->
+                div []
+                    [ about model
+                    , footer model
+                    ]
+
+            Portfolio ->
+                div []
+                    [ portfolio model
+                    , footer model
+                    ]
+
+            Contact ->
+                div []
+                    [ contact model
+                    , footer model
+                    ]
+
+            NotFound ->
+                div []
+                    [ text "Not FOUND"
+                    ]
+
+
+navBar : Model -> Html Msg
+navBar model =
+    nav [ class "" ]
+        [ ul []
+            [ li []
+                [ a [ href "/home" ] [ text "Home" ]
+                ]
+            , li []
+                [ a [ href "/about" ] [ text "About" ]
+                ]
+            , li []
+                [ a [ href "/portfolio" ] [ text "Portfolio" ]
+                ]
+            , li []
+                [ a [ href "/contact" ] [ text "Contact" ]
+                ]
+            ]
         ]
 
 
@@ -150,22 +232,22 @@ renderProjectCards project =
         { title, imageData, techStack, description, repo, demo } =
             project
     in
-    div [ class "project-card" ]
-        [ h1 [] [ text title ]
-        , ul [ class "proj-thumbnails" ] (List.map (\i -> li [] [ img [ src i.src, alt i.alt ] [] ]) imageData)
-        , div [ class "tech-container" ]
-            [ h4 [] [ text "Technology" ]
-            , ul [] (List.map (\tech -> li [] [ text tech ]) techStack)
+        div [ class "project-card" ]
+            [ h1 [] [ text title ]
+            , ul [ class "proj-thumbnails" ] (List.map (\i -> li [] [ img [ src i.src, alt i.alt ] [] ]) imageData)
+            , div [ class "tech-container" ]
+                [ h4 [] [ text "Technology" ]
+                , ul [] (List.map (\tech -> li [] [ text tech ]) techStack)
+                ]
+            , p [ class "links" ]
+                [ a [ href repo ] [ text "Repo" ]
+                , text " | "
+                , a [ href demo ] [ text "Demo" ]
+                ]
+            , p [ class "description" ]
+                [ p [] [ text description ]
+                ]
             ]
-        , p [ class "links" ]
-            [ a [ href repo ] [ text "Repo" ]
-            , text " | "
-            , a [ href demo ] [ text "Demo" ]
-            ]
-        , p [ class "description" ]
-            [ p [] [ text description ]
-            ]
-        ]
 
 
 portfolio : Model -> Html Msg
@@ -174,10 +256,10 @@ portfolio model =
         projectCards =
             List.map renderProjectCards model.projects
     in
-    section [ id "portfolio" ]
-        [ h1 [ id "port-header" ] [ text "Previous work" ]
-        , div [ id "project-container" ] projectCards
-        ]
+        section [ id "portfolio" ]
+            [ h1 [ id "port-header" ] [ text "Previous work" ]
+            , div [ id "project-container" ] projectCards
+            ]
 
 
 contact : Model -> Html Msg
@@ -212,6 +294,10 @@ footer model =
 
 type Msg
     = NoOp
+    | OnScroll ScreenData
+    | GetOffset String
+    | GotOffset ElementData
+    | UrlChange Location
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -220,6 +306,18 @@ update msg model =
         NoOp ->
             model ! []
 
+        GetOffset elementId ->
+            model ! [ offsetTop elementId ]
+
+        GotOffset data ->
+            { model | elementData = Just data } ! [ scrollTop data.offsetTop ]
+
+        OnScroll data ->
+            { model | screenData = Just data } ! []
+
+        UrlChange newLocation ->
+            modelWithLocation newLocation model ! []
+
 
 
 {- SUBSCRIPTIONS -}
@@ -227,21 +325,45 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Sub.batch
+        [ scrollOrResize OnScroll, offsetTopVal GotOffset ]
 
 
 
 {- MAIN -}
 
 
-init : ( Model, Cmd Msg )
-init =
-    initialModel ! []
+init : Location -> ( Model, Cmd Msg )
+init location =
+    let
+        page =
+            location |> Routes.pathParser |> Maybe.withDefault Home
+    in
+        case page of
+            Home ->
+                { initialModel
+                    | page = Home
+                }
+                    ! []
+
+            _ ->
+                modelWithLocation location initialModel ! []
+
+
+modelWithLocation : Location -> Model -> Model
+modelWithLocation location model =
+    let
+        page =
+            location
+                |> Routes.pathParser
+                |> Maybe.withDefault Home
+    in
+        { model | page = page }
 
 
 main : Program Never Model Msg
 main =
-    program
+    Navigation.program UrlChange
         { init = init
         , view = view
         , update = update
