@@ -7,9 +7,9 @@ const {
   PostCSSPlugin,
   WebIndexPlugin,
   ImageBase64Plugin,
-  CSSResourcePlugin,
-  Sparky
+  CSSResourcePlugin
 } = require('fuse-box');
+const { src, task, exec, context } = require('fuse-box/sparky');
 const { ElmPlugin } = require('fuse-box-elm-plugin');
 const autoprefixer = require('autoprefixer');
 const { join } = require('path');
@@ -27,104 +27,101 @@ const POSTCSS_PLUGINS = [
     ]
   })
 ];
-
 const outDir = join(__dirname, '/dist');
+const template = join(__dirname, 'src/index.html');
+const title = 'Christian Todd | Web Developer';
+const all = './**/**.*';
 
-let producer;
-let isProduction = false;
+context(
+  class {
+    getMainConfig() {
+      const isProd = this.isProduction;
 
-Sparky.task('build', () => {
-  const fuse = FuseBox.init({
-    homeDir: 'src',
-    output: `${outDir}/$name.js`,
-    log: true,
-    hash: isProduction,
-    sourceMaps: !isProduction,
-    target: 'browser@es5',
-    experimentalFeatures: true,
-    cache: false,
-    plugins: [
-      isProduction
-        ? ElmPlugin()
-        : ElmPlugin({
-            warn: true,
-            debug: true
+      return FuseBox.init({
+        homeDir: 'src',
+        output: `${outDir}/$name.js`,
+        log: true,
+        hash: isProd,
+        sourceMaps: !isProd,
+        target: 'browser@es5',
+        cache: true,
+        plugins: [
+          [
+            SassPlugin(),
+            PostCSSPlugin(POSTCSS_PLUGINS),
+            CSSResourcePlugin({
+              inline: true
+            }),
+            CSSPlugin({
+              group: 'main.css',
+              outFile: `${outDir}/main.css`,
+              inject: true
+            })
+          ],
+          isProd ? ElmPlugin() : ElmPlugin({ warn: true, debug: true }),
+          SVGPlugin(),
+          WebIndexPlugin({
+            template,
+            title,
+            path: './'
           }),
-      [
-        SassPlugin(),
-        PostCSSPlugin(POSTCSS_PLUGINS),
-        CSSResourcePlugin({
-          inline: true
-        }),
-        CSSPlugin({
-          group: 'main.css',
-          outFile: `${outDir}/main.css`,
-          inject: true
-        })
-      ],
-      SVGPlugin(),
-      WebIndexPlugin({
-        template: 'src/index.html',
-        title: 'Christian Todd | Web Developer',
-        path: './'
-      }),
-      ImageBase64Plugin({
-        useDefault: true
-      }),
-      isProduction &&
-        QuantumPlugin({
-          ensureES5: true,
-          removeExportsInterop: false,
-          bakeApiIntoBundle: 'app',
-          uglify: true,
-          treeshake: true
-        })
-    ]
+          ImageBase64Plugin({
+            useDefault: true
+          }),
+          isProd &&
+            QuantumPlugin({
+              ensureES5: true,
+              removeExportsInterop: false,
+              bakeApiIntoBundle: 'app',
+              uglify: true,
+              treeshake: true
+            })
+        ]
+      });
+    }
+  }
+);
+
+task('prod-build', async context => {
+  context.isProduction = true;
+  const fuse = context.getMainConfig();
+  fuse.bundle('app').instructions('!> index.js');
+
+  await fuse.fun();
+});
+
+task('dev-build', async context => {
+  const fuse = context.getMainConfig();
+  const serverOpts = { foot: false, open: false };
+
+  fuse.dev(serverOpts, server => {
+    const app = server.httpServer.app;
+    app.use(express.static(outDir));
+    app.get('*', (req, res) => {
+      res.sendFile(join(outDir, '/index.html'));
+    });
   });
 
-  /* Configure dev server */
-  if (isProduction === false) {
-    const serverOpts = { root: false, open: false };
+  fuse
+    .bundle('app')
+    .hmr({ reload: true })
+    .watch()
+    .instructions('> index.js');
 
-    fuse.dev(serverOpts, server => {
-      const app = server.httpServer.app;
-      app.use(express.static(outDir));
-      app.get('*', (req, res) => {
-        res.sendFile(join(outDir, '/index.html'));
-      });
-    });
-  }
-
-  /* Main bundle */
-  const app = fuse.bundle('app').instructions('> index.js');
-  if (!isProduction) {
-    app.watch();
-    app.hmr();
-  }
-
-  return fuse.run();
+  await fuse.run();
 });
 
-Sparky.task('copy-assets', () =>
-  Sparky.src('./**/**.*', {
-    base: './src/assets/'
-  }).dest(`${outDir}`)
+task('copy-assets', () => src(all, { base: './src/assets/' }).dest(`${outDir}`));
+
+task('copy-font', () =>
+  src(all, { base: './node_modules/font-awesome/fonts/' }).dest('./dist/fonts')
 );
 
-Sparky.task('copy-font', () =>
-  Sparky.src('./**/**.*', { base: './node_modules/font-awesome/fonts/' }).dest(
-    './dist/fonts'
-  )
-);
+task('clean', () => src(`${outDir}/*`).clean(`${outDir}/`));
 
-Sparky.task('clean', () => Sparky.src(`${outDir}/*`).clean(`${outDir}/`));
-Sparky.task('prod-env', ['clean'], () => {
-  isProduction = true;
-});
+task('copy-static', ['&copy-font', '&copy-assets']);
 
-Sparky.task('default', ['clean', 'copy-assets', 'copy-font', 'build'], () =>
+task('default', ['clean', 'dev-build', 'copy-static'], () =>
   console.info('👊 Development server is live. GET TO WORK! 👊')
 );
-Sparky.task('dist', ['prod-env', 'clean', 'build'], () =>
-  console.info('READY 4 PROD')
-);
+task('dist', ['clean', 'prod-build', 'copy-static'], () => console.info('READY 4 PROD'));
