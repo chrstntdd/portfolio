@@ -1,5 +1,5 @@
 require('./index.scss');
-const jump = require('jump.js');
+require('smoothscroll-polyfill').polyfill();
 const Elm = require('./Main.elm');
 
 var _window = window;

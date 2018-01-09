@@ -15,12 +15,14 @@
     "node-sass": "^4.7.2",
     "postcss-flexibility": "^2.0.0",
     "prettier": "^1.9.2",
+    "purify-css": "^1.2.5",
     "typescript": "^2.5.2",
     "uglify-js": "^3.0.28"
   },
   "dependencies": {
     "font-awesome": "^4.7.0",
     "jump.js": "^1.0.2",
+    "smoothscroll-polyfill": "^0.4.0",
     "tachyons": "^4.9.1"
   }
 }

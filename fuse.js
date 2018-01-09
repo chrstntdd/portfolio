@@ -6,12 +6,13 @@ const {
   QuantumPlugin,
   PostCSSPlugin,
   WebIndexPlugin,
-  ImageBase64Plugin,
   CSSResourcePlugin
 } = require('fuse-box');
 const { src, task, exec, context } = require('fuse-box/sparky');
 const { ElmPlugin } = require('fuse-box-elm-plugin');
 const autoprefixer = require('autoprefixer');
+const purify = require('purify-css');
+const { unlinkSync } = require('fs');
 const { join } = require('path');
 const express = require('express');
 
@@ -63,10 +64,9 @@ context(
           WebIndexPlugin({
             template,
             title,
-            path: './'
-          }),
-          ImageBase64Plugin({
-            useDefault: true
+            path: './',
+            pre: { relType: 'load' },
+            async: true
           }),
           isProd &&
             QuantumPlugin({
@@ -87,7 +87,7 @@ task('prod-build', async context => {
   const fuse = context.getMainConfig();
   fuse.bundle('app').instructions('!> index.js');
 
-  await fuse.fun();
+  await fuse.run();
 });
 
 task('dev-build', async context => {
@@ -111,17 +111,27 @@ task('dev-build', async context => {
   await fuse.run();
 });
 
-task('copy-assets', () => src(all, { base: './src/assets/' }).dest(`${outDir}`));
-
-task('copy-font', () =>
-  src(all, { base: './node_modules/font-awesome/fonts/' }).dest('./dist/fonts')
-);
+task('copy-static', () => src(all, { base: './src/assets/' }).dest(`${outDir}/assets`));
 
 task('clean', () => src(`${outDir}/*`).clean(`${outDir}/`));
 
-task('copy-static', ['&copy-font', '&copy-assets']);
+task('purify', () => {
+  const content = ['src/**/*.elm', 'src/**/*.html'];
+  const css = ['dist/main.css'];
+  const options = {
+    output: 'dist/pure.css',
+    minify: true,
+    info: true
+  };
+  purify(content, css, options);
+
+  unlinkSync('./dist/main.css');
+  unlinkSync('./dist/main.css.map');
+
+  console.info('💎  ALL CSS IS PURE 💎');
+});
 
 task('default', ['clean', 'dev-build', 'copy-static'], () =>
   console.info('👊 Development server is live. GET TO WORK! 👊')
 );
-task('dist', ['clean', 'prod-build', 'copy-static'], () => console.info('READY 4 PROD'));
+task('dist', ['clean', 'prod-build', 'copy-static', 'purify'], () => console.info('READY 4 PROD'));
