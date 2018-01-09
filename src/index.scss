@@ -16,21 +16,10 @@ $bp-large: 1366px;
 $bp-xlarge: 1920px;
 $bp-xxlarge: 2560px;
 
-/* GLOBALS */
-html * {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 $DARK_BG_COLOR: #14161e;
 $OFF_WHITE: #f2f2f2;
+$OFF_WHITE2: #F7FFF7;
 
-*,
-*::after,
-*::before {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-}
 
 :root {
   font-size: 14px;
@@ -44,13 +33,7 @@ $OFF_WHITE: #f2f2f2;
   }
 }
 
-html,
-body {
-  font: 15px/1.8 -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  scroll-behavior: smooth;
-  color: #444;
-}
+
 
 /**
  * Here lies all of the styles for the page
@@ -107,7 +90,7 @@ header {
         rgba(0, 0, 0, 0),
         rgba(0, 0, 0, 0.6)
       ),
-      url('./assets/samuel-zeller-34751-min.jpg');
+      url('/assets/alt-hero.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -120,15 +103,25 @@ header {
   }
   #hero-text {
     z-index: 10;
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%);
     h1,
     h3 {
       color: #f2f2f2;
       text-align: center;
-      font-weight: 100;
+      font-weight: 200;
     }
     h1 {
       font-size: 3rem;
-      letter-spacing: 0.1rem;
+      line-height: 1;
+      letter-spacing: 0.3rem;
+      background: linear-gradient(90deg, #57acc6 0, #76c93e 92%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      white-space: nowrap;
     }
     h3 {
       font-style: italic;
@@ -136,60 +129,87 @@ header {
   }
 }
 
-#nav-id.sticky {
-  background-color: rgba(255, 255, 255, 0.93);
-  opacity: 1 !important;
-  top: 0px;
+
+#main-nav {
+  height: 56px;
+  top: between(30px, 200px, $bp-small, $bp-xxlarge);
+  #nav-list {
+    justify-content: flex-end;
+}
 }
 
-.nav-container {
-  box-shadow: 0px 1px 20px 1px rgba(0, 0, 0, 0.82);
-  position: fixed;
-  top: 0px;
-  max-height: 80px;
-  z-index: 999;
+#hamburger-button {
+
+  height: 66px;
+  width: 52px;
+  background: transparent;
+  border: none;
+  .hamburger {
+    display: block;
+    position: relative;
   width: 100%;
-  padding-top: 17px;
-  background: none;
-  overflow: hidden;
-  transition: all 0.5s;
-  opacity: 0;
-  padding: 0;
-  nav {
-    background-color: $DARK_BG_COLOR;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-direction: row;
-    height: auto;
-    svg {
-      margin-left: 1%;
-      @media (min-width: $bp-xsmall) {
-        height: between(50px, 80px, $bp-xsmall, $bp-xlarge);
-        width: between(50px, 80px, $bp-xsmall, $bp-xlarge);
-      }
-      height: 50px;
-      width: 50px;
+    cursor: pointer;
+    transition-property: opacity, filter;
+    transition-duration: 0.15s;
+    transition-timing-function: linear;
+  
+    .hamburger-inner,
+    .hamburger-inner:before,
+    .hamburger-inner:after {
+      display: block;
+      background-color: $OFF_WHITE2;;
+      width: 100%;
+      height: 2px;
+      border-radius: 4px;
+      content: '';
+      transition-property: transform;
+      transition-duration: 0.15s;
+      transition-timing-function: ease;
     }
-    ul {
-      padding-left: 0;
-      margin-right: 1.5%;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      grid-template-rows: 1fr;
-      grid-gap: 1rem;
-      li {
-        text-align: center;
-        list-style: none;
-        a {
-          text-decoration: none;
-          font-size: 1.2rem;
-          color: white;
+  
+    .hamburger-inner {
+      top: 50%;
+      transition-duration: 0.1s;
+      transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    }
+  
+    .hamburger-inner:before {
+      position: absolute;
+      top: 12px;
+      transition: top 0.1s 0.14s ease, opacity 0.1s ease;
+    }
+  
+    .hamburger-inner:after {
+      position: absolute;
+      bottom: 12px;
+      transition: bottom 0.1s 0.14s ease,
+        transform 0.1s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+      }
+  
+    // Active state styles
+    &.is-open {
+      .hamburger-inner {
+        transform: rotate(45deg);
+        transition-delay: 0.14s;
+        transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+  
+      .hamburger-inner:before {
+        top: 0;
+        opacity: 0;
+        transition: top 0.1s ease, opacity 0.1s 0.14s ease;
         }
+  
+      .hamburger-inner:after {
+        bottom: 0;
+        transform: rotate(-90deg);
+        transition: bottom 0.1s ease,
+          transform 0.1s 0.14s cubic-bezier(0.215, 0.61, 0.355, 1);
       }
     }
   }
 }
+
 
 #about {
   min-height: 100vh;

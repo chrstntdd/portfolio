@@ -1,7 +1,8 @@
 port module Main exposing (..)
 
-import Html exposing (Html, a, div, h1, h3, h4, nav, header, i, img, li, main_, p, program, section, text, ul)
+import Html exposing (Html, a, div, span, button, h1, h3, h4, nav, header, i, img, li, main_, p, program, section, text, ul)
 import Html.Attributes exposing (alt, class, for, href, id, placeholder, src, type_)
+import Html.Events exposing (onClick)
 import Navigation exposing (Location, newUrl)
 import Routes exposing (..)
 
@@ -62,8 +63,7 @@ type alias Project =
 type alias Model =
     { screenData : Maybe ScreenData
     , elementData : Maybe ElementData
-    , showNav : Bool
-    , navOpen : Bool
+    , isNavOpen : Bool
     , page : Page
     , projects : List Project
     }
@@ -73,15 +73,14 @@ initialModel : Model
 initialModel =
     { screenData = Nothing
     , elementData = Nothing
-    , showNav = True
-    , navOpen = False
+    , isNavOpen = False
     , page = Home
     , projects =
         [ { title = "Quantified"
           , imageData =
-                [ { src = "q1-ss-min.png", alt = "" }
-                , { src = "q2-ss-min.png", alt = "" }
-                , { src = "q3-ss-min.png", alt = "" }
+                [ { src = "/assets/q1-ss-min.png", alt = "" }
+                , { src = "/assets/q2-ss-min.png", alt = "" }
+                , { src = "/assets/q3-ss-min.png", alt = "" }
                 ]
           , techStack =
                 [ "HTML5"
@@ -100,9 +99,9 @@ initialModel =
           }
         , { title = "VinylDB"
           , imageData =
-                [ { src = "vdb-ss-1-min.png", alt = "desc" }
-                , { src = "vdb-ss-2-min.png", alt = "desc" }
-                , { src = "vdb-ss-3-min.png", alt = "desc" }
+                [ { src = "/assets/vdb-ss-1-min.png", alt = "desc" }
+                , { src = "/assets/vdb-ss-2-min.png", alt = "desc" }
+                , { src = "/assets/vdb-ss-3-min.png", alt = "desc" }
                 ]
           , techStack =
                 [ "HTML5"
@@ -121,9 +120,9 @@ initialModel =
           }
         , { title = "Roaster Nexus"
           , imageData =
-                [ { src = "rn-ss-1-min.png", alt = "des" }
-                , { src = "rn-ss-2-min.png", alt = "des" }
-                , { src = "rn-ss-3-min.png", alt = "des" }
+                [ { src = "/assets/rn-ss-1-min.png", alt = "des" }
+                , { src = "/assets/rn-ss-2-min.png", alt = "des" }
+                , { src = "/assets/rn-ss-3-min.png", alt = "des" }
                 ]
           , techStack =
                 [ "HTML5"
@@ -147,33 +146,32 @@ initialModel =
 view : Model -> Html Msg
 view model =
     let
-        { page } =
+        { page, projects, isNavOpen } =
             model
     in
         case page of
             Home ->
                 div []
-                    [ navBar model
-                    , aboveTheFold model
-                    , footer model
+                    [ navBar isNavOpen
+                    , aboveTheFold
                     ]
 
             About ->
                 div []
-                    [ about model
-                    , footer model
+                    [ about
+                    , footer
                     ]
 
             Portfolio ->
                 div []
-                    [ portfolio model
-                    , footer model
+                    [ portfolio projects
+                    , footer
                     ]
 
             Contact ->
                 div []
-                    [ contact model
-                    , footer model
+                    [ contact
+                    , footer
                     ]
 
             NotFound ->
@@ -182,28 +180,49 @@ view model =
                     ]
 
 
-navBar : Model -> Html Msg
-navBar model =
-    nav [ class "" ]
-        [ ul []
-            [ li []
-                [ a [ href "/home" ] [ text "Home" ]
-                ]
-            , li []
-                [ a [ href "/about" ] [ text "About" ]
-                ]
-            , li []
-                [ a [ href "/portfolio" ] [ text "Portfolio" ]
-                ]
-            , li []
-                [ a [ href "/contact" ] [ text "Contact" ]
+navBar : Bool -> Html Msg
+navBar isNavOpen =
+    let
+        liStyle =
+            "ttu ttc ph3 list"
+
+        anchorStyle =
+            "ttn near-white"
+    in
+        nav [ id "main-nav", class "fixed w-100" ]
+            [ hamburgerMenu isNavOpen
+            , ul [ id "nav-list", class "pa0 ma0 h-100 flex items-center" ]
+                [ li [ class liStyle ]
+                    [ a [ href "/home", class anchorStyle ] [ text "Home" ]
+                    ]
+                , li [ class liStyle ]
+                    [ a [ href "/about", class anchorStyle ] [ text "About" ]
+                    ]
+                , li [ class liStyle ]
+                    [ a [ href "/portfolio", class anchorStyle ] [ text "Portfolio" ]
+                    ]
+                , li [ class liStyle ]
+                    [ a [ href "/contact", class anchorStyle ] [ text "Contact" ]
+                    ]
                 ]
             ]
+
+
+hamburgerMenu : Bool -> Html Msg
+hamburgerMenu isNavOpen =
+    button [ id "hamburger-button", onClick ToggleHamburger ]
+        [ span
+            [ if isNavOpen then
+                class "hamburger is-open"
+              else
+                class "hamburger"
+            ]
+            [ span [ class "hamburger-inner" ] [] ]
         ]
 
 
-aboveTheFold : Model -> Html Msg
-aboveTheFold model =
+aboveTheFold : Html Msg
+aboveTheFold =
     header []
         [ div [ id "hero-img" ] []
         , div [ id "hero-text" ]
@@ -213,8 +232,8 @@ aboveTheFold model =
         ]
 
 
-about : Model -> Html Msg
-about model =
+about : Html Msg
+about =
     main_ []
         [ section [ id "about" ]
             [ div [ id "about-container" ]
@@ -226,8 +245,20 @@ about model =
         ]
 
 
-renderProjectCards : Project -> Html Msg
-renderProjectCards project =
+portfolio : List Project -> Html Msg
+portfolio projects =
+    let
+        projectCards =
+            List.map renderProjectCard projects
+    in
+        section [ id "portfolio" ]
+            [ h1 [ id "port-header" ] [ text "Previous work" ]
+            , div [ id "project-container" ] projectCards
+            ]
+
+
+renderProjectCard : Project -> Html Msg
+renderProjectCard project =
     let
         { title, imageData, techStack, description, repo, demo } =
             project
@@ -250,20 +281,8 @@ renderProjectCards project =
             ]
 
 
-portfolio : Model -> Html Msg
-portfolio model =
-    let
-        projectCards =
-            List.map renderProjectCards model.projects
-    in
-        section [ id "portfolio" ]
-            [ h1 [ id "port-header" ] [ text "Previous work" ]
-            , div [ id "project-container" ] projectCards
-            ]
-
-
-contact : Model -> Html Msg
-contact model =
+contact : Html Msg
+contact =
     section [ id "contact" ]
         [ p [] [ text "Let's talk:" ]
         , p [ class "email" ] [ text "christian.todd7@gmail.com" ]
@@ -281,8 +300,8 @@ contact model =
         ]
 
 
-footer : Model -> Html Msg
-footer model =
+footer : Html Msg
+footer =
     Html.footer [ class "content-info" ]
         [ p [] [ text "Christian Todd | 2018" ]
         ]
@@ -298,6 +317,7 @@ type Msg
     | GetOffset String
     | GotOffset ElementData
     | UrlChange Location
+    | ToggleHamburger
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -317,6 +337,9 @@ update msg model =
 
         UrlChange newLocation ->
             modelWithLocation newLocation model ! []
+
+        ToggleHamburger ->
+            { model | isNavOpen = not model.isNavOpen } ! []
 
 
 
