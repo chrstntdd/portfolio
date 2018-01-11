@@ -2,8 +2,9 @@ port module Main exposing (..)
 
 import Html exposing (Html, a, div, span, button, h1, h3, h4, nav, header, i, img, li, main_, p, program, section, text, ul)
 import Html.Attributes exposing (alt, class, for, href, id, placeholder, src, type_)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onWithOptions)
 import Navigation exposing (Location, newUrl)
+import Json.Decode as Decode exposing (..)
 import Routes exposing (..)
 
 
@@ -24,6 +25,21 @@ port scrollOrResize : (ScreenData -> msg) -> Sub msg
 
 
 port offsetTopVal : (ElementData -> msg) -> Sub msg
+
+
+
+{- UTILITY FUNCTIONS -}
+
+
+onClickLink : msg -> Html.Attribute msg
+onClickLink msg =
+    {- FOR SINGLE PAGE NAVIGATION -}
+    onWithOptions
+        "click"
+        { preventDefault = True
+        , stopPropagation = False
+        }
+        (Decode.succeed msg)
 
 
 
@@ -50,6 +66,13 @@ type alias ImageData =
     }
 
 
+type alias NavLink =
+    { href_ : String
+    , to : Page
+    , label : String
+    }
+
+
 type alias Project =
     { title : String
     , imageData : List ImageData
@@ -65,6 +88,7 @@ type alias Model =
     , elementData : Maybe ElementData
     , navIsOpen : Bool
     , page : Page
+    , navLinks : List NavLink
     , projects : List Project
     }
 
@@ -136,6 +160,12 @@ initialModel =
                 "Web app powered by the Google Maps API and Jquery that connects users with local coffee roasters."
           }
         ]
+    , navLinks =
+        [ { href_ = "/", to = Home, label = "Home" }
+        , { href_ = "/about", to = About, label = "About" }
+        , { href_ = "/portfolio", to = Portfolio, label = "Portfolio" }
+        , { href_ = "/contact", to = Contact, label = "Contact" }
+        ]
     }
 
 
@@ -146,7 +176,7 @@ initialModel =
 view : Model -> Html Msg
 view model =
     let
-        { page, projects, navIsOpen, screenData } =
+        { page, projects, navIsOpen, screenData, navLinks } =
             model
 
         viewportWidth =
@@ -159,26 +189,29 @@ view model =
     in
         case page of
             Home ->
-                div [ class "homepage-wrapper w-100 absolute" ]
-                    [ navBar navIsOpen viewportWidth
+                div [ class "__page-wrapper__" ]
+                    [ navBar navIsOpen viewportWidth navLinks
                     , aboveTheFold navIsOpen
                     ]
 
             About ->
-                div []
-                    [ about
+                div [ class "__page-wrapper__" ]
+                    [ navBar navIsOpen viewportWidth navLinks
+                    , about
                     , footer
                     ]
 
             Portfolio ->
-                div []
-                    [ portfolio projects
+                div [ class "__page-wrapper__" ]
+                    [ navBar navIsOpen viewportWidth navLinks
+                    , portfolio projects
                     , footer
                     ]
 
             Contact ->
-                div []
-                    [ contact
+                div [ class "__page-wrapper__" ]
+                    [ navBar navIsOpen viewportWidth navLinks
+                    , contact
                     , footer
                     ]
 
@@ -188,12 +221,9 @@ view model =
                     ]
 
 
-navBar : Bool -> Int -> Html Msg
-navBar navIsOpen viewportWidth =
+navBar : Bool -> Int -> List NavLink -> Html Msg
+navBar navIsOpen viewportWidth navLinks =
     let
-        liStyle =
-            "list"
-
         anchorStyle =
             "near-white ttu tac"
 
@@ -206,25 +236,20 @@ navBar navIsOpen viewportWidth =
         nav
             [ id "main-nav", navClass ]
             [ ul [ id "nav-list", class "pa0 ma0 h-100 flex items-center" ]
-                [ li [ class liStyle ]
-                    [ a [ href "/home", class anchorStyle ] [ text "Home" ]
-                    ]
-                , li [ class liStyle ]
-                    [ a [ href "/about", class anchorStyle ] [ text "About" ]
-                    ]
-                , li [ class liStyle ]
-                    [ a [ href "/portfolio", class anchorStyle ] [ text "Portfolio" ]
-                    ]
-                , li [ class liStyle ]
-                    [ a [ href "/contact", class anchorStyle ] [ text "Contact" ]
-                    ]
-                ]
+                (List.map renderNavLink navLinks)
             , if viewportWidth > 768 then
                 {- DONT SHOW HAMBURGER ON DESKTOP -}
                 Html.text ""
               else
                 hamburgerMenu navIsOpen
             ]
+
+
+renderNavLink : NavLink -> Html Msg
+renderNavLink { href_, to, label } =
+    li []
+        [ a [ href href_, onClickLink (NavigateTo to) ] [ text label ]
+        ]
 
 
 hamburgerMenu : Bool -> Html Msg
@@ -348,6 +373,7 @@ type Msg
     | GotOffset ElementData
     | UrlChange Location
     | ToggleHamburger
+    | NavigateTo Page
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -355,6 +381,10 @@ update msg model =
     case msg of
         NoOp ->
             model ! []
+
+        NavigateTo page ->
+            {- THE SECOND ARGUMENT TO pageToPath IS A JWT FOR VALIDATION, IF NEEDED -}
+            { model | navIsOpen = False } ! [ newUrl (Routes.pageToPath page "") ]
 
         GetOffset elementId ->
             model ! [ offsetTop elementId ]
