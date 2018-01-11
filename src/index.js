@@ -1,9 +1,11 @@
+if (process.env.NODE_ENV === 'production') {
+  require('smoothscroll-polyfill').polyfill();
+}
 require('./index.scss');
-require('smoothscroll-polyfill').polyfill();
 const Elm = require('./Main.elm');
 
 var _window = window;
-_window = (function(_window) {
+_window = (function (_window) {
   var _document = _window.document;
   var _body = _document.body;
   var _html = _document.documentElement;
@@ -56,7 +58,7 @@ _window = (function(_window) {
     }, minScrollTime);
   };
   var main = () => {
-    app = Elm.Main.fullscreen();
+    app = Elm.Main.embed(document.getElementById('elm-root'));
     app.ports.scrollTop.subscribe(elmScrollTop);
     app.ports.offsetTop.subscribe(getOffsetOfEl);
 

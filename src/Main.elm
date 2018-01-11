@@ -63,7 +63,7 @@ type alias Project =
 type alias Model =
     { screenData : Maybe ScreenData
     , elementData : Maybe ElementData
-    , isNavOpen : Bool
+    , navIsOpen : Bool
     , page : Page
     , projects : List Project
     }
@@ -73,7 +73,7 @@ initialModel : Model
 initialModel =
     { screenData = Nothing
     , elementData = Nothing
-    , isNavOpen = False
+    , navIsOpen = False
     , page = Home
     , projects =
         [ { title = "Quantified"
@@ -146,14 +146,22 @@ initialModel =
 view : Model -> Html Msg
 view model =
     let
-        { page, projects, isNavOpen } =
+        { page, projects, navIsOpen, screenData } =
             model
+
+        viewportWidth =
+            case screenData of
+                Just screenData ->
+                    screenData.viewportWidth
+
+                Nothing ->
+                    0
     in
         case page of
             Home ->
-                div []
-                    [ navBar isNavOpen
-                    , aboveTheFold
+                div [ class "homepage-wrapper w-100 absolute" ]
+                    [ navBar navIsOpen viewportWidth
+                    , aboveTheFold navIsOpen
                     ]
 
             About ->
@@ -180,18 +188,24 @@ view model =
                     ]
 
 
-navBar : Bool -> Html Msg
-navBar isNavOpen =
+navBar : Bool -> Int -> Html Msg
+navBar navIsOpen viewportWidth =
     let
         liStyle =
-            "ttu ttc ph3 list"
+            "list"
 
         anchorStyle =
-            "ttn near-white"
+            "near-white ttu tac"
+
+        navClass =
+            if navIsOpen then
+                class "show fixed w-100"
+            else
+                class "fixed w-100"
     in
-        nav [ id "main-nav", class "fixed w-100" ]
-            [ hamburgerMenu isNavOpen
-            , ul [ id "nav-list", class "pa0 ma0 h-100 flex items-center" ]
+        nav
+            [ id "main-nav", navClass ]
+            [ ul [ id "nav-list", class "pa0 ma0 h-100 flex items-center" ]
                 [ li [ class liStyle ]
                     [ a [ href "/home", class anchorStyle ] [ text "Home" ]
                     ]
@@ -205,31 +219,47 @@ navBar isNavOpen =
                     [ a [ href "/contact", class anchorStyle ] [ text "Contact" ]
                     ]
                 ]
+            , if viewportWidth > 768 then
+                {- DONT SHOW HAMBURGER ON DESKTOP -}
+                Html.text ""
+              else
+                hamburgerMenu navIsOpen
             ]
 
 
 hamburgerMenu : Bool -> Html Msg
-hamburgerMenu isNavOpen =
-    button [ id "hamburger-button", onClick ToggleHamburger ]
-        [ span
-            [ if isNavOpen then
+hamburgerMenu navIsOpen =
+    let
+        hamburgerClass =
+            if navIsOpen then
                 class "hamburger is-open"
-              else
+            else
                 class "hamburger"
+    in
+        button [ id "hamburger-button", onClick ToggleHamburger ]
+            [ span
+                [ hamburgerClass ]
+                [ span [ class "hamburger-inner" ] [] ]
             ]
-            [ span [ class "hamburger-inner" ] [] ]
-        ]
 
 
-aboveTheFold : Html Msg
-aboveTheFold =
-    header []
-        [ div [ id "hero-img" ] []
-        , div [ id "hero-text" ]
-            [ h1 [] [ text "Christian Todd" ]
-            , h3 [] [ text "Web Developer" ]
+aboveTheFold : Bool -> Html Msg
+aboveTheFold navIsOpen =
+    let
+        overlayAttrs =
+            if navIsOpen then
+                [ class "overlay on", onClick ToggleHamburger ]
+            else
+                [ class "overlay" ]
+    in
+        header []
+            [ div overlayAttrs []
+            , div [ id "hero-img" ] []
+            , div [ id "hero-text" ]
+                [ h1 [] [ text "Christian Todd" ]
+                , h3 [] [ text "Web Developer" ]
+                ]
             ]
-        ]
 
 
 about : Html Msg
@@ -339,7 +369,7 @@ update msg model =
             modelWithLocation newLocation model ! []
 
         ToggleHamburger ->
-            { model | isNavOpen = not model.isNavOpen } ! []
+            { model | navIsOpen = not model.navIsOpen } ! []
 
 
 

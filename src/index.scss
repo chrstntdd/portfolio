@@ -2,12 +2,16 @@
 @import '../node_modules/font-awesome/css/font-awesome.min';
 
 /* UTILITIES */
+
 @function between($to, $from, $toWidth, $fromWidth) {
   $slope: ($to - $from) / ($toWidth - $fromWidth);
   $base: $from - $slope * $fromWidth;
   @return calc(#{$base} + #{100vw * $slope});
 }
+
+
 /* BREAKPOINTS */
+
 $bp-xxsmall: 320px;
 $bp-xsmall: 576px;
 $bp-small: 768px;
@@ -15,24 +19,18 @@ $bp-medium: 1024px;
 $bp-large: 1366px;
 $bp-xlarge: 1920px;
 $bp-xxlarge: 2560px;
-
 $DARK_BG_COLOR: #14161e;
 $OFF_WHITE: #f2f2f2;
 $OFF_WHITE2: #F7FFF7;
-
-
 :root {
   font-size: 14px;
-
   @media (min-width: $bp-xsmall) {
     font-size: between(20px, 14px, $bp-medium, $bp-xsmall);
   }
-
   @media (min-width: $bp-medium) {
     font-size: 20px;
   }
 }
-
 
 
 /**
@@ -85,12 +83,7 @@ header {
   }
   #hero-img {
     background-color: lighten(grey, 25%);
-    background-image: linear-gradient(
-        to top,
-        rgba(0, 0, 0, 0),
-        rgba(0, 0, 0, 0.6)
-      ),
-      url('/assets/alt-hero.jpg');
+    background-image: linear-gradient( to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('/assets/alt-hero.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -117,11 +110,13 @@ header {
       font-size: 3rem;
       line-height: 1;
       letter-spacing: 0.3rem;
-      background: linear-gradient(90deg, #57acc6 0, #76c93e 92%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
       white-space: nowrap;
+      @supports (-webkit-background-clip: text) and (-webkit-text-fill-color: transparent) {
+        background: linear-gradient(90deg, #57acc6 0, #76c93e 92%);
+        background-clip: text;
+        color: transparent;
+        -webkit-background-clip: text;
+      }
     }
     h3 {
       font-style: italic;
@@ -129,35 +124,105 @@ header {
   }
 }
 
-
-#main-nav {
-  height: 56px;
-  top: between(30px, 200px, $bp-small, $bp-xxlarge);
-  #nav-list {
-    justify-content: flex-end;
+#nav-list {
+  width: 60%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  li {
+    width: 100%;
+    padding: 2rem;
+  }
 }
+
+.overlay {
+  height: 100%;
+  width: 100%;
+  z-index: 11;
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: 0.3s ease-in-out all;
+  &.on {
+    opacity: 1;
+  }
+}
+
+.homepage-wrapper {
+  left: 0;
+  transition: 0.3s ease-in-out all;
+  #main-nav {
+    z-index: 12;
+    height: 100%;
+    max-width: 500px;
+    top: 0;
+    position: fixed;
+    background-color: $DARK_BG_COLOR;
+    transition: 0.3s ease-in-out all;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    left: between(320px, 768px, $bp-xxsmall, $bp-small);
+    &.show {
+      @media (min-width: $bp-xxsmall) {
+        transform: translateX(-45%);
+      }
+    }
+    @media (min-width: $bp-small) {
+      /* TABLET AND UP STYLES */
+      max-width: none;
+      position: absolute;
+      left: 0;
+      top: 10%;
+      width: 100%;
+      height: 10%;
+      justify-content: flex-end;
+      background-color: transparent;
+      #nav-list {
+        flex-direction: row;
+        padding-right: 2rem;
+        width: auto;
+        li {
+          width: auto;
+          padding: 1rem;
+          display: flex;
+          align-content: center;
+          justify-items: center;
+          a {
+            margin: 0 auto;
+          }
+        }
+      }
+    }
+  }
 }
 
 #hamburger-button {
-
+  @media(min-width: $bp-small) {
+    display: none;
+  }
+  outline-color: $OFF_WHITE2;
+  position: absolute;
+  top: 2%;
+  left: -18%;
   height: 66px;
-  width: 52px;
+  width: 66px;
   background: transparent;
   border: none;
   .hamburger {
     display: block;
     position: relative;
-  width: 100%;
+    width: 90%;
+    margin: 0 auto;
     cursor: pointer;
     transition-property: opacity, filter;
     transition-duration: 0.15s;
     transition-timing-function: linear;
-  
     .hamburger-inner,
     .hamburger-inner:before,
     .hamburger-inner:after {
       display: block;
-      background-color: $OFF_WHITE2;;
+      background-color: $OFF_WHITE2;
       width: 100%;
       height: 2px;
       border-radius: 4px;
@@ -166,50 +231,40 @@ header {
       transition-duration: 0.15s;
       transition-timing-function: ease;
     }
-  
     .hamburger-inner {
       top: 50%;
       transition-duration: 0.1s;
       transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
     }
-  
     .hamburger-inner:before {
       position: absolute;
       top: 12px;
       transition: top 0.1s 0.14s ease, opacity 0.1s ease;
     }
-  
     .hamburger-inner:after {
       position: absolute;
       bottom: 12px;
-      transition: bottom 0.1s 0.14s ease,
-        transform 0.1s cubic-bezier(0.55, 0.055, 0.675, 0.19);
-      }
-  
-    // Active state styles
+      transition: bottom 0.1s 0.14s ease, transform 0.1s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    } // Active state styles
     &.is-open {
       .hamburger-inner {
         transform: rotate(45deg);
         transition-delay: 0.14s;
         transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
-    }
-  
+      }
       .hamburger-inner:before {
         top: 0;
         opacity: 0;
         transition: top 0.1s ease, opacity 0.1s 0.14s ease;
-        }
-  
+      }
       .hamburger-inner:after {
         bottom: 0;
         transform: rotate(-90deg);
-        transition: bottom 0.1s ease,
-          transform 0.1s 0.14s cubic-bezier(0.215, 0.61, 0.355, 1);
+        transition: bottom 0.1s ease, transform 0.1s 0.14s cubic-bezier(0.215, 0.61, 0.355, 1);
       }
     }
   }
 }
-
 
 #about {
   min-height: 100vh;
@@ -253,14 +308,9 @@ header {
     padding-bottom: between(10px, 55px, $bp-xxsmall, $bp-xlarge);
   }
   background: #f2f2f2;
-  background: -moz-linear-gradient(top, #f2f2f2 6%, #14161e 97%);
-  background: -webkit-linear-gradient(top, #f2f2f2 6%, #14161e 97%);
-  background: linear-gradient(to bottom, #f2f2f2 6%, #14161e 97%);
-  filter: progid:DXImageTransform.Microsoft.gradient(
-      startColorstr='#f2f2f2',
-      endColorstr='#14161e',
-      GradientType=0
-    );
+  background: linear-gradient(to bottom,
+  #f2f2f2 6%,
+  #14161e 97%);
   display: flex;
   flex-direction: column;
   #port-header {
@@ -271,20 +321,22 @@ header {
     font-size: 2.2rem;
     width: 100%;
   }
-  
   #project-container {
     display: flex;
     justify-content: center;
-    @media(max-width: $bp-small){
+    @media(max-width: $bp-small) {
       flex-wrap: wrap;
     }
     .project-card {
       width: between(300px, 600px, $bp-xxsmall, $bp-xlarge);
-      @media(max-width: $bp-xsmall ){
+      @media(max-width: $bp-xsmall) {
         flex-wrap: wrap;
       }
       margin: 0.5rem;
-      box-shadow: 0px 13px 35px 1px rgba(0, 0, 0, 0.82);
+      box-shadow: 0px 13px 35px 1px rgba(0,
+      0,
+      0,
+      0.82);
       background-color: $OFF_WHITE;
       display: flex;
       flex-direction: column;
@@ -294,7 +346,6 @@ header {
         text-align: center;
         color: black;
       }
-  
       ul {
         width: 100%;
         padding-left: 0;
@@ -312,7 +363,6 @@ header {
           }
         }
       }
-  
       .tech-container {
         width: 100%;
         border-bottom: 2px solid darken($OFF_WHITE, 15%);
@@ -320,8 +370,8 @@ header {
           text-align: center;
         }
         ul {
-         display: flex;
-         flex-wrap: wrap;
+          display: flex;
+          flex-wrap: wrap;
           li {
             list-style: none;
             text-align: center;
@@ -352,7 +402,6 @@ header {
         align-self: flex-end;
         a {
           color: darken($OFF_WHITE, 40%);
-  
           text-decoration: none;
           &:hover {
             color: darken($OFF_WHITE, 60%);
@@ -361,7 +410,6 @@ header {
       }
     }
   }
-
 }
 
 #contact {
