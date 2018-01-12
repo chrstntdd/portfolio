@@ -4,12 +4,15 @@ import Navigation
 import UrlParser as Url exposing ((</>), (<?>), s, stringParam, top, Parser, oneOf, parsePath, map)
 
 
+type alias JWT =
+    String
+
+
 type Page
     = Home
     | About
     | Portfolio
     | Contact
-    | NotFound
 
 
 pageParser : Parser (Page -> a) a
@@ -22,8 +25,9 @@ pageParser =
         ]
 
 
-pageToPath : Page -> String -> String
+pageToPath : Page -> JWT -> String
 pageToPath page jwt =
+    {- JWT CAN BE PASSED IN FOR AUTHENTICATING ROUTES -}
     case page of
         Home ->
             "/"
@@ -36,9 +40,6 @@ pageToPath page jwt =
 
         Contact ->
             "/contact"
-
-        NotFound ->
-            "/404"
 
 
 pathParser : Navigation.Location -> Maybe Page

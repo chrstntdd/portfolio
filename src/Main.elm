@@ -179,6 +179,7 @@ view model =
         { page, projects, navIsOpen, screenData, navLinks } =
             model
 
+        viewportWidth : Int
         viewportWidth =
             case screenData of
                 Just screenData ->
@@ -186,52 +187,37 @@ view model =
 
                 Nothing ->
                     0
+
+        appShell : List (Html Msg) -> Html Msg
+        appShell rest =
+            div [ class "__page-wrapper__" ]
+                (List.append
+                    [ navBar navIsOpen viewportWidth navLinks ]
+                    rest
+                )
     in
         case page of
             Home ->
-                div [ class "__page-wrapper__" ]
-                    [ navBar navIsOpen viewportWidth navLinks
-                    , aboveTheFold navIsOpen
-                    ]
+                appShell [ aboveTheFold navIsOpen ]
 
             About ->
-                div [ class "__page-wrapper__" ]
-                    [ navBar navIsOpen viewportWidth navLinks
-                    , about
-                    , footer
-                    ]
+                appShell [ about, footer ]
 
             Portfolio ->
-                div [ class "__page-wrapper__" ]
-                    [ navBar navIsOpen viewportWidth navLinks
-                    , portfolio projects
-                    , footer
-                    ]
+                appShell [ portfolio projects, footer ]
 
             Contact ->
-                div [ class "__page-wrapper__" ]
-                    [ navBar navIsOpen viewportWidth navLinks
-                    , contact
-                    , footer
-                    ]
-
-            NotFound ->
-                div []
-                    [ text "Not FOUND"
-                    ]
+                appShell [ contact, footer ]
 
 
 navBar : Bool -> Int -> List NavLink -> Html Msg
 navBar navIsOpen viewportWidth navLinks =
     let
-        anchorStyle =
-            "near-white ttu tac"
-
         navClass =
             if navIsOpen then
-                class "show fixed w-100"
+                class "show"
             else
-                class "fixed w-100"
+                class ""
     in
         nav
             [ id "main-nav", navClass ]
@@ -343,13 +329,13 @@ contact =
         , p [ class "email" ] [ text "christian.todd7@gmail.com" ]
         , ul []
             [ li []
-                [ a [ href "https://github.com/chrstntdd" ] [ i [ class "fa fa-github" ] [] ]
+                [ a [ href "https://github.com/chrstntdd" ] [ text "github" ]
                 ]
             , li []
-                [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/" ] [ i [ class "fa fa-linkedin-square" ] [] ]
+                [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/" ] [ text "linkedIn" ]
                 ]
             , li []
-                [ a [ href "https://twitter.com/_chrstntdd?lang=en" ] [ i [ class "fa fa-twitter" ] [] ]
+                [ a [ href "https://twitter.com/_chrstntdd?lang=en" ] [ text "twitter" ]
                 ]
             ]
         ]
