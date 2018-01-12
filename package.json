@@ -1,25 +1,47 @@
 {
-  "name": "final-portfolio",
+  "name": "portfolio",
   "version": "2.0.0",
   "main": "index.js",
   "license": "MIT",
+  "engines": {
+    "node": "9.4.0",
+    "npm": "5.6.0"
+  },
   "scripts": {
     "watch": "node fuse.js",
     "dist": "node fuse.js dist"
   },
   "devDependencies": {
+    "@types/bcrypt": "^1.0.0",
+    "@types/boom": "^7.1.0",
+    "@types/hapi": "^16.1.12",
+    "@types/joi": "^13.0.5",
+    "@types/jsonwebtoken": "^7.2.5",
+    "@types/node": "^9.3.0",
     "autoprefixer": "^7.2.3",
     "elm": "^0.18.0",
     "fuse-box": "^3.0.2",
     "fuse-box-elm-plugin": "^1.1.1",
     "node-sass": "^4.7.2",
     "postcss-flexibility": "^2.0.0",
-    "prettier": "^1.9.2",
+    "prettier": "^1.10.2",
     "purify-css": "^1.2.5",
-    "typescript": "^2.5.2",
+    "ts-node": "^4.1.0",
+    "typescript": "^2.6.2",
     "uglify-js": "^3.3.5"
   },
   "dependencies": {
+    "boom": "^7.1.1",
+    "dotenv": "^4.0.0",
+    "good": "^7.3.0",
+    "good-console": "^6.4.1",
+    "good-squeeze": "^5.0.2",
+    "hapi": "^17.2.0",
+    "hapi-auth-jwt2": "^7.4.1",
+    "hapi-swagger": "^9.0.2",
+    "inert": "^5.0.1",
+    "joi": "^13.1.0",
+    "jsonwebtoken": "^8.1.0",
     "normalize.css": "^7.0.0",
     "smoothscroll-polyfill": "^0.4.0"
   }

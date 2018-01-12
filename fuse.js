@@ -29,7 +29,7 @@ const POSTCSS_PLUGINS = [
   })
 ];
 const outDir = join(__dirname, '/dist');
-const template = join(__dirname, 'src/index.html');
+const template = join(__dirname, 'src/client/index.html');
 const title = 'Christian Todd | Web Developer';
 const all = './**/**.*';
 
@@ -39,13 +39,14 @@ context(
       const isProd = this.isProduction;
 
       return FuseBox.init({
-        homeDir: 'src',
+        homeDir: 'src/client',
         output: `${outDir}/$name.js`,
         log: true,
         hash: isProd,
         sourceMaps: !isProd,
         target: 'browser@es5',
         cache: true,
+        tsConfig: "src/client/tsconfig.json",
         plugins: [
           [
             SassPlugin(),
@@ -79,6 +80,19 @@ context(
         ]
       });
     }
+
+    getServerConfig() {
+      return FuseBox.init({
+        homeDir: 'src/server',
+        output: 'dist/server/$name.js',
+        log: true,
+        hash: false,
+        target: 'server',
+        cache: true,
+        tsConfig: 'src/server/tsconfig.json',
+        useTypescriptCompiler: true
+      })
+    }
   }
 );
 
@@ -110,12 +124,26 @@ task('dev-build', async context => {
   await fuse.run();
 });
 
-task('copy-static', () => src(all, { base: './src/assets/' }).dest(`${outDir}/assets`));
+task('server-build', async context => {
+  const fuse = context.getServerConfig();
+
+  fuse
+    .bundle('app')
+    .watch('src/server/**')
+    .instructions('![index.ts]');
+
+  await fuse.run();
+})
+
+task('copy-static', () => src(all, { base: './src/client/assets/' }).dest(`${outDir}/assets`));
+
+task('copy-keys', () => src('./**/*.{pem,crt}', { base: './src/server/keys/' }).dest(`dist/server`));
+
 
 task('clean', () => src(`${outDir}/*`).clean(`${outDir}/`));
 
 task('purify', () => {
-  const content = ['src/**/*.elm', 'src/**/*.html'];
+  const content = ['src/client**/*.elm', 'src/client**/*.html'];
   const css = ['dist/main.css'];
   const options = {
     output: 'dist/pure.css',
@@ -134,3 +162,5 @@ task('default', ['clean', 'dev-build', 'copy-static'], () =>
   console.info('👊 Development server is live. GET TO WORK! 👊')
 );
 task('dist', ['clean', 'prod-build', 'copy-static', 'purify'], () => console.info('READY 4 PROD'));
+
+task('server', ['clean', 'server-build', 'copy-keys'], () => console.log('builtd'));  

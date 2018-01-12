@@ -4,3 +4,4 @@ dist/
 elm-stuff
 .vscode/
 .DS_Store
+src/server/keys/*
