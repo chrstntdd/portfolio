@@ -69,13 +69,13 @@ context(
             async: true
           }),
           isProd &&
-            QuantumPlugin({
-              ensureES5: true,
-              removeExportsInterop: false,
-              bakeApiIntoBundle: 'app',
-              uglify: true,
-              treeshake: true
-            })
+          QuantumPlugin({
+            ensureES5: true,
+            removeExportsInterop: false,
+            bakeApiIntoBundle: 'app',
+            uglify: true,
+            treeshake: true
+          })
         ]
       });
     }
@@ -92,9 +92,8 @@ task('prod-build', async context => {
 
 task('dev-build', async context => {
   const fuse = context.getMainConfig();
-  const serverOpts = { foot: false, open: false };
 
-  fuse.dev(serverOpts, server => {
+  fuse.dev({ root: false }, server => {
     const app = server.httpServer.app;
     app.use(express.static(outDir));
     app.get('*', (req, res) => {
