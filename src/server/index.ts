@@ -21,7 +21,7 @@ server.route({
   method: 'GET',
   path: '/',
   handler: (request, h) => {
-    return "Hello, Hapi 17";
+    return h.response("Hello, Hapi 17");
   }
 });
 

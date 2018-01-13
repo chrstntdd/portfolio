@@ -42,6 +42,21 @@ onClickLink msg =
         (Decode.succeed msg)
 
 
+{-| Take a default value, a function and a `Maybe`.
+Return the default value if the `Maybe` is `Nothing`.
+If the `Maybe` is `Just a`, apply the function on `a` and return the `b`.
+That is, `unwrap d f` is equivalent to `Maybe.map f >> Maybe.withDefault d`.
+-}
+unwrap : b -> (a -> b) -> Maybe a -> b
+unwrap d f m =
+    case m of
+        Nothing ->
+            d
+
+        Just a ->
+            f a
+
+
 
 {- MODEL -}
 
@@ -181,19 +196,13 @@ view model =
 
         viewportWidth : Int
         viewportWidth =
-            case screenData of
-                Just screenData ->
-                    screenData.viewportWidth
-
-                Nothing ->
-                    0
+            unwrap 0 .viewportWidth screenData
 
         appShell : List (Html Msg) -> Html Msg
         appShell rest =
             div [ class "__page-wrapper__" ]
-                (List.append
-                    [ navBar navIsOpen viewportWidth navLinks ]
-                    rest
+                ([ navBar navIsOpen viewportWidth navLinks ]
+                    |> List.append rest
                 )
     in
         case page of
