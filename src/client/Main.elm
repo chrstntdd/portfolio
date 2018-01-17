@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Date exposing (..)
 import Html exposing (Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, program, section, span, text, ul)
 import Html.Attributes exposing (alt, class, for, href, id, placeholder, src, type_)
 import Html.Events exposing (onClick, onWithOptions)
@@ -7,6 +8,7 @@ import Json.Decode as Decode exposing (..)
 import Navigation exposing (Location, newUrl)
 import Port exposing (..)
 import Routes exposing (..)
+import Task exposing (perform)
 
 
 {- UTILITY FUNCTIONS -}
@@ -69,6 +71,7 @@ type alias Model =
     { screenData : Maybe ScreenData
     , navIsOpen : Bool
     , page : Page
+    , currentYear : Int
     , navLinks : List NavLink
     , projects : List Project
     }
@@ -79,6 +82,7 @@ initialModel =
     { screenData = Nothing
     , navIsOpen = False
     , page = Home
+    , currentYear = 0
     , projects =
         [ { title = "Quantified"
           , imageData =
@@ -156,7 +160,7 @@ initialModel =
 view : Model -> Html Msg
 view model =
     let
-        { page, projects, navIsOpen, screenData, navLinks } =
+        { page, projects, navIsOpen, screenData, navLinks, currentYear } =
             model
 
         viewportWidth : Int
@@ -169,19 +173,22 @@ view model =
                 ([ navBar navIsOpen viewportWidth navLinks ]
                     |> List.append rest
                 )
+
+        appFooter =
+            footer currentYear
     in
     case page of
         Home ->
             appShell [ aboveTheFold navIsOpen ]
 
         About ->
-            appShell [ about, footer ]
+            appShell [ about, appFooter ]
 
         Portfolio ->
-            appShell [ portfolio projects, footer ]
+            appShell [ portfolio projects, appFooter ]
 
         Contact ->
-            appShell [ contact, footer ]
+            appShell [ contact, appFooter ]
 
 
 navBar : Bool -> Int -> List NavLink -> Html Msg
@@ -315,10 +322,10 @@ contact =
         ]
 
 
-footer : Html Msg
-footer =
+footer : Int -> Html Msg
+footer currentYear =
     Html.footer [ class "content-info" ]
-        [ p [] [ text "Christian Todd | 2018" ]
+        [ p [] [ text ("Christian Todd | " ++ toString currentYear) ]
         ]
 
 
@@ -333,6 +340,7 @@ type Msg
     | NavigateTo Page
     | Outside InfoForElm
     | LogErr String
+    | GetYear Date
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -348,6 +356,9 @@ update msg model =
 
         LogErr err ->
             model ! [ sendInfoOutside (LogErrorToConsole err) ]
+
+        GetYear date ->
+            { model | currentYear = Date.year date } ! []
 
         NavigateTo page ->
             {- THE SECOND ARGUMENT TO pageToPath IS A JWT FOR VALIDATION, IF NEEDED -}
@@ -369,13 +380,16 @@ init location =
     let
         page =
             location |> Routes.pathParser |> Maybe.withDefault Home
+
+        cmd =
+            [ perform GetYear Date.now ]
     in
     case page of
         Home ->
-            { initialModel | page = Home } ! []
+            { initialModel | page = Home } ! cmd
 
         _ ->
-            modelWithLocation location initialModel ! []
+            modelWithLocation location initialModel ! cmd
 
 
 modelWithLocation : Location -> Model -> Model
