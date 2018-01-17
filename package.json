@@ -42,6 +42,7 @@
     "inert": "^5.0.1",
     "joi": "^13.1.0",
     "jsonwebtoken": "^8.1.0",
+    "lodash.throttle": "^4.1.1",
     "normalize.css": "^7.0.0",
     "smoothscroll-polyfill": "^0.4.0"
   }

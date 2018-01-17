@@ -1,22 +1,35 @@
-port module OutsideInfo exposing (..)
+port module Port exposing (..)
 
-{- https://github.com/splodingsocks/a-very-im-port-ant-topic/blob/master/example/src/OutsideInfo.elm 
-   Trying a new pattern for handling ports.
--}
+import Json.Decode as Decode exposing (..)
+import Json.Decode.Pipeline exposing (decode, required)
+import Json.Encode as Encode exposing (..)
 
-import Json.Decode exposing (decodeValue)
-import Json.Encode as Encode
+
+type alias ScreenData =
+    { scrollTop : Float
+    , pageHeight : Int
+    , viewportHeight : Int
+    , viewportWidth : Int
+    }
 
 
 type InfoForOutside
     = SaveModel
-    | GetElementOffsetTop String
-    | SetScrollTop Float
+    | ScrollTo String
+    | LogErrorToConsole String
 
 
 type InfoForElm
-    = ScrollOrResize
-    | GotOffsetTop
+    = ScrollOrResize ScreenData
+
+
+screenDataDecoder : Decoder ScreenData
+screenDataDecoder =
+    decode ScreenData
+        |> required "scrollTop" Decode.float
+        |> required "pageHeight" Decode.int
+        |> required "viewportHeight" Decode.int
+        |> required "viewportWidth" Decode.int
 
 
 sendInfoOutside : InfoForOutside -> Cmd msg
@@ -25,11 +38,11 @@ sendInfoOutside info =
         SaveModel ->
             infoForOutside { tag = "SaveModel", data = Encode.null }
 
-        GetElementOffsetTop elementId ->
-            infoForOutside { tag = "GetElementOffsetTop", data = Encode.null }
+        ScrollTo elementId ->
+            infoForOutside { tag = "ScrollTo", data = Encode.string elementId }
 
-        SetScrollTop float ->
-            infoForOutside { tag = "SetScrollTop", data = Encode.null }
+        LogErrorToConsole err ->
+            infoForOutside { tag = "ErrorLogRequested", data = Encode.string err }
 
 
 getInfoFromOutside : (InfoForElm -> msg) -> (String -> msg) -> Sub msg
@@ -38,21 +51,20 @@ getInfoFromOutside tagger onError =
         (\outsideInfo ->
             case outsideInfo.tag of
                 "ScrollOrResize" ->
-                    case decodeValue (Json.Decode.list entryDecoder) outsideInfo.data of
-                        Ok entries ->
-                            tagger <| ScrollOrResize entries
+                    case Decode.decodeValue screenDataDecoder outsideInfo.data of
+                        Ok screenData ->
+                            tagger <| ScrollOrResize screenData
 
                         Err e ->
                             onError e
-                "GotOffsetTop" ->
 
-                    
                 _ ->
                     onError <| "Unexpected info from the outside: " ++ toString outsideInfo
         )
 
 
 type alias GenericOutsideData =
+    {- COMMUNICATION IS HANDLED BY PATTERN MATCHING THE TAG FIELD AND SENDING SERIALIZED DATA -}
     { tag : String, data : Encode.Value }
 
 

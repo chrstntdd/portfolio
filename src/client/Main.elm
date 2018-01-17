@@ -1,31 +1,12 @@
-port module Main exposing (..)
+module Main exposing (..)
 
-import Html exposing (Html, a, div, span, button, h1, h3, h4, nav, header, i, img, li, main_, p, program, section, text, ul)
+import Html exposing (Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, program, section, span, text, ul)
 import Html.Attributes exposing (alt, class, for, href, id, placeholder, src, type_)
 import Html.Events exposing (onClick, onWithOptions)
-import Navigation exposing (Location, newUrl)
 import Json.Decode as Decode exposing (..)
+import Navigation exposing (Location, newUrl)
+import Port exposing (..)
 import Routes exposing (..)
-
-
--- Outgoing port
-
-
-port scrollTop : Float -> Cmd msg
-
-
-port offsetTop : String -> Cmd msg
-
-
-
--- Incoming port
-
-
-port scrollOrResize : (ScreenData -> msg) -> Sub msg
-
-
-port offsetTopVal : (ElementData -> msg) -> Sub msg
-
 
 
 {- UTILITY FUNCTIONS -}
@@ -61,20 +42,6 @@ unwrap d f m =
 {- MODEL -}
 
 
-type alias ScreenData =
-    { scrollTop : Float
-    , pageHeight : Int
-    , viewportHeight : Int
-    , viewportWidth : Int
-    }
-
-
-type alias ElementData =
-    { offsetTop : Float
-    , id_ : String
-    }
-
-
 type alias ImageData =
     { src : String
     , alt : String
@@ -100,7 +67,6 @@ type alias Project =
 
 type alias Model =
     { screenData : Maybe ScreenData
-    , elementData : Maybe ElementData
     , navIsOpen : Bool
     , page : Page
     , navLinks : List NavLink
@@ -111,7 +77,6 @@ type alias Model =
 initialModel : Model
 initialModel =
     { screenData = Nothing
-    , elementData = Nothing
     , navIsOpen = False
     , page = Home
     , projects =
@@ -205,18 +170,18 @@ view model =
                     |> List.append rest
                 )
     in
-        case page of
-            Home ->
-                appShell [ aboveTheFold navIsOpen ]
+    case page of
+        Home ->
+            appShell [ aboveTheFold navIsOpen ]
 
-            About ->
-                appShell [ about, footer ]
+        About ->
+            appShell [ about, footer ]
 
-            Portfolio ->
-                appShell [ portfolio projects, footer ]
+        Portfolio ->
+            appShell [ portfolio projects, footer ]
 
-            Contact ->
-                appShell [ contact, footer ]
+        Contact ->
+            appShell [ contact, footer ]
 
 
 navBar : Bool -> Int -> List NavLink -> Html Msg
@@ -228,16 +193,16 @@ navBar navIsOpen viewportWidth navLinks =
             else
                 class ""
     in
-        nav
-            [ id "main-nav", navClass ]
-            [ ul [ id "nav-list", class "pa0 ma0 h-100 flex items-center" ]
-                (List.map renderNavLink navLinks)
-            , if viewportWidth > 768 then
-                {- DONT SHOW HAMBURGER ON DESKTOP -}
-                Html.text ""
-              else
-                hamburgerMenu navIsOpen
-            ]
+    nav
+        [ id "main-nav", navClass ]
+        [ ul [ id "nav-list" ]
+            (List.map renderNavLink navLinks)
+        , if viewportWidth > 768 then
+            {- DONT SHOW HAMBURGER ON DESKTOP -}
+            Html.text ""
+          else
+            hamburgerMenu navIsOpen
+        ]
 
 
 renderNavLink : NavLink -> Html Msg
@@ -256,11 +221,11 @@ hamburgerMenu navIsOpen =
             else
                 class "hamburger"
     in
-        button [ id "hamburger-button", onClick ToggleHamburger ]
-            [ span
-                [ hamburgerClass ]
-                [ span [ class "hamburger-inner" ] [] ]
-            ]
+    button [ id "hamburger-button", onClick ToggleHamburger ]
+        [ span
+            [ hamburgerClass ]
+            [ span [ class "hamburger-inner" ] [] ]
+        ]
 
 
 aboveTheFold : Bool -> Html Msg
@@ -272,14 +237,14 @@ aboveTheFold navIsOpen =
             else
                 [ class "overlay" ]
     in
-        header []
-            [ div overlayAttrs []
-            , div [ id "hero-img" ] []
-            , div [ id "hero-text" ]
-                [ h1 [] [ text "Christian Todd" ]
-                , h3 [] [ text "Web Developer" ]
-                ]
+    header []
+        [ div overlayAttrs []
+        , div [ id "hero-img" ] []
+        , div [ id "hero-text" ]
+            [ h1 [] [ text "Christian Todd" ]
+            , h3 [] [ text "Web Developer" ]
             ]
+        ]
 
 
 about : Html Msg
@@ -301,10 +266,10 @@ portfolio projects =
         projectCards =
             List.map renderProjectCard projects
     in
-        section [ id "portfolio" ]
-            [ h1 [ id "port-header" ] [ text "Previous work" ]
-            , div [ id "project-container" ] projectCards
-            ]
+    section [ id "portfolio" ]
+        [ h1 [ id "port-header" ] [ text "Previous work" ]
+        , div [ id "project-container" ] projectCards
+        ]
 
 
 renderProjectCard : Project -> Html Msg
@@ -313,22 +278,22 @@ renderProjectCard project =
         { title, imageData, techStack, description, repo, demo } =
             project
     in
-        div [ class "project-card" ]
-            [ h1 [] [ text title ]
-            , ul [ class "proj-thumbnails" ] (List.map (\i -> li [] [ img [ src i.src, alt i.alt ] [] ]) imageData)
-            , div [ class "tech-container" ]
-                [ h4 [] [ text "Technology" ]
-                , ul [] (List.map (\tech -> li [] [ text tech ]) techStack)
-                ]
-            , p [ class "links" ]
-                [ a [ href repo ] [ text "Repo" ]
-                , text " | "
-                , a [ href demo ] [ text "Demo" ]
-                ]
-            , p [ class "description" ]
-                [ p [] [ text description ]
-                ]
+    div [ class "project-card" ]
+        [ h1 [] [ text title ]
+        , ul [ class "proj-thumbnails" ] (List.map (\i -> li [] [ img [ src i.src, alt i.alt ] [] ]) imageData)
+        , div [ class "tech-container" ]
+            [ h4 [] [ text "Technology" ]
+            , ul [] (List.map (\tech -> li [] [ text tech ]) techStack)
             ]
+        , p [ class "links" ]
+            [ a [ href repo ] [ text "Repo" ]
+            , text " | "
+            , a [ href demo ] [ text "Demo" ]
+            ]
+        , p [ class "description" ]
+            [ p [] [ text description ]
+            ]
+        ]
 
 
 contact : Html Msg
@@ -363,12 +328,11 @@ footer =
 
 type Msg
     = NoOp
-    | OnScroll ScreenData
-    | GetOffset String
-    | GotOffset ElementData
     | UrlChange Location
     | ToggleHamburger
     | NavigateTo Page
+    | Outside InfoForElm
+    | LogErr String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -377,34 +341,23 @@ update msg model =
         NoOp ->
             model ! []
 
+        Outside infoForElm ->
+            case infoForElm of
+                ScrollOrResize data ->
+                    { model | screenData = Just data } ! []
+
+        LogErr err ->
+            model ! [ sendInfoOutside (LogErrorToConsole err) ]
+
         NavigateTo page ->
             {- THE SECOND ARGUMENT TO pageToPath IS A JWT FOR VALIDATION, IF NEEDED -}
             { model | navIsOpen = False } ! [ newUrl (Routes.pageToPath page "") ]
-
-        GetOffset elementId ->
-            model ! [ offsetTop elementId ]
-
-        GotOffset data ->
-            { model | elementData = Just data } ! [ scrollTop data.offsetTop ]
-
-        OnScroll data ->
-            { model | screenData = Just data } ! []
 
         UrlChange newLocation ->
             modelWithLocation newLocation model ! []
 
         ToggleHamburger ->
             { model | navIsOpen = not model.navIsOpen } ! []
-
-
-
-{- SUBSCRIPTIONS -}
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.batch
-        [ scrollOrResize OnScroll, offsetTopVal GotOffset ]
 
 
 
@@ -417,15 +370,12 @@ init location =
         page =
             location |> Routes.pathParser |> Maybe.withDefault Home
     in
-        case page of
-            Home ->
-                { initialModel
-                    | page = Home
-                }
-                    ! []
+    case page of
+        Home ->
+            { initialModel | page = Home } ! []
 
-            _ ->
-                modelWithLocation location initialModel ! []
+        _ ->
+            modelWithLocation location initialModel ! []
 
 
 modelWithLocation : Location -> Model -> Model
@@ -436,7 +386,11 @@ modelWithLocation location model =
                 |> Routes.pathParser
                 |> Maybe.withDefault Home
     in
-        { model | page = page }
+    { model | page = page }
+
+
+
+{- MAIN PROGRAM -}
 
 
 main : Program Never Model Msg
@@ -445,5 +399,8 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions =
+            \model ->
+                Sub.batch
+                    [ getInfoFromOutside Outside LogErr ]
         }

@@ -1,73 +1,57 @@
-if (process.env.NODE_ENV === 'production') {
-  require('smoothscroll-polyfill').polyfill();
-}
-require('./index.scss');
-const Elm = require('./Main.elm');
+import './index.scss';
+import { Main } from './Main.elm';
 
-var _window = window;
-_window = (function (_window) {
-  var _document = _window.document;
-  var _body = _document.body;
-  var _html = _document.documentElement;
-  var app;
-  var elmScrollTop = position => {
-    _window.scroll({
-      top: position,
-      left: 0,
-      behavior: 'smooth'
-    });
-  };
-  var processScrollOrResize = () => {
-    var screenData = {
-      scrollTop: parseInt(_window.pageYOffset || _html.scrollTop || _body.scrollTop || 0),
-      pageHeight: parseInt(
-        Math.max(
-          _body.scrollHeight,
-          _body.offsetHeight,
-          _html.clientHeight,
-          _html.scrollHeight,
-          _html.offsetHeight
-        )
-      ),
-      viewportHeight: parseInt(_html.clientHeight),
-      viewportWidth: parseInt(_html.clientWidth)
-    };
-    app.ports.scrollOrResize.send(screenData);
-  };
+import 'smoothscroll-polyfill';
+import * as throttle from 'lodash.throttle';
 
-  const getOffsetOfEl = el => {
-    const element = _document.getElementById(el);
-    app.ports.offsetTopVal.send({
-      offsetTop: element.offsetTop,
-      id_: element.id
-    });
-  };
-  var scrollTimer = null;
-  var lastScrollFireTime = 0;
-  var minScrollTime = 200;
-  var scrolledOrResized = () => {
-    var now = new Date().getTime();
-    if (now - lastScrollFireTime > 3 * minScrollTime) {
-      processScrollOrResize();
-      lastScrollFireTime = now;
-    }
-    scrollTimer = setTimeout(() => {
-      scrollTimer = null;
-      lastScrollFireTime = new Date().getTime();
-      processScrollOrResize();
-    }, minScrollTime);
-  };
-  var main = () => {
-    app = Elm.Main.embed(document.getElementById('elm-root'));
-    app.ports.scrollTop.subscribe(elmScrollTop);
-    app.ports.offsetTop.subscribe(getOffsetOfEl);
+const app = Main.embed(document.getElementById('elm-root'));
 
-    /* get document height on page load */
-    _document.readyState && scrolledOrResized();
-    _window.addEventListener('scroll', scrolledOrResized);
-    _window.addEventListener('resize', scrolledOrResized);
+app.ports.infoForOutside.subscribe(msg => {
+  /* PATTERN MATCH ON THE INFO FOR OUTSIDE */
+  switch (msg.tag) {
+    case 'SaveModel':
+    /* EVENTUALLY PERSIST THE MODEL TO LOCAL STORAGE */
+    case 'ScrollTo':
+      const element = document.getElementById(msg.data);
+      window.scroll({
+        top: element.offsetTop,
+        left: 0,
+        behavior: 'smooth'
+      });
+      break;
+    case 'ErrorLogRequested':
+      console.error(msg.data);
+      break;
+    default:
+      console.log('default branch hit');
+  }
+});
+
+const sendScreenData = () => {
+  const html = document.documentElement;
+  const body = document.body;
+
+  const screenData = {
+    scrollTop: parseInt(
+      window.pageYOffset || html.scrollTop || body.scrollTop || 0
+    ),
+    pageHeight: parseInt(
+      Math.max(
+        body.scrollHeight,
+        body.offsetHeight,
+        html.clientHeight,
+        html.scrollHeight,
+        html.offsetHeight
+      )
+    ),
+    viewportHeight: parseInt(html.clientHeight),
+    viewportWidth: parseInt(html.clientWidth)
   };
-  return {
-    main: main()
-  };
-})(_window);
+  app.ports.infoForElm.send({ tag: 'ScrollOrResize', data: screenData });
+};
+
+(() => {
+  sendScreenData();
+  window.addEventListener('scroll', throttle(sendScreenData, 100));
+  window.addEventListener('resize', throttle(sendScreenData, 100));
+})();
