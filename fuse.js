@@ -8,7 +8,7 @@ const {
   WebIndexPlugin,
   CSSResourcePlugin
 } = require('fuse-box');
-const { src, task, exec, context } = require('fuse-box/sparky');
+const { src, task, exec, context, tsc } = require('fuse-box/sparky');
 const { ElmPlugin } = require('fuse-box-elm-plugin');
 const autoprefixer = require('autoprefixer');
 const purify = require('purify-css');
@@ -29,6 +29,9 @@ const POSTCSS_PLUGINS = [
   })
 ];
 const outDir = join(__dirname, '/dist');
+const serverOut = join(outDir, '/server');
+const clientOut = join(outDir, '/client');
+
 const template = join(__dirname, 'src/client/index.html');
 const title = 'Christian Todd | Web Developer';
 const all = './**/**.*';
@@ -46,7 +49,7 @@ context(
         sourceMaps: !isProd,
         target: 'browser@es5',
         cache: true,
-        tsConfig: "src/client/tsconfig.json",
+        tsConfig: 'src/client/tsconfig.json',
         plugins: [
           [
             SassPlugin(),
@@ -70,28 +73,15 @@ context(
             async: true
           }),
           isProd &&
-          QuantumPlugin({
-            ensureES5: true,
-            removeExportsInterop: false,
-            bakeApiIntoBundle: 'app',
-            uglify: true,
-            treeshake: true
-          })
+            QuantumPlugin({
+              ensureES5: true,
+              removeExportsInterop: false,
+              bakeApiIntoBundle: 'app',
+              uglify: true,
+              treeshake: true
+            })
         ]
       });
-    }
-
-    getServerConfig() {
-      return FuseBox.init({
-        homeDir: 'src/server',
-        output: 'dist/server/$name.js',
-        log: true,
-        hash: false,
-        target: 'server',
-        cache: true,
-        tsConfig: 'src/server/tsconfig.json',
-        useTypescriptCompiler: true
-      })
     }
   }
 );
@@ -124,23 +114,26 @@ task('dev-build', async context => {
   await fuse.run();
 });
 
-task('server-build', async context => {
-  const fuse = context.getServerConfig();
+task(
+  'server-build',
+  async () =>
+    await tsc('src/server', {
+      target: 'esnext',
+      outDir: 'dist/server/'
+    })
+);
 
-  fuse
-    .bundle('app')
-    .watch('src/server/**')
-    .instructions('![index.ts]');
+task('copy-static', () =>
+  src(all, { base: './src/client/assets/' }).dest(`${outDir}/assets`)
+);
 
-  await fuse.run();
-})
+task('copy-keys', () =>
+  src('./**/*.{pem,crt}', { base: './src/server/keys/' }).dest(serverOut)
+);
 
-task('copy-static', () => src(all, { base: './src/client/assets/' }).dest(`${outDir}/assets`));
+task('client-clean', () => src(`${clientOut}/*`).clean(clientOut));
 
-task('copy-keys', () => src('./**/*.{pem,crt}', { base: './src/server/keys/' }).dest(`dist/server`));
-
-
-task('clean', () => src(`${outDir}/*`).clean(`${outDir}/`));
+task('server-clean', () => src(`${serverOut}/*`).clean(serverOut));
 
 task('purify', () => {
   const content = ['src/client**/*.elm', 'src/client**/*.html'];
@@ -161,6 +154,10 @@ task('purify', () => {
 task('default', ['clean', 'dev-build', 'copy-static'], () =>
   console.info('👊 Development server is live. GET TO WORK! 👊')
 );
-task('dist', ['clean', 'prod-build', 'copy-static', 'purify'], () => console.info('READY 4 PROD'));
+task('dist', ['client-clean', 'prod-build', 'copy-static', 'purify'], () =>
+  console.info('READY 4 PROD')
+);
 
-task('server', ['clean', 'server-build', 'copy-keys'], () => console.log('builtd'));  
+task('server', ['server-clean', 'copy-keys', 'server-build'], () =>
+  console.log('builtd')
+);
