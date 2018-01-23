@@ -29,8 +29,7 @@ const POSTCSS_PLUGINS = [
   })
 ];
 const outDir = join(__dirname, '/dist');
-const serverOut = join(outDir, '/server');
-const clientOut = join(outDir, '/client');
+const clientOut = join(outDir, '/public');
 
 const template = join(__dirname, 'src/client/index.html');
 const title = 'Christian Todd | Web Developer';
@@ -43,7 +42,7 @@ context(
 
       return FuseBox.init({
         homeDir: 'src/client',
-        output: `${outDir}/$name.js`,
+        output: `${clientOut}/$name.js`,
         log: true,
         hash: isProd,
         sourceMaps: !isProd,
@@ -57,11 +56,13 @@ context(
             CSSResourcePlugin({
               inline: true
             }),
-            CSSPlugin({
-              group: 'main.css',
-              outFile: `${outDir}/main.css`,
-              inject: true
-            })
+            isProd
+              ? CSSPlugin({
+                  group: 'main.css',
+                  outFile: `${clientOut}/main.css`,
+                  inject: false
+                })
+              : CSSPlugin()
           ],
           isProd ? ElmPlugin() : ElmPlugin({ warn: true, debug: true }),
           SVGPlugin(),
@@ -99,9 +100,9 @@ task('dev-build', async context => {
 
   fuse.dev({ root: false }, server => {
     const app = server.httpServer.app;
-    app.use(express.static(outDir));
+    app.use(express.static(clientOut));
     app.get('*', (req, res) => {
-      res.sendFile(join(outDir, '/index.html'));
+      res.sendFile(join(clientOut, '/index.html'));
     });
   });
 
@@ -119,34 +120,38 @@ task(
   async () =>
     await tsc('src/server', {
       target: 'esnext',
-      outDir: 'dist/server/'
+      outDir: 'dist/'
     })
 );
 
-task('copy-static', () =>
-  src(all, { base: './src/client/assets/' }).dest(`${outDir}/assets`)
-);
+task('copy-static', () => src(all, { base: './src/client/assets/' }).dest(`${clientOut}/assets`));
 
 task('copy-keys', () =>
-  src('./**/*.{pem,crt}', { base: './src/server/keys/' }).dest(serverOut)
+  src('./**/*.{pem,crt}', { base: './src/server/keys/' }).dest(join(outDir, '/keys'))
 );
+
+task('copy-schema', () =>
+  src('./**/*.graphql', { base: './src/server/graphql' }).dest(join(outDir, '/graphql'))
+);
+
+task('copy-server-assets', ['&copy-keys', '&copy-schema']);
 
 task('client-clean', () => src(`${clientOut}/*`).clean(clientOut));
 
-task('server-clean', () => src(`${serverOut}/*`).clean(serverOut));
+task('server-clean', () => src(`${outDir}/*`).clean(outDir));
 
 task('purify', () => {
   const content = ['src/client**/*.elm', 'src/client**/*.html'];
-  const css = ['dist/main.css'];
+  const css = [`${clientOut}/main.css`];
   const options = {
-    output: 'dist/pure.css',
+    output: `${clientOut}/pure.css`,
     minify: true,
     info: true
   };
   purify(content, css, options);
 
-  unlinkSync('./dist/main.css');
-  unlinkSync('./dist/main.css.map');
+  unlinkSync(`${clientOut}/main.css`);
+  unlinkSync(`${clientOut}/main.css.map`);
 
   console.info('💎  ALL CSS IS PURE 💎');
 });
@@ -158,6 +163,6 @@ task('dist', ['client-clean', 'prod-build', 'copy-static', 'purify'], () =>
   console.info('READY 4 PROD')
 );
 
-task('server', ['server-clean', 'copy-keys', 'server-build'], () =>
-  console.log('builtd')
+task('server', ['server-clean', 'copy-server-assets', 'server-build'], () =>
+  console.log('YER BUILDT')
 );

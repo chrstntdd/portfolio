@@ -1,40 +1,22 @@
-import * as Hapi from 'hapi';
-import * as Boom from 'boom';
-import { join } from 'path';
-import { readFileSync } from 'fs';
-import * as h2 from 'http2';
+import * as Server from './server';
+import * as Database from './database';
+import * as Configs from './config';
 
+process.on('uncaughtException', ({ message }) => console.error(`uncaughtException ${message}`));
 
-let listener = h2.createSecureServer({
-  key: readFileSync(join(__dirname, '/key.pem'), 'UTF-8'),
-  cert: readFileSync(join(__dirname, '/server.crt'), 'UTF-8')
-})
+process.on('unhandledRejection', reason => console.error(`unhandledRejection ${reason}`));
 
-const server = new Hapi.Server({
-  tls: true,
-  listener: listener,
-  port: '8000',
-});
+const serverConfig = Configs.getServerConfigs();
 
+console.log(`🌿  Running in a ${serverConfig.env} environment🌿`);
 
-server.route({
-  method: 'GET',
-  path: '/',
-  handler: (request, h) => {
-    return h.response("Hello, Hapi 17");
-  }
-});
+/* INITIALIZE THE DATABASE */
+const database = Database.init(serverConfig.dbUrl);
 
+/* INITIALIZE THE APPLICATION SERVER */
+(async () => {
+  const server = await Server.init(serverConfig);
+  await server.start();
 
-const start = async () => {
-  try {
-    await server.start();
-  } catch (error) {
-    console.log(error);
-    process.exit(1);
-  }
-
-  console.log('Server running at:', server.info.uri);
-}
-
-start();
+  console.log(`✨  Server running at: https://localhost:${serverConfig.port}  ✨`);
+})();

@@ -1,5 +1,7 @@
 node_modules/**
 .fusebox
+.env
+.vscode
 dist/
 elm-stuff
 .vscode/

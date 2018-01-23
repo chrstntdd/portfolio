@@ -14,7 +14,7 @@
   "devDependencies": {
     "@types/bcrypt": "^1.0.0",
     "@types/boom": "^7.1.0",
-    "@types/hapi": "^16.1.12",
+    "@types/graphql": "^0.12.1",
     "@types/joi": "^13.0.5",
     "@types/jsonwebtoken": "^7.2.5",
     "@types/node": "^9.3.0",
@@ -31,19 +31,28 @@
     "uglify-js": "^3.3.5"
   },
   "dependencies": {
+    "@types/inert": "^4.2.5",
+    "apollo-server-hapi": "^1.3.2",
+    "bcrypt": "^1.0.3",
     "boom": "^7.1.1",
     "dotenv": "^4.0.0",
-    "good": "^7.3.0",
+    "good": "^8.0.0-rc1",
     "good-console": "^6.4.1",
     "good-squeeze": "^5.0.2",
+    "graphql": "^0.12.3",
+    "graphql-import": "^0.4.1",
+    "graphql-tools": "^2.18.0",
     "hapi": "^17.2.0",
     "hapi-auth-jwt2": "^7.4.1",
     "hapi-swagger": "^9.0.2",
-    "inert": "^5.0.1",
+    "inert": "^5.1.0",
     "joi": "^13.1.0",
     "jsonwebtoken": "^8.1.0",
     "lodash.throttle": "^4.1.1",
+    "lodash.words": "^4.2.0",
+    "mongoose": "^5.0.0",
     "normalize.css": "^7.0.0",
+    "sanitizer": "^0.1.3",
     "smoothscroll-polyfill": "^0.4.0"
   }
 }

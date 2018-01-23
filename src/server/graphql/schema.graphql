@@ -1,0 +1,68 @@
+scalar Date
+
+type Auth {
+  token: String!
+}
+
+type User {
+  _id: ID!
+  username: String!
+  password: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+  accountCreated: Date!
+  blogPosts: [BlogPost]
+}
+
+type BlogPost {
+  _id: ID!
+  title: String!
+  content: String!
+  author: String!
+  wordCount: Int
+  thumbnail: String
+  tags: [String]!
+  published: Date!
+  edited: Date
+}
+
+type Query {
+  user(_id: String!): User
+  users: [User]
+  getAllUserPosts(id: ID!): [BlogPost]
+  getUserPost(userId: ID!, postId: ID!): BlogPost
+}
+
+type Mutation {
+  signup(
+    email: String!
+    username: String!
+    password: String!
+    firstName: String!
+    lastName: String!
+  ): Auth!
+
+  signin(email: String!, password: String!): Auth!
+
+  updateUser(
+    userId: ID!
+    username: String
+    email: String
+    firstName: String
+    lastName: String
+  ): User!
+
+  deleteUser(userId: ID!): User!
+
+  createPost(userId: ID!, title: String!, body: String!, imgUrl: String, tags: [String]): BlogPost!
+
+  updatePost(userId: ID!, postId: ID!, title: String, body: String, tags: [String]): BlogPost!
+
+  deletePost(userId: ID!, postId: ID!): BlogPost!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
