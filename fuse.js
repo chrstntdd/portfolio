@@ -46,7 +46,6 @@ context(
         homeDir: 'src/client',
         output: `${clientOut}/$name.js`,
         log: true,
-        hash: isProd,
         sourceMaps: !isProd,
         target: 'browser@es5',
         cache: true,
@@ -58,13 +57,7 @@ context(
             CSSResourcePlugin({
               inline: true
             }),
-            isProd
-              ? CSSPlugin({
-                  group: 'main.css',
-                  outFile: `${clientOut}/main.css`,
-                  inject: false
-                })
-              : CSSPlugin()
+            CSSPlugin()
           ],
           isProd ? ElmPlugin() : ElmPlugin({ warn: true, debug: true }),
           SVGPlugin(),
@@ -77,11 +70,11 @@ context(
           }),
           isProd &&
             QuantumPlugin({
-              ensureES5: true,
               removeExportsInterop: false,
               bakeApiIntoBundle: 'app',
               uglify: true,
-              treeshake: true
+              treeshake: true,
+              css: true
             })
         ]
       });
@@ -161,7 +154,7 @@ task('b:copy', ['&copy-keys', '&copy-schema']);
 /* CUSTOM BUILD TASKS */
 task('purify', () => {
   const content = ['src/client**/*.elm', 'src/client**/*.html'];
-  const css = [`${clientOut}/main.css`];
+  const css = [`${clientOut}/styles.css`];
   const options = {
     output: `${clientOut}/pure.css`,
     minify: true,
@@ -169,8 +162,7 @@ task('purify', () => {
   };
   purify(content, css, options);
 
-  unlinkSync(`${clientOut}/main.css`);
-  unlinkSync(`${clientOut}/main.css.map`);
+  unlinkSync(`${clientOut}/styles.css`);
 
   info('💎  ALL CSS IS PURE 💎');
 });
@@ -195,28 +187,3 @@ task('back-prod', async context => {
 });
 
 task('all', ['&front-prod', '&back-prod'], () => info("THAT'S ALL FOLX"));
-
-/* DEFINE BUILD TASKS FOR EACH CASE
-f:dev = front-end development
-
- * 1. build client assets, use dev server.
- *  -> clean clientOut
- *  -> bundle
- *  -> copy static assets
-
- * 2. build client assets for prod
- *  -> clean clientOut
- *  -> prod bundle
- *  -> copy static assets
- *  -> run purify 
-
- * 3. build server assets
- *  -> clean dist
- *  -> run tsc for server
- *  -> copy server assets
-
- * 4. watch server assets
- *  -> clean dist
- *  -> run tsc in watch mode for server
- *  -> copy server assets
- */

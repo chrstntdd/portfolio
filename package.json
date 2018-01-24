@@ -19,7 +19,7 @@
     "@types/node": "^9.3.0",
     "autoprefixer": "^7.2.3",
     "elm": "^0.18.0",
-    "fuse-box": "^3.0.2",
+    "fuse-box": "^3.1.0-next.16",
     "fuse-box-elm-plugin": "^1.1.1",
     "node-sass": "^4.7.2",
     "postcss-flexbugs-fixes": "^3.3.0",
