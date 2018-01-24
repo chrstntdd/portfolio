@@ -15,9 +15,10 @@ const purify = require('purify-css');
 const { unlinkSync } = require('fs');
 const { join } = require('path');
 const express = require('express');
+const { info } = console;
 
 const POSTCSS_PLUGINS = [
-  require('postcss-flexibility'),
+  require('postcss-flexbugs-fixes'),
   autoprefixer({
     browsers: [
       'Chrome >= 52',
@@ -28,6 +29,7 @@ const POSTCSS_PLUGINS = [
     ]
   })
 ];
+
 const outDir = join(__dirname, '/dist');
 const clientOut = join(outDir, '/public');
 
@@ -37,7 +39,7 @@ const all = './**/**.*';
 
 context(
   class {
-    getMainConfig() {
+    compileClient() {
       const isProd = this.isProduction;
 
       return FuseBox.init({
@@ -84,19 +86,33 @@ context(
         ]
       });
     }
+
+    async compileServer() {
+      const isProd = this.isProduction;
+
+      await tsc('src/server', {
+        target: 'esnext',
+        outDir: 'dist/',
+        listEmittedFiles: true,
+        watch: !isProd,
+        sourceMap: !isProd
+      });
+    }
   }
 );
 
-task('prod-build', async context => {
+/* INDIVIDIAL BUILD TASKS USED IN VARIOUS BUILD TASK CHAINS */
+task('client-prod-build', async context => {
   context.isProduction = true;
-  const fuse = context.getMainConfig();
+
+  const fuse = context.compileClient();
   fuse.bundle('app').instructions('!> index.js');
 
   await fuse.run();
 });
 
-task('dev-build', async context => {
-  const fuse = context.getMainConfig();
+task('client-dev-build', async context => {
+  const fuse = context.compileClient();
 
   fuse.dev({ root: false }, server => {
     const app = server.httpServer.app;
@@ -115,31 +131,34 @@ task('dev-build', async context => {
   await fuse.run();
 });
 
-task(
-  'server-build',
-  async () =>
-    await tsc('src/server', {
-      target: 'esnext',
-      outDir: 'dist/'
-    })
+task('server-build', async context => await context.compileServer());
+
+/* TASKS TO COPY FILES */
+task('copy-static', () =>
+  src(all, { base: './src/client/assets/' }).dest(`${clientOut}/assets`)
 );
 
-task('copy-static', () => src(all, { base: './src/client/assets/' }).dest(`${clientOut}/assets`));
-
 task('copy-keys', () =>
-  src('./**/*.{pem,crt}', { base: './src/server/keys/' }).dest(join(outDir, '/keys'))
+  src(all, { base: './src/server/keys/' }).dest(join(outDir, '/keys'))
 );
 
 task('copy-schema', () =>
-  src('./**/*.graphql', { base: './src/server/graphql' }).dest(join(outDir, '/graphql'))
+  src('./**/*.graphql', { base: './src/server/graphql' }).dest(
+    join(outDir, '/graphql')
+  )
 );
 
-task('copy-server-assets', ['&copy-keys', '&copy-schema']);
-
+/* TASKS TO CLEAN OUT OLD FILES BEFORE COMPILATION */
 task('client-clean', () => src(`${clientOut}/*`).clean(clientOut));
 
 task('server-clean', () => src(`${outDir}/*`).clean(outDir));
 
+/* PARALLEL TASKS */
+task('f:dev', ['&client-dev-build', '&copy-static']);
+task('f:prod', ['&client-prod-build', '&copy-static']);
+task('b:copy', ['&copy-keys', '&copy-schema']);
+
+/* CUSTOM BUILD TASKS */
 task('purify', () => {
   const content = ['src/client**/*.elm', 'src/client**/*.html'];
   const css = [`${clientOut}/main.css`];
@@ -153,16 +172,51 @@ task('purify', () => {
   unlinkSync(`${clientOut}/main.css`);
   unlinkSync(`${clientOut}/main.css.map`);
 
-  console.info('💎  ALL CSS IS PURE 💎');
+  info('💎  ALL CSS IS PURE 💎');
 });
 
-task('default', ['clean', 'dev-build', 'copy-static'], () =>
-  console.info('👊 Development server is live. GET TO WORK! 👊')
-);
-task('dist', ['client-clean', 'prod-build', 'copy-static', 'purify'], () =>
-  console.info('READY 4 PROD')
+/* MAIN BUILD TASK CHAINS */
+task('front-dev', ['client-clean', 'f:dev'], () =>
+  info('The front end assets have been bundled. GET TO WORK!')
 );
 
-task('server', ['server-clean', 'copy-server-assets', 'server-build'], () =>
-  console.log('YER BUILDT')
+task('front-prod', ['client-clean', 'f:prod', 'purify'], () =>
+  info('The front end assets are optimized, bundled, and ready for production.')
 );
+
+task('back-dev', ['server-clean', 'b:copy', 'server-build'], () => {
+  info('The back end code has been compiled. GET TO WORK!');
+});
+
+task('back-prod', async context => {
+  context.isProduction = true;
+  await exec('server-clean', 'b:copy', 'server-build');
+  info('The back end code has been compiled for production. GET TO WORK!');
+});
+
+task('all', ['&front-prod', '&back-prod'], () => info("THAT'S ALL FOLX"));
+
+/* DEFINE BUILD TASKS FOR EACH CASE
+f:dev = front-end development
+
+ * 1. build client assets, use dev server.
+ *  -> clean clientOut
+ *  -> bundle
+ *  -> copy static assets
+
+ * 2. build client assets for prod
+ *  -> clean clientOut
+ *  -> prod bundle
+ *  -> copy static assets
+ *  -> run purify 
+
+ * 3. build server assets
+ *  -> clean dist
+ *  -> run tsc for server
+ *  -> copy server assets
+
+ * 4. watch server assets
+ *  -> clean dist
+ *  -> run tsc in watch mode for server
+ *  -> copy server assets
+ */

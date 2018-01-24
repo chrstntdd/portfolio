@@ -6,48 +6,11 @@
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/bcrypt/-/bcrypt-1.0.0.tgz#2c523da191db7d41c06d17de235335c985effe9b"
 
-"@types/boom@^4":
-  version "4.3.9"
-  resolved "https://registry.yarnpkg.com/@types/boom/-/boom-4.3.9.tgz#6f9adc1074e81cbf01b8d1ed5878aa1ee89bb22d"
-
 "@types/boom@^7.1.0":
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/@types/boom/-/boom-7.1.1.tgz#2cb2d59600bf67a341d962921cbf2943f758ff6e"
 
-"@types/catbox@*":
-  version "7.1.5"
-  resolved "https://registry.yarnpkg.com/@types/catbox/-/catbox-7.1.5.tgz#d14e4e132a628da850a042aec1b37f088f89ecae"
-  dependencies:
-    "@types/boom" "^4"
-
-"@types/events@*":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@types/events/-/events-1.1.0.tgz#93b1be91f63c184450385272c47b6496fd028e02"
-
-"@types/graphql@^0.12.1":
-  version "0.12.1"
-  resolved "https://registry.yarnpkg.com/@types/graphql/-/graphql-0.12.1.tgz#2c2f9a0da3cd23ee1ce7a6e6c9135ceeb9131c05"
-
-"@types/hapi@*":
-  version "16.1.12"
-  resolved "https://registry.yarnpkg.com/@types/hapi/-/hapi-16.1.12.tgz#d51a5834321c71fe9bbd4a51800e83798e9a9f9c"
-  dependencies:
-    "@types/boom" "^4"
-    "@types/catbox" "*"
-    "@types/events" "*"
-    "@types/joi" "*"
-    "@types/mimos" "*"
-    "@types/node" "*"
-    "@types/podium" "*"
-    "@types/shot" "*"
-
-"@types/inert@^4.2.5":
-  version "4.2.5"
-  resolved "https://registry.yarnpkg.com/@types/inert/-/inert-4.2.5.tgz#4e2113035b752d5aaca8c57de5278651ecd8153d"
-  dependencies:
-    "@types/hapi" "*"
-
-"@types/joi@*", "@types/joi@^13.0.5":
+"@types/joi@^13.0.5":
   version "13.0.5"
   resolved "https://registry.yarnpkg.com/@types/joi/-/joi-13.0.5.tgz#50829402204e8fec8ee287eeb37d79fbff34913c"
 
@@ -57,16 +20,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/mime-db@*":
-  version "1.27.0"
-  resolved "https://registry.yarnpkg.com/@types/mime-db/-/mime-db-1.27.0.tgz#9bc014a1fd1fdf47649c1a54c6dd7966b8284792"
-
-"@types/mimos@*":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@types/mimos/-/mimos-3.0.1.tgz#59d96abe1c9e487e7463fe41e8d86d76b57a441a"
-  dependencies:
-    "@types/mime-db" "*"
-
 "@types/node@*", "@types/node@^9.3.0":
   version "9.3.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-9.3.0.tgz#3a129cda7c4e5df2409702626892cb4b96546dd5"
@@ -74,16 +27,6 @@
 "@types/node@^8.0.53":
   version "8.5.9"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.5.9.tgz#7155cfb4ae405bca4dd8df1a214c339e939109bf"
-
-"@types/podium@*":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@types/podium/-/podium-1.0.0.tgz#bfaa2151be2b1d6109cc69f7faa9dac2cba3bb20"
-
-"@types/shot@*":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@types/shot/-/shot-3.4.0.tgz#459477c5187d3ebd303660ab099e7e9e0f3b656f"
-  dependencies:
-    "@types/node" "*"
 
 "@types/strip-bom@^3.0.0":
   version "3.0.0"
@@ -1880,8 +1823,8 @@ joi@8.1.x:
     topo "2.x.x"
 
 js-base64@^2.1.8:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.1.tgz#e02813181cd53002888e918935467acb2910e596"
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.2.tgz#1896da010ef8862f385d8887648e9b6dc4a7a2e9"
 
 js-yaml@^3.10.0:
   version "3.10.0"
@@ -2706,9 +2649,9 @@ podium@3.x.x:
     hoek "5.x.x"
     joi "13.x.x"
 
-postcss-flexibility@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/postcss-flexibility/-/postcss-flexibility-2.0.0.tgz#5612c1b85d6595ed480966839928a41617a6a768"
+postcss-flexbugs-fixes@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/postcss-flexbugs-fixes/-/postcss-flexbugs-fixes-3.3.0.tgz#e00849b536063749da50a0d410ba5d9ee65e27b8"
   dependencies:
     postcss "^6.0.1"
 
