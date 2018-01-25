@@ -5,8 +5,7 @@ const {
   SassPlugin,
   QuantumPlugin,
   PostCSSPlugin,
-  WebIndexPlugin,
-  CSSResourcePlugin
+  WebIndexPlugin
 } = require('fuse-box');
 const { src, task, exec, context, tsc } = require('fuse-box/sparky');
 const { ElmPlugin } = require('fuse-box-elm-plugin');
@@ -16,6 +15,7 @@ const { unlinkSync } = require('fs');
 const { join } = require('path');
 const express = require('express');
 const { info } = console;
+const fs = require('fs-extra');
 
 const POSTCSS_PLUGINS = [
   require('postcss-flexbugs-fixes'),
@@ -48,17 +48,10 @@ context(
         log: true,
         sourceMaps: !isProd,
         target: 'browser@es5',
-        cache: true,
+        cache: !isProd,
         tsConfig: 'src/client/tsconfig.json',
         plugins: [
-          [
-            SassPlugin(),
-            PostCSSPlugin(POSTCSS_PLUGINS),
-            CSSResourcePlugin({
-              inline: true
-            }),
-            CSSPlugin()
-          ],
+          [SassPlugin(), PostCSSPlugin(POSTCSS_PLUGINS), CSSPlugin()],
           isProd ? ElmPlugin() : ElmPlugin({ warn: true, debug: true }),
           SVGPlugin(),
           WebIndexPlugin({
@@ -127,18 +120,12 @@ task('client-dev-build', async context => {
 task('server-build', async context => await context.compileServer());
 
 /* TASKS TO COPY FILES */
-task('copy-static', () =>
-  src(all, { base: './src/client/assets/' }).dest(`${clientOut}/assets`)
-);
+task('copy-static', () => src(all, { base: './src/client/assets/' }).dest(`${clientOut}/assets`));
 
-task('copy-keys', () =>
-  src(all, { base: './src/server/keys/' }).dest(join(outDir, '/keys'))
-);
+task('copy-keys', () => src(all, { base: './src/server/keys/' }).dest(join(outDir, '/keys')));
 
 task('copy-schema', () =>
-  src('./**/*.graphql', { base: './src/server/graphql' }).dest(
-    join(outDir, '/graphql')
-  )
+  src('./**/*.graphql', { base: './src/server/graphql' }).dest(join(outDir, '/graphql'))
 );
 
 /* TASKS TO CLEAN OUT OLD FILES BEFORE COMPILATION */
@@ -150,6 +137,7 @@ task('server-clean', () => src(`${outDir}/*`).clean(outDir));
 task('f:dev', ['&client-dev-build', '&copy-static']);
 task('f:prod', ['&client-prod-build', '&copy-static']);
 task('b:copy', ['&copy-keys', '&copy-schema']);
+task('all:prod', ['&front-prod', '&back-prod']);
 
 /* CUSTOM BUILD TASKS */
 task('purify', () => {
@@ -186,4 +174,8 @@ task('back-prod', async context => {
   info('The back end code has been compiled for production. GET TO WORK!');
 });
 
-task('all', ['&front-prod', '&back-prod'], () => info("THAT'S ALL FOLX"));
+task('all', async () => {
+  await fs.remove(join(__dirname, '/.fusebox/'));
+  await exec('all:prod');
+  info("THAT'S ALL FOLX");
+});

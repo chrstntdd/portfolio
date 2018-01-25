@@ -177,18 +177,18 @@ view model =
         appFooter =
             footer currentYear
     in
-    case page of
-        Home ->
-            appShell [ aboveTheFold navIsOpen ]
+        case page of
+            Home ->
+                appShell [ aboveTheFold navIsOpen ]
 
-        About ->
-            appShell [ about, appFooter ]
+            About ->
+                appShell [ about, appFooter ]
 
-        Portfolio ->
-            appShell [ portfolio projects, appFooter ]
+            Portfolio ->
+                appShell [ portfolio projects, appFooter ]
 
-        Contact ->
-            appShell [ contact, appFooter ]
+            Contact ->
+                appShell [ contact, appFooter ]
 
 
 navBar : Bool -> Int -> List NavLink -> Html Msg
@@ -200,16 +200,16 @@ navBar navIsOpen viewportWidth navLinks =
             else
                 class ""
     in
-    nav
-        [ id "main-nav", navClass ]
-        [ ul [ id "nav-list" ]
-            (List.map renderNavLink navLinks)
-        , if viewportWidth > 768 then
-            {- DONT SHOW HAMBURGER ON DESKTOP -}
-            Html.text ""
-          else
-            hamburgerMenu navIsOpen
-        ]
+        nav
+            [ id "main-nav", navClass ]
+            [ ul [ id "nav-list" ]
+                (List.map renderNavLink navLinks)
+            , if viewportWidth > 768 then
+                {- DONT SHOW HAMBURGER ON DESKTOP -}
+                Html.text ""
+              else
+                hamburgerMenu navIsOpen
+            ]
 
 
 renderNavLink : NavLink -> Html Msg
@@ -228,11 +228,11 @@ hamburgerMenu navIsOpen =
             else
                 class "hamburger"
     in
-    button [ id "hamburger-button", onClick ToggleHamburger ]
-        [ span
-            [ hamburgerClass ]
-            [ span [ class "hamburger-inner" ] [] ]
-        ]
+        button [ id "hamburger-button", onClick ToggleHamburger ]
+            [ span
+                [ hamburgerClass ]
+                [ span [ class "hamburger-inner" ] [] ]
+            ]
 
 
 aboveTheFold : Bool -> Html Msg
@@ -244,14 +244,14 @@ aboveTheFold navIsOpen =
             else
                 [ class "overlay" ]
     in
-    header []
-        [ div overlayAttrs []
-        , div [ id "hero-img" ] []
-        , div [ id "hero-text" ]
-            [ h1 [] [ text "Christian Todd" ]
-            , h3 [] [ text "Web Developer" ]
+        header []
+            [ div overlayAttrs []
+            , div [ id "hero-img" ] []
+            , div [ id "hero-text" ]
+                [ h1 [] [ text "Christian Todd" ]
+                , h3 [] [ text "Web Developer" ]
+                ]
             ]
-        ]
 
 
 about : Html Msg
@@ -260,7 +260,7 @@ about =
         [ section [ id "about" ]
             [ div [ id "about-container" ]
                 [ h1 [] [ text "About me" ]
-                , img [ src "/m-portrait.jpg", alt "portrait" ] []
+                , img [ src "/assets/m-portrait.jpg", alt "portrait" ] []
                 , p [] [ text "Hi, my name is Christian. I was first introduced to programming as a college student studying mechanical engineering.\n          I was initially fascinated by how vast the world of code is and everything there is to learn. I remain interested\n          by how there are countless ways to express a solution to a problem and the opportunities for constant iteration\n          upon what already exists. When I'm not busy programming, you can usually find me outside exploring the North End\n          beaches in my hometown of Virginia Beach. I also enjoy listening to my growing vinyl collection and sipping on\n          locally roasted coffee." ]
                 ]
             ]
@@ -273,10 +273,10 @@ portfolio projects =
         projectCards =
             List.map renderProjectCard projects
     in
-    section [ id "portfolio" ]
-        [ h1 [ id "port-header" ] [ text "Previous work" ]
-        , div [ id "project-container" ] projectCards
-        ]
+        section [ id "portfolio" ]
+            [ h1 [ id "port-header" ] [ text "Previous work" ]
+            , div [ id "project-container" ] projectCards
+            ]
 
 
 renderProjectCard : Project -> Html Msg
@@ -285,22 +285,22 @@ renderProjectCard project =
         { title, imageData, techStack, description, repo, demo } =
             project
     in
-    div [ class "project-card" ]
-        [ h1 [] [ text title ]
-        , ul [ class "proj-thumbnails" ] (List.map (\i -> li [] [ img [ src i.src, alt i.alt ] [] ]) imageData)
-        , div [ class "tech-container" ]
-            [ h4 [] [ text "Technology" ]
-            , ul [] (List.map (\tech -> li [] [ text tech ]) techStack)
+        div [ class "project-card" ]
+            [ h1 [] [ text title ]
+            , ul [ class "proj-thumbnails" ] (List.map (\i -> li [] [ img [ src i.src, alt i.alt ] [] ]) imageData)
+            , div [ class "tech-container" ]
+                [ h4 [] [ text "Technology" ]
+                , ul [] (List.map (\tech -> li [] [ text tech ]) techStack)
+                ]
+            , p [ class "links" ]
+                [ a [ href repo ] [ text "Repo" ]
+                , text " | "
+                , a [ href demo ] [ text "Demo" ]
+                ]
+            , p [ class "description" ]
+                [ p [] [ text description ]
+                ]
             ]
-        , p [ class "links" ]
-            [ a [ href repo ] [ text "Repo" ]
-            , text " | "
-            , a [ href demo ] [ text "Demo" ]
-            ]
-        , p [ class "description" ]
-            [ p [] [ text description ]
-            ]
-        ]
 
 
 contact : Html Msg
@@ -310,13 +310,13 @@ contact =
         , p [ class "email" ] [ text "christian.todd7@gmail.com" ]
         , ul []
             [ li []
-                [ a [ href "https://github.com/chrstntdd" ] [ text "github" ]
+                [ a [ href "https://github.com/chrstntdd" ] [ img [ src "/assets/github.svg", alt "Github mark icon" ] [] ]
                 ]
             , li []
-                [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/" ] [ text "linkedIn" ]
+                [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/" ] [ img [ src "/assets/linkedin.svg", alt "LinkedIn text icon" ] [] ]
                 ]
             , li []
-                [ a [ href "https://twitter.com/_chrstntdd?lang=en" ] [ text "twitter" ]
+                [ a [ href "https://twitter.com/_chrstntdd?lang=en" ] [ img [ src "/assets/twitter.svg", alt "twitter bird icon" ] [] ]
                 ]
             ]
         ]
@@ -384,12 +384,12 @@ init location =
         cmd =
             [ perform GetYear Date.now ]
     in
-    case page of
-        Home ->
-            { initialModel | page = Home } ! cmd
+        case page of
+            Home ->
+                { initialModel | page = Home } ! cmd
 
-        _ ->
-            modelWithLocation location initialModel ! cmd
+            _ ->
+                modelWithLocation location initialModel ! cmd
 
 
 modelWithLocation : Location -> Model -> Model
@@ -400,7 +400,7 @@ modelWithLocation location model =
                 |> Routes.pathParser
                 |> Maybe.withDefault Home
     in
-    { model | page = page }
+        { model | page = page }
 
 
 

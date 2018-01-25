@@ -12,7 +12,6 @@
   z-index: 9999999999;
 }
 
-
 /* BREAKPOINTS */
 
 $bp-xxsmall: 320px;
@@ -24,7 +23,7 @@ $bp-xlarge: 1920px;
 $bp-xxlarge: 2560px;
 $DARK_BG_COLOR: #14161e;
 $OFF_WHITE: #f2f2f2;
-$OFF_WHITE2: #F7FFF7;
+$OFF_WHITE2: #f7fff7;
 :root {
   font-size: 14px;
   @media (min-width: $bp-xsmall) {
@@ -34,7 +33,6 @@ $OFF_WHITE2: #F7FFF7;
     font-size: 20px;
   }
 }
-
 
 /**
  * Here lies all of the styles for the page
@@ -86,7 +84,8 @@ header {
   }
   #hero-img {
     background-color: lighten(grey, 25%);
-    background-image: linear-gradient( to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('/assets/alt-hero.jpg');
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+      url('/assets/alt-hero.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -161,6 +160,7 @@ header {
 .__page-wrapper__ {
   left: 0; // transition: 0.3s ease-in-out all;
   width: 100%;
+  height: 100%;
   position: absolute;
 }
 
@@ -213,7 +213,7 @@ header {
 }
 
 #hamburger-button {
-  @media(min-width: $bp-small) {
+  @media (min-width: $bp-small) {
     display: none;
   }
   outline-color: $OFF_WHITE2;
@@ -333,19 +333,16 @@ header {
   #project-container {
     display: flex;
     justify-content: center;
-    @media(max-width: $bp-small) {
+    @media (max-width: $bp-small) {
       flex-wrap: wrap;
     }
     .project-card {
       width: between(300px, 600px, $bp-xxsmall, $bp-xlarge);
-      @media(max-width: $bp-xsmall) {
+      @media (max-width: $bp-xsmall) {
         flex-wrap: wrap;
       }
       margin: 0.5rem;
-      box-shadow: 0px 13px 35px 1px rgba(0,
-      0,
-      0,
-      0.82);
+      box-shadow: 0px 13px 35px 1px rgba(0, 0, 0, 0.82);
       background-color: $OFF_WHITE;
       display: flex;
       flex-direction: column;
@@ -427,7 +424,8 @@ header {
   align-items: center;
   flex-direction: column;
   background-color: $DARK_BG_COLOR;
-  padding: 0.8rem;
+  height: 100%;
+  padding: 2rem 0.8rem 0.8rem 0.8rem;
   p {
     margin: 0.5rem auto;
     color: $OFF_WHITE;
@@ -445,6 +443,8 @@ header {
     padding-left: 0;
     display: flex;
     justify-content: center;
+    align-items: center;
+    flex-direction: column;
     li {
       margin: auto 10%;
       list-style: none;
@@ -456,6 +456,10 @@ header {
         margin-bottom: 0;
         &:hover {
           color: darken($OFF_WHITE, 40%);
+        }
+        img {
+          max-height: 80px;
+          margin: 0.8rem;
         }
       }
     }
