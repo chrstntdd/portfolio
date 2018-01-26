@@ -9,6 +9,7 @@ import Navigation exposing (Location, newUrl)
 import Port exposing (..)
 import Routes exposing (..)
 import Task exposing (perform)
+import SelectList as Zip exposing (fromLists, toList, select, selected, SelectList)
 
 
 {- UTILITY FUNCTIONS -}
@@ -44,6 +45,11 @@ unwrap d f m =
 {- MODEL -}
 
 
+type Direction
+    = Right
+    | Left
+
+
 type alias ImageData =
     { src : String
     , alt : String
@@ -73,7 +79,7 @@ type alias Model =
     , page : Page
     , currentYear : Int
     , navLinks : List NavLink
-    , projects : List Project
+    , projects : SelectList Project
     }
 
 
@@ -84,13 +90,14 @@ initialModel =
     , page = Home
     , currentYear = 0
     , projects =
-        [ { title = "Quantified"
-          , imageData =
+        fromLists []
+            { title = "Quantified"
+            , imageData =
                 [ { src = "/assets/q1-ss-min.png", alt = "" }
                 , { src = "/assets/q2-ss-min.png", alt = "" }
                 , { src = "/assets/q3-ss-min.png", alt = "" }
                 ]
-          , techStack =
+            , techStack =
                 [ "HTML5"
                 , "React / Redux"
                 , "TypeScript / JavaScript"
@@ -100,50 +107,50 @@ initialModel =
                 , "MongoDB / Mongoose"
                 , "Travis CI"
                 ]
-          , repo = "https://github.com/chrstntdd/bby-react"
-          , demo = "https://quantified.netlify.com/"
-          , description =
+            , repo = "https://github.com/chrstntdd/bby-react"
+            , demo = "https://quantified.netlify.com/"
+            , description =
                 "Full stack React/Redux application with separate API powered by the Best Buy API that allows users to organize product data into a table."
-          }
-        , { title = "VinylDB"
-          , imageData =
-                [ { src = "/assets/vdb-ss-1-min.png", alt = "desc" }
-                , { src = "/assets/vdb-ss-2-min.png", alt = "desc" }
-                , { src = "/assets/vdb-ss-3-min.png", alt = "desc" }
-                ]
-          , techStack =
-                [ "HTML5"
-                , "PUG"
-                , "SCSS / CSS"
-                , "Javascript / jQuery"
-                , "NodeJS / Express"
-                , "Mocha / Chai"
-                , "MongoDB / Mongoose"
-                , "Travis CI"
-                ]
-          , repo = "https://github.com/chrstntdd/vinyl-db"
-          , demo = "https://obscure-island-83164.herokuapp.com/"
-          , description =
-                "Full stack Javascript web application utilizing the Discogs API to manage/track user's vinyl collection."
-          }
-        , { title = "Roaster Nexus"
-          , imageData =
-                [ { src = "/assets/rn-ss-1-min.png", alt = "des" }
-                , { src = "/assets/rn-ss-2-min.png", alt = "des" }
-                , { src = "/assets/rn-ss-3-min.png", alt = "des" }
-                ]
-          , techStack =
-                [ "HTML5"
-                , "SCSS / CSS"
-                , "jQuery"
-                , "Google Maps API"
-                ]
-          , repo = "https://github.com/chrstntdd/roaster-nexus"
-          , demo = "https://chrstntdd.github.io/roaster-nexus/"
-          , description =
-                "Web app powered by the Google Maps API and Jquery that connects users with local coffee roasters."
-          }
-        ]
+            }
+            [ { title = "VinylDB"
+              , imageData =
+                    [ { src = "/assets/vdb-ss-1-min.png", alt = "desc" }
+                    , { src = "/assets/vdb-ss-2-min.png", alt = "desc" }
+                    , { src = "/assets/vdb-ss-3-min.png", alt = "desc" }
+                    ]
+              , techStack =
+                    [ "HTML5"
+                    , "PUG"
+                    , "SCSS / CSS"
+                    , "Javascript / jQuery"
+                    , "NodeJS / Express"
+                    , "Mocha / Chai"
+                    , "MongoDB / Mongoose"
+                    , "Travis CI"
+                    ]
+              , repo = "https://github.com/chrstntdd/vinyl-db"
+              , demo = "https://obscure-island-83164.herokuapp.com/"
+              , description =
+                    "Full stack Javascript web application utilizing the Discogs API to manage/track user's vinyl collection."
+              }
+            , { title = "Roaster Nexus"
+              , imageData =
+                    [ { src = "/assets/rn-ss-1-min.png", alt = "des" }
+                    , { src = "/assets/rn-ss-2-min.png", alt = "des" }
+                    , { src = "/assets/rn-ss-3-min.png", alt = "des" }
+                    ]
+              , techStack =
+                    [ "HTML5"
+                    , "SCSS / CSS"
+                    , "jQuery"
+                    , "Google Maps API"
+                    ]
+              , repo = "https://github.com/chrstntdd/roaster-nexus"
+              , demo = "https://chrstntdd.github.io/roaster-nexus/"
+              , description =
+                    "Web app powered by the Google Maps API and Jquery that connects users with local coffee roasters."
+              }
+            ]
     , navLinks =
         [ { href_ = "/", to = Home, label = "Home" }
         , { href_ = "/about", to = About, label = "About" }
@@ -267,15 +274,17 @@ about =
         ]
 
 
-portfolio : List Project -> Html Msg
+portfolio : SelectList Project -> Html Msg
 portfolio projects =
     let
-        projectCards =
-            List.map renderProjectCard projects
+        currentProj =
+            projects |> Zip.selected |> renderProjectCard
     in
         section [ id "portfolio" ]
             [ h1 [ id "port-header" ] [ text "Previous work" ]
-            , div [ id "project-container" ] projectCards
+            , button [ onClick (SwitchProject Right) ] [ text "Next" ]
+            , button [ onClick (SwitchProject Left) ] [ text "Back" ]
+            , currentProj
             ]
 
 
@@ -341,6 +350,7 @@ type Msg
     | Outside InfoForElm
     | LogErr String
     | GetYear Date
+    | SwitchProject Direction
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -369,6 +379,27 @@ update msg model =
 
         ToggleHamburger ->
             { model | navIsOpen = not model.navIsOpen } ! []
+
+        SwitchProject dir ->
+            let
+                getListHead : List Project -> Project
+                getListHead projectList =
+                    projectList |> List.head |> Maybe.withDefault (Zip.selected model.projects)
+
+                nextSelectedProject : Project
+                nextSelectedProject =
+                    case dir of
+                        Right ->
+                            model.projects |> Zip.after |> getListHead
+
+                        Left ->
+                            model.projects |> Zip.before |> List.reverse |> getListHead
+
+                nextProjectState : SelectList Project
+                nextProjectState =
+                    Zip.select (\x -> x == nextSelectedProject) model.projects
+            in
+                { model | projects = nextProjectState } ! []
 
 
 
