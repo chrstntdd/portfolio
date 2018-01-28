@@ -57,7 +57,7 @@ context(
           WebIndexPlugin({
             template,
             title,
-            path: './',
+            path: '/',
             pre: { relType: 'load' },
             async: true
           }),
