@@ -284,7 +284,7 @@ portfolio projects =
             [ h1 [ id "port-header" ] [ text "Previous work" ]
             , button [ onClick (SwitchProject Right) ] [ text "Next" ]
             , button [ onClick (SwitchProject Left) ] [ text "Back" ]
-            , currentProj
+            , div [ id "project-container" ] [ currentProj ]
             ]
 
 
@@ -397,7 +397,7 @@ update msg model =
 
                 nextProjectState : SelectList Project
                 nextProjectState =
-                    Zip.select (\x -> x == nextSelectedProject) model.projects
+                    Zip.select (\a -> a == nextSelectedProject) model.projects
             in
                 { model | projects = nextProjectState } ! []
 
