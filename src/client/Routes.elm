@@ -1,47 +1,75 @@
-module Routes exposing (..)
+module Routes exposing (Route(..), fromLocation, href, routeToString)
 
 import Navigation
-import UrlParser as Url exposing ((</>), (<?>), s, stringParam, top, Parser, oneOf, parsePath, map)
+import Html exposing (Attribute)
+import Html.Attributes as Attr
+import UrlParser exposing ((</>), s, string, top, Parser, oneOf, parsePath, map)
 
 
 type alias JWT =
     String
 
 
-type Page
+type Route
     = Home
     | About
-    | Portfolio
+    | Projects
+    | ActiveProject String
     | Contact
+    | NotFound
 
 
-pageParser : Parser (Page -> a) a
-pageParser =
+route : Parser (Route -> a) a
+route =
     oneOf
         [ map Home (s "")
         , map About (s "about")
-        , map Portfolio (s "portfolio")
+        , map Projects (s "projects")
+        , map ActiveProject (s "projects" </> string)
         , map Contact (s "contact")
         ]
 
 
-pageToPath : Page -> JWT -> String
-pageToPath page jwt =
+routeToString : Route -> JWT -> String
+routeToString route jwt =
     {- JWT CAN BE PASSED IN FOR AUTHENTICATING ROUTES -}
-    case page of
-        Home ->
-            "/"
+    let
+        pieces =
+            case route of
+                Home ->
+                    [ "" ]
 
-        About ->
-            "/about"
+                About ->
+                    [ "about" ]
 
-        Portfolio ->
-            "/portfolio"
+                Projects ->
+                    [ "projects" ]
 
-        Contact ->
-            "/contact"
+                ActiveProject slug ->
+                    [ "projects", slug ]
+
+                Contact ->
+                    [ "contact" ]
+
+                NotFound ->
+                    [ "404" ]
+    in
+        "/" ++ String.join "/" pieces
 
 
-pathParser : Navigation.Location -> Maybe Page
-pathParser location =
-    parsePath pageParser location
+
+{- PUBLIC HELPERS -}
+
+
+href : Route -> Attribute msg
+href route =
+    {- BLANK STRING IS THE OPTIONAL JWT -}
+    Attr.href (routeToString route "")
+
+
+fromLocation : Navigation.Location -> Maybe Route
+fromLocation location =
+    if String.isEmpty location.pathname then
+        Just Home
+    else
+        parsePath route location

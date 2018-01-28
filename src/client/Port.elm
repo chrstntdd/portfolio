@@ -1,8 +1,8 @@
 port module Port exposing (..)
 
-import Json.Decode as Decode exposing (..)
+import Json.Decode as D exposing (..)
 import Json.Decode.Pipeline exposing (decode, required)
-import Json.Encode as Encode exposing (..)
+import Json.Encode as E exposing (..)
 
 
 type alias ScreenData =
@@ -26,23 +26,23 @@ type InfoForElm
 screenDataDecoder : Decoder ScreenData
 screenDataDecoder =
     decode ScreenData
-        |> required "scrollTop" Decode.float
-        |> required "pageHeight" Decode.int
-        |> required "viewportHeight" Decode.int
-        |> required "viewportWidth" Decode.int
+        |> required "scrollTop" D.float
+        |> required "pageHeight" D.int
+        |> required "viewportHeight" D.int
+        |> required "viewportWidth" D.int
 
 
 sendInfoOutside : InfoForOutside -> Cmd msg
 sendInfoOutside info =
     case info of
         SaveModel ->
-            infoForOutside { tag = "SaveModel", data = Encode.null }
+            infoForOutside { tag = "SaveModel", data = E.null }
 
         ScrollTo elementId ->
-            infoForOutside { tag = "ScrollTo", data = Encode.string elementId }
+            infoForOutside { tag = "ScrollTo", data = E.string elementId }
 
         LogErrorToConsole err ->
-            infoForOutside { tag = "ErrorLogRequested", data = Encode.string err }
+            infoForOutside { tag = "ErrorLogRequested", data = E.string err }
 
 
 getInfoFromOutside : (InfoForElm -> msg) -> (String -> msg) -> Sub msg
@@ -51,7 +51,7 @@ getInfoFromOutside tagger onError =
         (\outsideInfo ->
             case outsideInfo.tag of
                 "ScrollOrResize" ->
-                    case Decode.decodeValue screenDataDecoder outsideInfo.data of
+                    case D.decodeValue screenDataDecoder outsideInfo.data of
                         Ok screenData ->
                             tagger <| ScrollOrResize screenData
 
@@ -65,7 +65,7 @@ getInfoFromOutside tagger onError =
 
 type alias GenericOutsideData =
     {- COMMUNICATION IS HANDLED BY PATTERN MATCHING THE TAG FIELD AND SENDING SERIALIZED DATA -}
-    { tag : String, data : Encode.Value }
+    { tag : String, data : E.Value }
 
 
 port infoForOutside : GenericOutsideData -> Cmd msg

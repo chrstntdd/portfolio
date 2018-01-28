@@ -85,7 +85,7 @@ header {
   #hero-img {
     background-color: lighten(grey, 25%);
     background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-      url('/assets/alt-hero.jpg');
+      url('/assets/hero-bg.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -113,11 +113,26 @@ header {
       line-height: 1;
       letter-spacing: 0.3rem;
       white-space: nowrap;
+
       @supports (-webkit-background-clip: text) and (-webkit-text-fill-color: transparent) {
-        background: linear-gradient(90deg, #57acc6 0, #76c93e 92%);
-        background-clip: text;
-        color: transparent;
+        background: linear-gradient(to right, #feac5e, #c779d0, #57acc6, #76c93e);
+        background-size: 400% 400%;
+        width: 100%;
+        text-align: center;
         -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: Gradient 5s ease infinite;
+        @keyframes Gradient {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
       }
     }
     h3 {
@@ -316,10 +331,37 @@ header {
   }
 }
 
+@mixin bg-gif {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: scroll;
+  height: 100vh;
+  width: 100vw;
+}
+
+.rn-bg-gif {
+  background: url('./assets/gif/coffee.gif');
+  @include bg-gif();
+  opacity: 0.5;
+}
+.vdb-bg-gif {
+  background: url('./assets/gif/records.gif');
+  @include bg-gif();
+  opacity: 0.5;
+}
+.quant-bg-gif {
+  background: url('./assets/gif/idea.gif');
+  @include bg-gif();
+  opacity: 0.5;
+}
+
+#project {
+}
+
 #portfolio {
   padding: 15% 12px 12px 12px;
   background: #f2f2f2;
-  background: linear-gradient(to bottom, #f2f2f2 6%, #14161e 97%);
   display: flex;
   flex-direction: column;
   #port-header {

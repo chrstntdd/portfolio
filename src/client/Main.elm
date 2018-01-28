@@ -1,45 +1,17 @@
 module Main exposing (..)
 
 import Date exposing (..)
+import Util exposing (unwrap, onClickLink)
 import Html exposing (Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, program, section, span, text, ul)
 import Html.Attributes exposing (alt, class, for, href, id, placeholder, src, type_)
 import Html.Events exposing (onClick, onWithOptions)
-import Json.Decode as Decode exposing (..)
-import Navigation exposing (Location, newUrl)
+import Navigation
+import SelectList
 import Port exposing (..)
-import Routes exposing (..)
+import Routes exposing (Route)
 import Task exposing (perform)
 import SelectList as Zip exposing (fromLists, toList, select, selected, SelectList)
-
-
-{- UTILITY FUNCTIONS -}
-
-
-onClickLink : msg -> Html.Attribute msg
-onClickLink msg =
-    {- FOR SINGLE PAGE NAVIGATION -}
-    onWithOptions
-        "click"
-        { preventDefault = True
-        , stopPropagation = False
-        }
-        (Decode.succeed msg)
-
-
-{-| Take a default value, a function and a `Maybe`.
-Return the default value if the `Maybe` is `Nothing`.
-If the `Maybe` is `Just a`, apply the function on `a` and return the `b`.
-That is, `unwrap d f` is equivalent to `Maybe.map f >> Maybe.withDefault d`.
--}
-unwrap : b -> (a -> b) -> Maybe a -> b
-unwrap d f m =
-    case m of
-        Nothing ->
-            d
-
-        Just a ->
-            f a
-
+import Data.Project exposing (Project)
 
 
 {- MODEL -}
@@ -50,33 +22,30 @@ type Direction
     | Left
 
 
-type alias ImageData =
-    { src : String
-    , alt : String
-    }
+type Page
+    = Blank
+    | NotFound
+    | Home
+    | Projects
+    | ActiveProject
+    | Contact
+
+
+type PageState
+    = Loaded Page
+    | TransitioningFrom Page
 
 
 type alias NavLink =
-    { href_ : String
-    , to : Page
+    { to : Route
     , label : String
-    }
-
-
-type alias Project =
-    { title : String
-    , imageData : List ImageData
-    , techStack : List String
-    , description : String
-    , repo : String
-    , demo : String
     }
 
 
 type alias Model =
     { screenData : Maybe ScreenData
     , navIsOpen : Bool
-    , page : Page
+    , page : Route
     , currentYear : Int
     , navLinks : List NavLink
     , projects : SelectList Project
@@ -87,16 +56,18 @@ initialModel : Model
 initialModel =
     { screenData = Nothing
     , navIsOpen = False
-    , page = Home
+    , page = Routes.Home
     , currentYear = 0
     , projects =
         fromLists []
             { title = "Quantified"
+            , slug = "quantified"
             , imageData =
-                [ { src = "/assets/q1-ss-min.png", alt = "" }
-                , { src = "/assets/q2-ss-min.png", alt = "" }
-                , { src = "/assets/q3-ss-min.png", alt = "" }
+                [ { src = "/assets/screenshots/q1-ss-min.png", alt = "" }
+                , { src = "/assets/screenshots/q2-ss-min.png", alt = "" }
+                , { src = "/assets/screenshots/q3-ss-min.png", alt = "" }
                 ]
+            , bgClass = "quant-bg-gif"
             , techStack =
                 [ "HTML5"
                 , "React / Redux"
@@ -113,11 +84,13 @@ initialModel =
                 "Full stack React/Redux application with separate API powered by the Best Buy API that allows users to organize product data into a table."
             }
             [ { title = "VinylDB"
+              , slug = "vinyldb"
               , imageData =
-                    [ { src = "/assets/vdb-ss-1-min.png", alt = "desc" }
-                    , { src = "/assets/vdb-ss-2-min.png", alt = "desc" }
-                    , { src = "/assets/vdb-ss-3-min.png", alt = "desc" }
+                    [ { src = "/assets/screenshots/vdb-ss-1-min.png", alt = "desc" }
+                    , { src = "/assets/screenshots/vdb-ss-2-min.png", alt = "desc" }
+                    , { src = "/assets/screenshots/vdb-ss-3-min.png", alt = "desc" }
                     ]
+              , bgClass = "vdb-bg-gif"
               , techStack =
                     [ "HTML5"
                     , "PUG"
@@ -134,11 +107,13 @@ initialModel =
                     "Full stack Javascript web application utilizing the Discogs API to manage/track user's vinyl collection."
               }
             , { title = "Roaster Nexus"
+              , slug = "roaster-nexus"
               , imageData =
-                    [ { src = "/assets/rn-ss-1-min.png", alt = "des" }
-                    , { src = "/assets/rn-ss-2-min.png", alt = "des" }
-                    , { src = "/assets/rn-ss-3-min.png", alt = "des" }
+                    [ { src = "/assets/screenshots/rn-ss-1-min.png", alt = "des" }
+                    , { src = "/assets/screenshots/rn-ss-2-min.png", alt = "des" }
+                    , { src = "/assets/screenshots/rn-ss-3-min.png", alt = "des" }
                     ]
+              , bgClass = "rn-bg-gif"
               , techStack =
                     [ "HTML5"
                     , "SCSS / CSS"
@@ -152,10 +127,10 @@ initialModel =
               }
             ]
     , navLinks =
-        [ { href_ = "/", to = Home, label = "Home" }
-        , { href_ = "/about", to = About, label = "About" }
-        , { href_ = "/portfolio", to = Portfolio, label = "Portfolio" }
-        , { href_ = "/contact", to = Contact, label = "Contact" }
+        [ { to = Routes.Home, label = "Home" }
+        , { to = Routes.About, label = "About" }
+        , { to = Routes.Projects, label = "Projects" }
+        , { to = Routes.Contact, label = "Contact" }
         ]
     }
 
@@ -185,17 +160,23 @@ view model =
             footer currentYear
     in
         case page of
-            Home ->
+            Routes.Home ->
                 appShell [ aboveTheFold navIsOpen ]
 
-            About ->
+            Routes.About ->
                 appShell [ about, appFooter ]
 
-            Portfolio ->
-                appShell [ portfolio projects, appFooter ]
+            Routes.Projects ->
+                appShell [ project projects, appFooter ]
 
-            Contact ->
+            Routes.ActiveProject slug ->
+                appShell [ Data.Project.viewProject slug (SelectList.toList projects) ]
+
+            Routes.Contact ->
                 appShell [ contact, appFooter ]
+
+            Routes.NotFound ->
+                appShell [ contact ]
 
 
 navBar : Bool -> Int -> List NavLink -> Html Msg
@@ -220,9 +201,9 @@ navBar navIsOpen viewportWidth navLinks =
 
 
 renderNavLink : NavLink -> Html Msg
-renderNavLink { href_, to, label } =
+renderNavLink { to, label } =
     li []
-        [ a [ href href_, onClickLink (NavigateTo to) ] [ text label ]
+        [ a [ Routes.href to, onClickLink (NavigateTo to) ] [ text label ]
         ]
 
 
@@ -267,21 +248,26 @@ about =
         [ section [ id "about" ]
             [ div [ id "about-container" ]
                 [ h1 [] [ text "About me" ]
-                , img [ src "/assets/m-portrait.jpg", alt "portrait" ] []
+                , img [ src "/assets/portrait.jpg", alt "2017 Portrait of myself" ] []
                 , p [] [ text "Hi, my name is Christian. I was first introduced to programming as a college student studying mechanical engineering.\n          I was initially fascinated by how vast the world of code is and everything there is to learn. I remain interested\n          by how there are countless ways to express a solution to a problem and the opportunities for constant iteration\n          upon what already exists. When I'm not busy programming, you can usually find me outside exploring the North End\n          beaches in my hometown of Virginia Beach. I also enjoy listening to my growing vinyl collection and sipping on\n          locally roasted coffee." ]
                 ]
             ]
         ]
 
 
-portfolio : SelectList Project -> Html Msg
-portfolio projects =
+project : SelectList Project -> Html Msg
+project projects =
     let
         currentProj =
             projects |> Zip.selected |> renderProjectCard
+
+        backgroundClass =
+            "bg-gif " ++ (projects |> Zip.selected |> .bgClass)
     in
-        section [ id "portfolio" ]
-            [ h1 [ id "port-header" ] [ text "Previous work" ]
+        section [ id "project" ]
+            [ div [ class backgroundClass ] []
+            , h1 [ id "port-header" ] [ text "Previous work" ]
+            , a [ Routes.href (Routes.ActiveProject "vinyldb"), onClickLink (NavigateTo (Routes.ActiveProject "vinyldb")) ] [ text "CLICK ME" ]
             , button [ onClick (SwitchProject Right) ] [ text "Next" ]
             , button [ onClick (SwitchProject Left) ] [ text "Back" ]
             , div [ id "project-container" ] [ currentProj ]
@@ -319,13 +305,13 @@ contact =
         , p [ class "email" ] [ text "christian.todd7@gmail.com" ]
         , ul []
             [ li []
-                [ a [ href "https://github.com/chrstntdd" ] [ img [ src "/assets/github.svg", alt "Github mark icon" ] [] ]
+                [ a [ href "https://github.com/chrstntdd" ] [ img [ src "/assets/icons/github.svg", alt "Github mark icon" ] [] ]
                 ]
             , li []
-                [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/" ] [ img [ src "/assets/linkedin.svg", alt "LinkedIn text icon" ] [] ]
+                [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/" ] [ img [ src "/assets/icons/linkedin.svg", alt "LinkedIn text icon" ] [] ]
                 ]
             , li []
-                [ a [ href "https://twitter.com/_chrstntdd?lang=en" ] [ img [ src "/assets/twitter.svg", alt "twitter bird icon" ] [] ]
+                [ a [ href "https://twitter.com/_chrstntdd?lang=en" ] [ img [ src "/assets/icons/twitter.svg", alt "twitter bird icon" ] [] ]
                 ]
             ]
         ]
@@ -344,13 +330,38 @@ footer currentYear =
 
 type Msg
     = NoOp
-    | UrlChange Location
+    | SetRoute (Maybe Route)
     | ToggleHamburger
-    | NavigateTo Page
+    | NavigateTo Route
     | Outside InfoForElm
     | LogErr String
     | GetYear Date
     | SwitchProject Direction
+
+
+setRoute : Maybe Route -> Model -> List (Cmd Msg) -> ( Model, Cmd Msg )
+setRoute maybeRoute model cmds =
+    case maybeRoute of
+        Nothing ->
+            { model | page = Routes.NotFound } ! cmds
+
+        Just Routes.Home ->
+            { model | page = Routes.Home } ! cmds
+
+        Just Routes.About ->
+            { model | page = Routes.About } ! cmds
+
+        Just Routes.Projects ->
+            { model | page = Routes.Projects } ! cmds
+
+        Just (Routes.ActiveProject slug) ->
+            { model | page = Routes.ActiveProject slug } ! cmds
+
+        Just Routes.Contact ->
+            { model | page = Routes.Contact } ! cmds
+
+        _ ->
+            { model | page = Routes.NotFound } ! cmds
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -358,6 +369,9 @@ update msg model =
     case msg of
         NoOp ->
             model ! []
+
+        SetRoute maybeRoute ->
+            setRoute maybeRoute model [ perform GetYear Date.now ]
 
         Outside infoForElm ->
             case infoForElm of
@@ -371,11 +385,8 @@ update msg model =
             { model | currentYear = Date.year date } ! []
 
         NavigateTo page ->
-            {- THE SECOND ARGUMENT TO pageToPath IS A JWT FOR VALIDATION, IF NEEDED -}
-            { model | navIsOpen = False } ! [ newUrl (Routes.pageToPath page "") ]
-
-        UrlChange newLocation ->
-            modelWithLocation newLocation model ! []
+            {- THE SECOND ARGUMENT TO routeToString IS A JWT FOR VALIDATION, IF NEEDED -}
+            { model | navIsOpen = False } ! [ Navigation.newUrl (Routes.routeToString page "") ]
 
         ToggleHamburger ->
             { model | navIsOpen = not model.navIsOpen } ! []
@@ -403,35 +414,19 @@ update msg model =
 
 
 
-{- MAIN -}
+{- INIT -}
 
 
-init : Location -> ( Model, Cmd Msg )
+init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
     let
-        page =
-            location |> Routes.pathParser |> Maybe.withDefault Home
-
         cmd =
             [ perform GetYear Date.now ]
+
+        maybeRoute =
+            location |> Routes.fromLocation
     in
-        case page of
-            Home ->
-                { initialModel | page = Home } ! cmd
-
-            _ ->
-                modelWithLocation location initialModel ! cmd
-
-
-modelWithLocation : Location -> Model -> Model
-modelWithLocation location model =
-    let
-        page =
-            location
-                |> Routes.pathParser
-                |> Maybe.withDefault Home
-    in
-        { model | page = page }
+        setRoute maybeRoute initialModel cmd
 
 
 
@@ -440,7 +435,7 @@ modelWithLocation location model =
 
 main : Program Never Model Msg
 main =
-    Navigation.program UrlChange
+    Navigation.program (Routes.fromLocation >> SetRoute)
         { init = init
         , view = view
         , update = update
