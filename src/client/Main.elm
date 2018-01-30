@@ -4,9 +4,8 @@ import Date exposing (..)
 import Util exposing (unwrap, onClickLink)
 import Html exposing (Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, program, section, span, text, ul)
 import Html.Attributes exposing (alt, class, for, href, id, placeholder, src, type_)
-import Html.Events exposing (onClick, onWithOptions)
+import Html.Events exposing (onClick)
 import Navigation
-import SelectList
 import Port exposing (..)
 import Routes exposing (Route)
 import Task exposing (perform)
@@ -21,20 +20,6 @@ import Data.Project exposing (Project)
 type Direction
     = Next
     | Back
-
-
-type Page
-    = Blank
-    | NotFound
-    | Home
-    | Projects
-    | ActiveProject
-    | Contact
-
-
-type PageState
-    = Loaded Page
-    | TransitioningFrom Page
 
 
 type alias Model =
@@ -156,7 +141,7 @@ view model =
                 appShell [ project projects, appFooter ]
 
             Routes.ActiveProject slug ->
-                appShell [ Data.Project.viewProject slug (SelectList.toList projects) ]
+                appShell [ Data.Project.viewProject slug (Zip.toList projects) ]
 
             Routes.Contact ->
                 appShell [ contact, appFooter ]
@@ -324,7 +309,6 @@ type Msg
     | LogErr String
     | GetYear Date
     | SwitchProject Direction Time.Time
-    | Tick Time.Time
 
 
 setRoute : Maybe Route -> Model -> List (Cmd Msg) -> ( Model, Cmd Msg )
@@ -379,13 +363,6 @@ update msg model =
         ToggleHamburger ->
             { model | navIsOpen = not model.navIsOpen } ! []
 
-        Tick time ->
-            let
-                _ =
-                    Debug.log "here in tick" time
-            in
-                model ! []
-
         SwitchProject dir time ->
             let
                 getListHead : List Project -> Project
@@ -415,11 +392,7 @@ update msg model =
                 nextProjectState =
                     Zip.select (\a -> a == nextProject) model.projects
             in
-                if model.page == Routes.Projects then
-                    -- WE ONLY ACT ON THE MESSAGE IF WE'RE ON THE `PROJECTS` PAGE
-                    { model | projects = nextProjectState } ! []
-                else
-                    model ! []
+                { model | projects = nextProjectState } ! []
 
 
 
@@ -439,6 +412,21 @@ init location =
 
 
 
+{- SUBSCRIPTIONS -}
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    if model.page == Routes.Projects then
+        -- WE ONLY START THE SUBSCRIPTION TO CYCLE THROUGH PROJECTS IF WE'RE ON THE `PROJECTS` PAGE
+        Sub.batch
+            [ getInfoFromOutside Outside LogErr, every 8000 (SwitchProject Next) ]
+    else
+        Sub.batch
+            [ getInfoFromOutside Outside LogErr ]
+
+
+
 {- MAIN PROGRAM -}
 
 
@@ -448,8 +436,5 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions =
-            \model ->
-                Sub.batch
-                    [ getInfoFromOutside Outside LogErr, every 8000 (SwitchProject Next) ]
+        , subscriptions = subscriptions
         }
