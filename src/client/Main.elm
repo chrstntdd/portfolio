@@ -37,18 +37,11 @@ type PageState
     | TransitioningFrom Page
 
 
-type alias NavLink =
-    { to : Route
-    , label : String
-    }
-
-
 type alias Model =
     { screenData : Maybe ScreenData
     , navIsOpen : Bool
     , page : Route
     , currentYear : Int
-    , navLinks : List NavLink
     , projects : SelectList Project
     }
 
@@ -127,12 +120,6 @@ initialModel =
                     "Web app powered by the Google Maps API and Jquery that connects users with local coffee roasters."
               }
             ]
-    , navLinks =
-        [ { to = Routes.Home, label = "Home" }
-        , { to = Routes.About, label = "About" }
-        , { to = Routes.Projects, label = "Projects" }
-        , { to = Routes.Contact, label = "Contact" }
-        ]
     }
 
 
@@ -143,7 +130,7 @@ initialModel =
 view : Model -> Html Msg
 view model =
     let
-        { page, projects, navIsOpen, screenData, navLinks, currentYear } =
+        { page, projects, navIsOpen, screenData, currentYear } =
             model
 
         viewportWidth : Int
@@ -153,9 +140,7 @@ view model =
         appShell : List (Html Msg) -> Html Msg
         appShell rest =
             div [ class "__page-wrapper__" ]
-                ([ navBar navIsOpen viewportWidth navLinks ]
-                    |> List.append rest
-                )
+                ([ navBar navIsOpen viewportWidth ] |> List.append rest)
 
         appFooter =
             footer currentYear
@@ -180,8 +165,8 @@ view model =
                 appShell [ contact ]
 
 
-navBar : Bool -> Int -> List NavLink -> Html Msg
-navBar navIsOpen viewportWidth navLinks =
+navBar : Bool -> Int -> Html Msg
+navBar navIsOpen viewportWidth =
     let
         navClass =
             if navIsOpen then
@@ -192,20 +177,21 @@ navBar navIsOpen viewportWidth navLinks =
         nav
             [ id "main-nav", navClass ]
             [ ul [ id "nav-list" ]
-                (List.map renderNavLink navLinks)
-            , if viewportWidth > 768 then
-                {- DONT SHOW HAMBURGER ON DESKTOP -}
-                Html.text ""
-              else
-                hamburgerMenu navIsOpen
+                [ li []
+                    [ a [ Routes.href Routes.Home, onClickLink (NavigateTo Routes.Home) ] [ text "Home" ] ]
+                , li []
+                    [ a [ Routes.href Routes.About, onClickLink (NavigateTo Routes.About) ] [ text "About" ] ]
+                , li []
+                    [ a [ Routes.href Routes.Projects, onClickLink (NavigateTo Routes.Projects) ] [ text "Projects" ] ]
+                , li []
+                    [ a [ Routes.href Routes.Contact, onClickLink (NavigateTo Routes.Contact) ] [ text "Contact" ] ]
+                , if viewportWidth > 768 then
+                    {- DONT SHOW HAMBURGER ON DESKTOP -}
+                    Html.text ""
+                  else
+                    hamburgerMenu navIsOpen
+                ]
             ]
-
-
-renderNavLink : NavLink -> Html Msg
-renderNavLink { to, label } =
-    li []
-        [ a [ Routes.href to, onClickLink (NavigateTo to) ] [ text label ]
-        ]
 
 
 hamburgerMenu : Bool -> Html Msg

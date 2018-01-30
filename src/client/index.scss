@@ -24,6 +24,7 @@ $bp-xxlarge: 2560px;
 $DARK_BG_COLOR: #14161e;
 $OFF_WHITE: #f2f2f2;
 $OFF_WHITE2: #f7fff7;
+
 :root {
   font-size: 14px;
   @media (min-width: $bp-xsmall) {
@@ -84,7 +85,11 @@ header {
   }
   #hero-img {
     background-color: lighten(grey, 25%);
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+    background-image: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0.6)
+      ),
       url('/assets/hero-bg.jpg');
     background-size: cover;
     background-position: center center;
@@ -115,7 +120,13 @@ header {
       white-space: nowrap;
 
       @supports (-webkit-background-clip: text) and (-webkit-text-fill-color: transparent) {
-        background: linear-gradient(to right, #feac5e, #c779d0, #57acc6, #76c93e);
+        background: linear-gradient(
+          to right,
+          #feac5e,
+          #c779d0,
+          #57acc6,
+          #76c93e
+        );
         background-size: 400% 400%;
         width: 100%;
         text-align: center;
@@ -274,7 +285,8 @@ header {
     .hamburger-inner:after {
       position: absolute;
       bottom: 12px;
-      transition: bottom 0.1s 0.14s ease, transform 0.1s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+      transition: bottom 0.1s 0.14s ease,
+        transform 0.1s cubic-bezier(0.55, 0.055, 0.675, 0.19);
     } // Active state styles
     &.is-open {
       .hamburger-inner {
@@ -290,7 +302,8 @@ header {
       .hamburger-inner:after {
         bottom: 0;
         transform: rotate(-90deg);
-        transition: bottom 0.1s ease, transform 0.1s 0.14s cubic-bezier(0.215, 0.61, 0.355, 1);
+        transition: bottom 0.1s ease,
+          transform 0.1s 0.14s cubic-bezier(0.215, 0.61, 0.355, 1);
       }
     }
   }
@@ -354,9 +367,6 @@ header {
   background: url('./assets/gif/idea.gif');
   @include bg-gif();
   opacity: 0.5;
-}
-
-#project {
 }
 
 #portfolio {
