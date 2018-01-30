@@ -2,9 +2,20 @@ import './index.scss';
 import { Main } from './Main.elm';
 
 import 'smoothscroll-polyfill';
-import * as throttle from 'lodash.throttle';
 
 const app = Main.embed(document.getElementById('elm-root'));
+
+const throttle = (func, delay) => {
+  let timeout = null;
+  return (...args) => {
+    if (!timeout) {
+      timeout = setTimeout(() => {
+        func.call(this, ...args);
+        timeout = null;
+      }, delay);
+    }
+  };
+};
 
 app.ports.infoForOutside.subscribe(msg => {
   /* PATTERN MATCH ON THE INFO FOR OUTSIDE */
@@ -32,9 +43,7 @@ const sendScreenData = () => {
   const body = document.body;
 
   const screenData = {
-    scrollTop: parseInt(
-      window.pageYOffset || html.scrollTop || body.scrollTop || 0
-    ),
+    scrollTop: parseInt(window.pageYOffset || html.scrollTop || body.scrollTop || 0),
     pageHeight: parseInt(
       Math.max(
         body.scrollHeight,

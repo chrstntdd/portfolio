@@ -63,7 +63,6 @@ context(
           }),
           isProd &&
             QuantumPlugin({
-              removeExportsInterop: false,
               bakeApiIntoBundle: 'app',
               uglify: true,
               treeshake: true,
@@ -171,11 +170,11 @@ task('back-dev', ['server-clean', 'b:copy', 'server-build'], () => {
 task('back-prod', async context => {
   context.isProduction = true;
   await exec('server-clean', 'b:copy', 'server-build');
-  info('The back end code has been compiled for production. GET TO WORK!');
+  info('The back end code has been compiled and is ready for production.');
 });
 
 task('all', async () => {
-  await fs.remove(join(__dirname, '/.fusebox/'));
+  fs.removeSync(join(__dirname, '/.fusebox/'));
   await exec('all:prod');
   info("THAT'S ALL FOLX");
 });
