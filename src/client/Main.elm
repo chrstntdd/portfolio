@@ -10,6 +10,7 @@ import SelectList
 import Port exposing (..)
 import Routes exposing (Route)
 import Task exposing (perform)
+import Time exposing (every)
 import SelectList as Zip exposing (fromLists, toList, select, selected, SelectList)
 import Data.Project exposing (Project)
 
@@ -18,8 +19,8 @@ import Data.Project exposing (Project)
 
 
 type Direction
-    = Right
-    | Left
+    = Next
+    | Back
 
 
 type Page
@@ -268,8 +269,8 @@ project projects =
             [ div [ class backgroundClass ] []
             , h1 [ id "port-header" ] [ text "Previous work" ]
             , a [ Routes.href (Routes.ActiveProject "vinyldb"), onClickLink (NavigateTo (Routes.ActiveProject "vinyldb")) ] [ text "CLICK ME" ]
-            , button [ onClick (SwitchProject Right) ] [ text "Next" ]
-            , button [ onClick (SwitchProject Left) ] [ text "Back" ]
+            , button [ onClick (SwitchProject Next 0) ] [ text "Next" ]
+            , button [ onClick (SwitchProject Back 0) ] [ text "Back" ]
             , div [ id "project-container" ] [ currentProj ]
             ]
 
@@ -336,7 +337,8 @@ type Msg
     | Outside InfoForElm
     | LogErr String
     | GetYear Date
-    | SwitchProject Direction
+    | SwitchProject Direction Time.Time
+    | Tick Time.Time
 
 
 setRoute : Maybe Route -> Model -> List (Cmd Msg) -> ( Model, Cmd Msg )
@@ -391,26 +393,47 @@ update msg model =
         ToggleHamburger ->
             { model | navIsOpen = not model.navIsOpen } ! []
 
-        SwitchProject dir ->
+        Tick time ->
+            let
+                _ =
+                    Debug.log "here in tick" time
+            in
+                model ! []
+
+        SwitchProject dir time ->
             let
                 getListHead : List Project -> Project
                 getListHead projectList =
                     projectList |> List.head |> Maybe.withDefault (Zip.selected model.projects)
 
-                nextSelectedProject : Project
-                nextSelectedProject =
+                nextProject : Project
+                nextProject =
                     case dir of
-                        Right ->
-                            model.projects |> Zip.after |> getListHead
+                        Back ->
+                            if (model.projects |> Zip.before |> List.isEmpty) then
+                                -- RETURN THE LAST ITEM IN THE SELECT LIST
+                                model.projects |> Zip.after |> List.reverse |> getListHead
+                            else
+                                -- RETURN THE LAST ITEM IN THE 'BEFORE' OF THE SELECT LIST
+                                model.projects |> Zip.before |> List.reverse |> getListHead
 
-                        Left ->
-                            model.projects |> Zip.before |> List.reverse |> getListHead
+                        Next ->
+                            if (model.projects |> Zip.after |> List.isEmpty) then
+                                -- RETURN THE FIRST ITEM IN THE SELECT LIST
+                                model.projects |> Zip.before |> getListHead
+                            else
+                                -- RETURN THE HEAD OF THE LIST
+                                model.projects |> Zip.after |> getListHead
 
                 nextProjectState : SelectList Project
                 nextProjectState =
-                    Zip.select (\a -> a == nextSelectedProject) model.projects
+                    Zip.select (\a -> a == nextProject) model.projects
             in
-                { model | projects = nextProjectState } ! []
+                if model.page == Routes.Projects then
+                    -- WE ONLY ACT ON THE MESSAGE IF WE'RE ON THE `PROJECTS` PAGE
+                    { model | projects = nextProjectState } ! []
+                else
+                    model ! []
 
 
 
@@ -442,5 +465,5 @@ main =
         , subscriptions =
             \model ->
                 Sub.batch
-                    [ getInfoFromOutside Outside LogErr ]
+                    [ getInfoFromOutside Outside LogErr, every 8000 (SwitchProject Next) ]
         }
