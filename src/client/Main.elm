@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Date exposing (..)
 import Util exposing (unwrap, onClickLink)
-import Html exposing (Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, program, section, span, text, ul)
+import Html exposing (Html, Attribute, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, program, section, span, text, ul)
 import Html.Attributes exposing (alt, class, for, href, id, placeholder, src, type_)
 import Html.Events exposing (onClick)
 import Navigation
@@ -12,6 +12,20 @@ import Task exposing (perform)
 import Time exposing (every)
 import SelectList as Zip exposing (fromLists, toList, select, selected, SelectList)
 import Data.Project exposing (Project)
+
+
+type alias LinkData msg =
+    { url : Route
+    , attrs : List (Attribute msg)
+    , label : String
+    }
+
+
+link : LinkData Msg -> Html Msg
+link { url, attrs, label } =
+    {- HELPER FUNCTION FOR SPA NAVIGATION -}
+    a (List.append attrs [ Routes.href url, onClickLink (NavigateTo url) ]) [ text label ]
+
 
 
 {- MODEL -}
@@ -138,7 +152,7 @@ view model =
                 appShell [ about, appFooter ]
 
             Routes.Projects ->
-                appShell [ project projects, appFooter ]
+                appShell [ projectsView projects ]
 
             Routes.ActiveProject slug ->
                 appShell [ Data.Project.viewProject slug (Zip.toList projects) ]
@@ -163,13 +177,13 @@ navBar navIsOpen viewportWidth =
             [ id "main-nav", navClass ]
             [ ul [ id "nav-list" ]
                 [ li []
-                    [ a [ Routes.href Routes.Home, onClickLink (NavigateTo Routes.Home) ] [ text "Home" ] ]
+                    [ link { url = Routes.Home, attrs = [], label = "Home" } ]
                 , li []
-                    [ a [ Routes.href Routes.About, onClickLink (NavigateTo Routes.About) ] [ text "About" ] ]
+                    [ link { url = Routes.About, attrs = [], label = "About" } ]
                 , li []
-                    [ a [ Routes.href Routes.Projects, onClickLink (NavigateTo Routes.Projects) ] [ text "Projects" ] ]
+                    [ link { url = Routes.Projects, attrs = [], label = "Projects" } ]
                 , li []
-                    [ a [ Routes.href Routes.Contact, onClickLink (NavigateTo Routes.Contact) ] [ text "Contact" ] ]
+                    [ link { url = Routes.Contact, attrs = [], label = "Contact" } ]
                 , if viewportWidth > 768 then
                     {- DONT SHOW HAMBURGER ON DESKTOP -}
                     Html.text ""
@@ -227,47 +241,21 @@ about =
         ]
 
 
-project : SelectList Project -> Html Msg
-project projects =
-    let
-        currentProj =
-            projects |> Zip.selected |> renderProjectCard
-
-        backgroundClass =
-            "bg-gif " ++ (projects |> Zip.selected |> .bgClass)
-    in
-        section [ id "project" ]
-            [ div [ class backgroundClass ] []
-            , h1 [ id "port-header" ] [ text "Previous work" ]
-            , a [ Routes.href (Routes.ActiveProject "vinyldb"), onClickLink (NavigateTo (Routes.ActiveProject "vinyldb")) ] [ text "CLICK ME" ]
-            , button [ onClick (SwitchProject Next 0) ] [ text "Next" ]
-            , button [ onClick (SwitchProject Back 0) ] [ text "Back" ]
-            , div [ id "project-container" ] [ currentProj ]
+projectsView : SelectList Project -> Html Msg
+projectsView projects =
+    section [ id "projects" ]
+        [ div [ class ("bg-gif " ++ (projects |> Zip.selected |> .bgClass)) ] []
+        , h1 [ class "heading-font abs-center" ] [ projects |> Zip.selected |> .title |> text ]
+        , div [ class "view-project-container" ]
+            [ link
+                { url = projects |> Zip.selected |> .slug |> Routes.ActiveProject
+                , attrs = [ class "view-project-link" ]
+                , label = "view project"
+                }
             ]
-
-
-renderProjectCard : Project -> Html Msg
-renderProjectCard project =
-    let
-        { title, imageData, techStack, description, repo, demo } =
-            project
-    in
-        div [ class "project-card" ]
-            [ h1 [] [ text title ]
-            , ul [ class "proj-thumbnails" ] (List.map (\i -> li [] [ img [ src i.src, alt i.alt ] [] ]) imageData)
-            , div [ class "tech-container" ]
-                [ h4 [] [ text "Technology" ]
-                , ul [] (List.map (\tech -> li [] [ text tech ]) techStack)
-                ]
-            , p [ class "links" ]
-                [ a [ href repo ] [ text "Repo" ]
-                , text " | "
-                , a [ href demo ] [ text "Demo" ]
-                ]
-            , p [ class "description" ]
-                [ p [] [ text description ]
-                ]
-            ]
+        , button [ class "next-proj-btn", onClick (SwitchProject Next 0) ] [ img [ src "/assets/icons/chevron.svg", alt "Next button" ] [] ]
+        , button [ class "prev-proj-btn", onClick (SwitchProject Back 0) ] [ img [ src "/assets/icons/chevron.svg", alt "Back button" ] [] ]
+        ]
 
 
 contact : Html Msg
