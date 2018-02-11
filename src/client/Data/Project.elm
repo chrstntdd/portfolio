@@ -25,8 +25,7 @@ type alias Project =
 projectNotFound : Html msg
 projectNotFound =
     div []
-        [ text "Project not found"
-        ]
+        [ text "Project not found" ]
 
 
 viewProject : String -> List Project -> Html msg
@@ -50,16 +49,18 @@ viewProject slug projects =
                         ]
                     , section [ class "about-project" ]
                         [ div [ class "info-container" ]
-                            [ h1 [] [ text "Super catchy tagline that can span multiple lines" ]
+                            [ h1 [ class "project-tagline" ] [ text "Super catchy tagline that can span multiple lines" ]
                             , div [ class "description" ]
-                                [ p [] [ text description ]
+                                [ h3 [] [ text "About" ]
+                                , p [] [ text description ]
                                 ]
                             , div [ class "tech-container" ]
                                 [ h3 [] [ text "Technology" ]
                                 , ul [] (List.map (\tech -> li [] [ text tech ]) techStack)
                                 ]
                             , div [ class "links" ]
-                                [ a [ href repo ] [ span [] [], text "View the source code" ]
+                                [ h3 [] [ text "Links" ]
+                                , a [ href repo ] [ span [] [], text "View the source code" ]
                                 , a [ href demo ] [ span [] [], text "View the demo" ]
                                 ]
                             ]

@@ -86,7 +86,8 @@ context(
   }
 );
 
-/* INDIVIDIAL BUILD TASKS USED IN VARIOUS BUILD TASK CHAINS */
+/* INDIVIDUAL BUILD TASKS USED IN VARIOUS BUILD TASK CHAINS */
+
 task('client-prod-build', async context => {
   context.isProduction = true;
 

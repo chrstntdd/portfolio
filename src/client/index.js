@@ -21,7 +21,7 @@ app.ports.infoForOutside.subscribe(msg => {
   /* PATTERN MATCH ON THE INFO FOR OUTSIDE */
   switch (msg.tag) {
     case 'SaveModel':
-    /* EVENTUALLY PERSIST THE MODEL TO LOCAL STORAGE */
+    /* EVENTUALLY PERSIST THE MODEL TO SESSION STORAGE */
     case 'ScrollTo':
       const element = document.getElementById(msg.data);
       window.scroll({
