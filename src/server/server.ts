@@ -27,7 +27,12 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
   const server = new Hapi.Server({
     port,
     listener,
-    tls: true
+    tls: true,
+    routes: {
+      files: {
+        relativeTo: join(__dirname, 'public')
+      }
+    }
   });
 
   await server.register([
@@ -92,16 +97,46 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     }
   ]);
 
-  /* define route for sending static front end assets */
+  /* FOR SERVING INDEX.HTML AND FRONT END ASSETS FOR ALL REQUESTS. */
   server.route({
     method: 'GET',
     path: '/{param*}',
     handler: {
       directory: {
-        path: join(__dirname, '/public'),
-        redirectToSlash: true,
-        index: true
+        path: '.',
+        index: true,
+        redirectToSlash: true
       }
+    }
+  });
+
+  /*  
+   *  ¯\_(ツ)_/¯
+   *  I GUESS BACKUP DEFINED ROUTES BECAUSE THE ABOVE SOLUTION WONT WORK  
+   *  MIGHT AS WELL GET A STATIC SITE GENERATOR UP IN THIS BITCH
+   *  ¯\_(ツ)_/¯ 
+   */
+  server.route({
+    method: 'GET',
+    path: '/about',
+    handler: {
+      file: 'index.html'
+    }
+  });
+
+  server.route({
+    method: 'GET',
+    path: '/projects/{param*}',
+    handler: {
+      file: 'index.html'
+    }
+  });
+
+  server.route({
+    method: 'GET',
+    path: '/contact',
+    handler: {
+      file: 'index.html'
     }
   });
 
