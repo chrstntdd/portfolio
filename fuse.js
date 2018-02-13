@@ -14,6 +14,7 @@ const purify = require('purify-css');
 const { unlinkSync } = require('fs');
 const { join } = require('path');
 const express = require('express');
+const workbox = require('workbox-build');
 const { info } = console;
 const fs = require('fs-extra');
 
@@ -30,8 +31,8 @@ const POSTCSS_PLUGINS = [
   })
 ];
 
-const outDir = join(__dirname, '/dist');
-const clientOut = join(outDir, '/public');
+const outDir = join(__dirname, 'dist');
+const clientOut = join(outDir, 'public');
 
 const template = join(__dirname, 'src/client/index.html');
 const title = 'Christian Todd | Web Developer';
@@ -128,6 +129,12 @@ task('copy-schema', () =>
   src('./**/*.graphql', { base: './src/server/graphql' }).dest(join(outDir, '/graphql'))
 );
 
+task('mv-sw', () =>
+  src('workbox-sw.prod.v2.1.2.js', {
+    base: './node_modules/workbox-sw/build/importScripts/'
+  }).dest(`${clientOut}`)
+);
+
 /* TASKS TO CLEAN OUT OLD FILES BEFORE COMPILATION */
 task('client-clean', () => src(`${clientOut}/*`).clean(clientOut));
 
@@ -135,7 +142,7 @@ task('server-clean', () => src(`${outDir}/*`).clean(outDir));
 
 /* PARALLEL TASKS */
 task('f:dev', ['&client-dev-build', '&copy-static']);
-task('f:prod', ['&client-prod-build', '&copy-static']);
+task('f:prod', ['&client-prod-build', '&copy-static']); // add mv-sw when using service worker
 task('b:copy', ['&copy-keys', '&copy-schema']);
 task('all:prod', ['&front-prod', '&back-prod']);
 
@@ -155,12 +162,27 @@ task('purify', () => {
   info('💎  ALL CSS IS PURE 💎');
 });
 
+task('gen-sw', async () => {
+  try {
+    await workbox.injectManifest({
+      globDirectory: `${clientOut}`,
+      staticFileGlobs: ['**/*.{html,js,css,svg,jpg}'],
+      globIgnores: ['**/sw.js'],
+      swSrc: 'src/client/sw.js',
+      swDest: `${clientOut}/sw.js`
+    });
+    info('  ⚙️ Service worker generated 🛠');
+  } catch (error) {
+    info('  😒 There was an error generating the service worker 😒', error);
+  }
+});
+
 /* MAIN BUILD TASK CHAINS */
 task('front-dev', ['client-clean', 'f:dev'], () =>
   info('The front end assets have been bundled. GET TO WORK!')
 );
 
-task('front-prod', ['client-clean', 'f:prod', 'purify'], () =>
+task('front-prod', ['client-clean', 'f:prod'], () =>
   info('The front end assets are optimized, bundled, and ready for production.')
 );
 
