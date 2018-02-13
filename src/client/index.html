@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="shortcut icon" href="/assets/favicons/favicon.ico">
+  <link rel="preload" as="style" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css" /> $preload
+  <title>$title</title>
+  <style>
+    *,
+    *::after,
+    *::before {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+
+    html * {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    html,
+    body {
+      text-rendering: optimizeLegibility;
+      font: 15px/1.8 -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+      Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+      scroll-behavior: smooth;
+      color: #444;
+      background-color: black;
+    }
+  </style>
+</head>
+
+<body>
+  <noscript>JavaScript is required to view this website.</noscript>
+  <div id='elm-root'></div>
+</body>
+$bundles
+
+</html>

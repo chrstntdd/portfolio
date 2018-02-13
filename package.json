@@ -1,23 +1,58 @@
 {
-  "name": "final-portfolio",
-  "version": "1.0.0",
+  "name": "portfolio",
+  "version": "2.0.0",
   "main": "index.js",
   "license": "MIT",
+  "engines": {
+    "node": "9.4.0",
+    "npm": "5.6.0"
+  },
   "scripts": {
     "watch": "node fuse.js",
     "dist": "node fuse.js dist"
   },
   "devDependencies": {
-    "fuse-box": "^2.2.2",
-    "node-sass": "^4.5.3",
-    "prettier": "^1.6.1",
-    "tslint": "^5.7.0",
-    "tslint-config-airbnb": "^5.2.1",
-    "tslint-config-prettier": "^1.4.0",
-    "typescript": "^2.5.2",
-    "uglify-js": "^3.0.28"
+    "@types/bcrypt": "^1.0.0",
+    "@types/boom": "^7.1.0",
+    "@types/joi": "^13.0.5",
+    "@types/jsonwebtoken": "^7.2.5",
+    "@types/node": "^9.3.0",
+    "autoprefixer": "^7.2.3",
+    "elm": "^0.18.0",
+    "fs-extra": "^5.0.0",
+    "fuse-box": "^3.1.3",
+    "fuse-box-elm-plugin": "^1.1.1",
+    "node-sass": "^4.7.2",
+    "postcss-flexbugs-fixes": "^3.3.0",
+    "prettier": "^1.10.2",
+    "purify-css": "^1.2.5",
+    "ts-node": "^4.1.0",
+    "typescript": "^2.6.2",
+    "uglify-js": "^3.3.5",
+    "workbox-build": "^2.1.2",
+    "workbox-sw": "^2.1.2"
   },
   "dependencies": {
-    "gsap": "^1.20.2"
+    "apollo-server-hapi": "^1.3.2",
+    "bcrypt": "^1.0.3",
+    "boom": "^7.1.1",
+    "dotenv": "^5.0.0",
+    "good": "^8.0.1",
+    "good-console": "^6.4.1",
+    "good-squeeze": "^5.0.2",
+    "graphql": "^0.12.3",
+    "graphql-import": "^0.4.1",
+    "graphql-tools": "^2.18.0",
+    "hapi": "^17.2.0",
+    "hapi-auth-jwt2": "^7.4.1",
+    "hapi-swagger": "^9.0.2",
+    "inert": "^5.1.0",
+    "joi": "^13.1.0",
+    "jsonwebtoken": "^8.1.0",
+    "lodash.words": "^4.2.0",
+    "mongoose": "^5.0.0",
+    "normalize.css": "^7.0.0",
+    "sanitizer": "^0.1.3",
+    "smoothscroll-polyfill": "^0.4.0"
   }
 }
