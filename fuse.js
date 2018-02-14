@@ -16,7 +16,12 @@ const { join } = require('path');
 const express = require('express');
 const workbox = require('workbox-build');
 const { info } = console;
+const { promisify } = require('util');
 const fs = require('fs-extra');
+const resembleImage = require('postcss-resemble-image').default;
+const postcss = require('postcss');
+const glob = require('glob');
+const asyncGlob = promisify(glob);
 
 const POSTCSS_PLUGINS = [
   require('postcss-flexbugs-fixes'),
@@ -175,6 +180,19 @@ task('gen-sw', async () => {
   } catch (error) {
     info('  😒 There was an error generating the service worker 😒', error);
   }
+});
+
+task('fancy-fallbacks', async () => {
+  const pathsToCSS = await asyncGlob(`${clientOut}/**/*.css`);
+
+  pathsToCSS.map(async cssFile => {
+    const fileContent = await fs.readFile(cssFile, 'UTF-8');
+    const result = await postcss([resembleImage({ selectors: ['header #hero-img'] })]).process(
+      fileContent,
+      { from: `${clientOut}/styles.css`, to: `${clientOut}/styles.css` }
+    );
+    fs.writeFile(`${clientOut}/styles.css`, result.css);
+  });
 });
 
 /* MAIN BUILD TASK CHAINS */
