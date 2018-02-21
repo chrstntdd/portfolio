@@ -39,6 +39,10 @@
   <noscript>JavaScript is required to view this website.</noscript>
   <div id='elm-root'></div>
 </body>
+<script type="text/javascript">
+  var storedState = sessionStorage.getItem('chrstntdd-persisted-session');
+  var initState = storedState ? JSON.parse(storedState) : null;
+</script>
 $bundles
 
 </html>

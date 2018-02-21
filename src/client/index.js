@@ -21,7 +21,10 @@ app.ports.infoForOutside.subscribe(msg => {
   /* PATTERN MATCH ON THE INFO FOR OUTSIDE */
   switch (msg.tag) {
     case 'SaveModel':
-    /* EVENTUALLY PERSIST THE MODEL TO SESSION STORAGE */
+      /* EVENTUALLY PERSIST THE MODEL TO SESSION STORAGE */
+      const model = msg.data;
+      window.sessionStorage.setItem('chrstntdd-persisted-session', JSON.stringify(model));
+      break;
     case 'ScrollTo':
       const element = document.getElementById(msg.data);
       window.scroll({

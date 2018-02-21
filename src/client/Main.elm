@@ -1,12 +1,14 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Date exposing (..)
 import Util exposing (unwrap, onClickLink)
 import Html exposing (Html, Attribute, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, program, section, span, text, ul)
 import Html.Attributes exposing (alt, class, for, href, id, placeholder, src, type_)
 import Html.Events exposing (onClick)
+import Json.Decode as D exposing (..)
+import Json.Decode.Pipeline exposing (decode, required)
+import Json.Encode as E exposing (..)
 import Navigation
-import Port exposing (..)
 import Routes exposing (Route)
 import Task exposing (perform)
 import Time exposing (every)
@@ -28,6 +30,87 @@ link { url, attrs, label } =
 
 
 
+{- PORT HELPERS -}
+-- CURRENTLY DEFINED IN MAIN TO HAVE ACCESS TO `MODEL` TYPE WHEN PERSISTING STATE
+
+
+type alias ScreenData =
+    { scrollTop : Float
+    , pageHeight : Int
+    , viewportHeight : Int
+    , viewportWidth : Int
+    }
+
+
+type InfoForOutside
+    = SaveModel Model
+    | ScrollTo String
+    | LogErrorToConsole String
+
+
+type InfoForElm
+    = ScrollOrResize ScreenData
+
+
+screenDataDecoder : Decoder ScreenData
+screenDataDecoder =
+    decode ScreenData
+        |> required "scrollTop" D.float
+        |> required "pageHeight" D.int
+        |> required "viewportHeight" D.int
+        |> required "viewportWidth" D.int
+
+
+modelToValue : Model -> E.Value
+modelToValue model =
+    E.object
+        [ ( "navIsOpen", E.bool model.navIsOpen )
+        ]
+
+
+sendInfoOutside : InfoForOutside -> Cmd msg
+sendInfoOutside info =
+    case info of
+        SaveModel newModel ->
+            infoForOutside { tag = "SaveModel", data = modelToValue newModel }
+
+        ScrollTo elementId ->
+            infoForOutside { tag = "ScrollTo", data = E.string elementId }
+
+        LogErrorToConsole err ->
+            infoForOutside { tag = "ErrorLogRequested", data = E.string err }
+
+
+getInfoFromOutside : (InfoForElm -> msg) -> (String -> msg) -> Sub msg
+getInfoFromOutside tagger onError =
+    infoForElm
+        (\outsideInfo ->
+            case outsideInfo.tag of
+                "ScrollOrResize" ->
+                    case D.decodeValue screenDataDecoder outsideInfo.data of
+                        Ok screenData ->
+                            tagger <| ScrollOrResize screenData
+
+                        Err e ->
+                            onError e
+
+                _ ->
+                    onError <| "Unexpected info from the outside: " ++ toString outsideInfo
+        )
+
+
+type alias GenericOutsideData =
+    {- COMMUNICATION IS HANDLED BY PATTERN MATCHING THE TAG FIELD AND SENDING SERIALIZED DATA -}
+    { tag : String, data : E.Value }
+
+
+port infoForOutside : GenericOutsideData -> Cmd msg
+
+
+port infoForElm : (GenericOutsideData -> msg) -> Sub msg
+
+
+
 {- MODEL -}
 
 
@@ -36,11 +119,18 @@ type Direction
     | Back
 
 
+type ProjectSwitchBehavior
+    = Auto
+    | UserControlled
+
+
 type alias Model =
     { screenData : Maybe ScreenData
     , navIsOpen : Bool
     , page : Route
     , currentYear : Int
+    , autoSwitchProjectTimeout : Time.Time
+    , switchProjectBehavior : ProjectSwitchBehavior
     , projects : SelectList Project
     }
 
@@ -51,6 +141,8 @@ initialModel =
     , navIsOpen = False
     , page = Routes.Home
     , currentYear = 0
+    , autoSwitchProjectTimeout = 5 -- seconds
+    , switchProjectBehavior = Auto
     , projects =
         fromLists []
             { title = "Quantified"
@@ -253,8 +345,8 @@ projectsView projects =
                 , label = "view project"
                 }
             ]
-        , button [ class "next-proj-btn", onClick (SwitchProject Next 0) ] [ img [ src "/assets/icons/chevron.svg", alt "Next button" ] [] ]
-        , button [ class "prev-proj-btn", onClick (SwitchProject Back 0) ] [ img [ src "/assets/icons/chevron.svg", alt "Back button" ] [] ]
+        , button [ class "next-proj-btn", onClick (SwitchProject Next UserControlled 0) ] [ img [ src "/assets/icons/chevron.svg", alt "Next button" ] [] ]
+        , button [ class "prev-proj-btn", onClick (SwitchProject Back UserControlled 0) ] [ img [ src "/assets/icons/chevron.svg", alt "Back button" ] [] ]
         ]
 
 
@@ -296,7 +388,8 @@ type Msg
     | Outside InfoForElm
     | LogErr String
     | GetYear Date
-    | SwitchProject Direction Time.Time
+    | SwitchProject Direction ProjectSwitchBehavior Time.Time
+    | Tick Time.Time
 
 
 setRoute : Maybe Route -> Model -> List (Cmd Msg) -> ( Model, Cmd Msg )
@@ -324,6 +417,15 @@ setRoute maybeRoute model cmds =
             { model | page = Routes.NotFound } ! cmds
 
 
+updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
+updateWithStorage msg model =
+    let
+        ( newModel, cmds ) =
+            update msg model
+    in
+        ( newModel, Cmd.batch [ sendInfoOutside (SaveModel newModel), cmds ] )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -331,7 +433,7 @@ update msg model =
             model ! []
 
         SetRoute maybeRoute ->
-            setRoute maybeRoute model [ perform GetYear Date.now ]
+            setRoute maybeRoute model []
 
         Outside infoForElm ->
             case infoForElm of
@@ -351,7 +453,7 @@ update msg model =
         ToggleHamburger ->
             { model | navIsOpen = not model.navIsOpen } ! []
 
-        SwitchProject dir time ->
+        SwitchProject dir projectSwitchBehavior time ->
             let
                 getListHead : List Project -> Project
                 getListHead projectList =
@@ -380,23 +482,43 @@ update msg model =
                 nextProjectState =
                     Zip.select (\a -> a == nextProject) model.projects
             in
-                { model | projects = nextProjectState } ! []
+                case projectSwitchBehavior of
+                    Auto ->
+                        { model | projects = nextProjectState } ! []
+
+                    UserControlled ->
+                        { model
+                            | projects = nextProjectState
+                            , autoSwitchProjectTimeout = 5 -- INIT VALUE TO RESET THE TIMEOUT
+                            , switchProjectBehavior = UserControlled
+                        }
+                            ! []
+
+        Tick time ->
+            let
+                newSeconds =
+                    model.autoSwitchProjectTimeout - 1
+            in
+                if newSeconds == -1 then
+                    { model | autoSwitchProjectTimeout = 5, switchProjectBehavior = Auto } ! []
+                else
+                    { model | autoSwitchProjectTimeout = newSeconds } ! []
 
 
 
 {- INIT -}
+-- TODO: savedModel will eventually be the persisted model in sessionStorage
+-- Once we persist the state, on init we should check for the session first before using the initialModel
+-- Also, we have to convert the Zip List to a regular List for Javascript
 
 
-init : Navigation.Location -> ( Model, Cmd Msg )
-init location =
+init : Maybe D.Value -> Navigation.Location -> ( Model, Cmd Msg )
+init savedModel location =
     let
-        cmd =
-            [ perform GetYear Date.now ]
-
         maybeRoute =
             location |> Routes.fromLocation
     in
-        setRoute maybeRoute initialModel cmd
+        setRoute maybeRoute initialModel [ perform GetYear Date.now ]
 
 
 
@@ -407,8 +529,16 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     if model.page == Routes.Projects then
         -- WE ONLY START THE SUBSCRIPTION TO CYCLE THROUGH PROJECTS IF WE'RE ON THE `PROJECTS` PAGE
-        Sub.batch
-            [ getInfoFromOutside Outside LogErr, every 8000 (SwitchProject Next) ]
+        case model.switchProjectBehavior of
+            Auto ->
+                -- FOR AUTO BEHAVIOR, WE SEND A `SWITCHPROJECT` MSG TO ENABLE SWITCHING TO THE NEXT PROJECT
+                Sub.batch
+                    [ getInfoFromOutside Outside LogErr, every (5 * Time.second) (SwitchProject Next Auto) ]
+
+            UserControlled ->
+                -- FOR USER CONTROLLED BEHAVIOR, WE SEND A `TICK` MSG EVERY SECOND TO TRACK THE TIMEOUT
+                Sub.batch
+                    [ getInfoFromOutside Outside LogErr, every Time.second Tick ]
     else
         Sub.batch
             [ getInfoFromOutside Outside LogErr ]
@@ -418,11 +548,11 @@ subscriptions model =
 {- MAIN PROGRAM -}
 
 
-main : Program Never Model Msg
+main : Program (Maybe D.Value) Model Msg
 main =
-    Navigation.program (Routes.fromLocation >> SetRoute)
+    Navigation.programWithFlags (Routes.fromLocation >> SetRoute)
         { init = init
         , view = view
-        , update = update
+        , update = updateWithStorage
         , subscriptions = subscriptions
         }
