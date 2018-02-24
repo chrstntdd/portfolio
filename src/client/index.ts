@@ -1,4 +1,4 @@
-import './index.scss';
+import './styles/index.scss';
 import { Main } from './Main.elm';
 
 import 'smoothscroll-polyfill';
@@ -46,18 +46,17 @@ const sendScreenData = () => {
   const body = document.body;
 
   const screenData = {
-    scrollTop: parseInt(window.pageYOffset || html.scrollTop || body.scrollTop || 0),
-    pageHeight: parseInt(
+    scrollTop: window.pageYOffset || html.scrollTop || body.scrollTop || 0,
+    pageHeight: 
       Math.max(
         body.scrollHeight,
         body.offsetHeight,
         html.clientHeight,
         html.scrollHeight,
         html.offsetHeight
-      )
-    ),
-    viewportHeight: parseInt(html.clientHeight),
-    viewportWidth: parseInt(html.clientWidth)
+      ),
+    viewportHeight: html.clientHeight,
+    viewportWidth: html.clientWidth
   };
   app.ports.infoForElm.send({ tag: 'ScrollOrResize', data: screenData });
 };

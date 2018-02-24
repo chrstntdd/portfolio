@@ -36,38 +36,36 @@ const POSTCSS_PLUGINS = [
   })
 ];
 
-const outDir = join(__dirname, 'dist');
-const clientOut = join(outDir, 'public');
+const OUT_DIR = join(__dirname, 'dist');
+const CLIENT_OUT = join(OUT_DIR, 'public');
 
-const template = join(__dirname, 'src/client/index.html');
-const title = 'Christian Todd | Web Developer';
-const all = './**/**.*';
+const TEMPLATE = join(__dirname, 'src/client/index.html');
+const TITLE = 'Christian Todd | Web Developer';
+const ALL_FILES = './**/**.*';
 
 context(
   class {
     compileClient() {
-      const isProd = this.isProduction;
-
       return FuseBox.init({
         homeDir: 'src/client',
-        output: `${clientOut}/$name.js`,
+        output: `${CLIENT_OUT}/$name.js`,
         log: true,
-        sourceMaps: !isProd,
+        sourceMaps: !this.isProduction,
         target: 'browser@es5',
-        cache: !isProd,
+        cache: !this.isProduction,
         tsConfig: 'src/client/tsconfig.json',
         plugins: [
           [SassPlugin(), PostCSSPlugin(POSTCSS_PLUGINS), CSSPlugin()],
-          isProd ? ElmPlugin() : ElmPlugin({ warn: true, debug: true }),
+          this.isProduction ? ElmPlugin() : ElmPlugin({ warn: true, debug: true }),
           SVGPlugin(),
           WebIndexPlugin({
-            template,
-            title,
+            template: TEMPLATE,
+            title: TITLE,
             path: '/',
             pre: { relType: 'load' },
             async: true
           }),
-          isProd &&
+          this.isProduction &&
             QuantumPlugin({
               bakeApiIntoBundle: 'app',
               uglify: true,
@@ -79,14 +77,12 @@ context(
     }
 
     async compileServer() {
-      const isProd = this.isProduction;
-
       await tsc('src/server', {
         target: 'esnext',
-        outDir: 'dist/',
+        OUT_DIR: 'dist/',
         listEmittedFiles: true,
-        watch: !isProd,
-        sourceMap: !isProd
+        watch: !this.isProduction,
+        sourceMap: !this.isProduction
       });
     }
   }
@@ -98,7 +94,7 @@ task('client-prod-build', async context => {
   context.isProduction = true;
 
   const fuse = context.compileClient();
-  fuse.bundle('app').instructions('!> index.js');
+  fuse.bundle('app').instructions('!> index.ts');
 
   await fuse.run();
 });
@@ -108,9 +104,9 @@ task('client-dev-build', async context => {
 
   fuse.dev({ root: false }, server => {
     const app = server.httpServer.app;
-    app.use(express.static(clientOut));
+    app.use(express.static(CLIENT_OUT));
     app.get('*', (req, res) => {
-      res.sendFile(join(clientOut, '/index.html'));
+      res.sendFile(join(CLIENT_OUT, 'index.html'));
     });
   });
 
@@ -118,7 +114,7 @@ task('client-dev-build', async context => {
     .bundle('app')
     .hmr({ reload: true })
     .watch()
-    .instructions('> index.js');
+    .instructions('> index.ts');
 
   await fuse.run();
 });
@@ -126,24 +122,26 @@ task('client-dev-build', async context => {
 task('server-build', async context => await context.compileServer());
 
 /* TASKS TO COPY FILES */
-task('copy-static', () => src(all, { base: './src/client/assets/' }).dest(`${clientOut}/assets`));
+task('copy-static', () =>
+  src(ALL_FILES, { base: './src/client/assets/' }).dest(`${CLIENT_OUT}/assets`)
+);
 
-task('copy-keys', () => src(all, { base: './src/server/keys/' }).dest(join(outDir, '/keys')));
+task('copy-keys', () => src(ALL_FILES, { base: './src/server/keys/' }).dest(join(OUT_DIR, 'keys')));
 
 task('copy-schema', () =>
-  src('./**/*.graphql', { base: './src/server/graphql' }).dest(join(outDir, '/graphql'))
+  src('./**/*.graphql', { base: './src/server/graphql' }).dest(join(OUT_DIR, 'graphql'))
 );
 
 task('mv-sw', () =>
   src('workbox-sw.prod.v2.1.2.js', {
     base: './node_modules/workbox-sw/build/importScripts/'
-  }).dest(`${clientOut}`)
+  }).dest(`${CLIENT_OUT}`)
 );
 
 /* TASKS TO CLEAN OUT OLD FILES BEFORE COMPILATION */
-task('client-clean', () => src(`${clientOut}/*`).clean(clientOut));
+task('client-clean', () => src(`${CLIENT_OUT}/*`).clean(CLIENT_OUT));
 
-task('server-clean', () => src(`${outDir}/*`).clean(outDir));
+task('server-clean', () => src(`${OUT_DIR}/*`).clean(OUT_DIR));
 
 /* PARALLEL TASKS */
 task('f:dev', ['&client-dev-build', '&copy-static']);
@@ -153,16 +151,16 @@ task('all:prod', ['&front-prod', '&back-prod']);
 
 /* CUSTOM BUILD TASKS */
 task('purify', () => {
-  const content = ['src/client**/*.elm', 'src/client**/*.html'];
-  const css = [`${clientOut}/styles.css`];
+  const content = ['src/client/**/*.elm', 'src/client/**/*.html'];
+  const css = [`${CLIENT_OUT}/styles.css`];
   const options = {
-    output: `${clientOut}/pure.css`,
+    output: `${CLIENT_OUT}/pure.css`,
     minify: true,
     info: true
   };
   purify(content, css, options);
 
-  unlinkSync(`${clientOut}/styles.css`);
+  unlinkSync(`${CLIENT_OUT}/styles.css`);
 
   info('💎  ALL CSS IS PURE 💎');
 });
@@ -170,11 +168,11 @@ task('purify', () => {
 task('gen-sw', async () => {
   try {
     await workbox.injectManifest({
-      globDirectory: `${clientOut}`,
+      globDirectory: `${CLIENT_OUT}`,
       staticFileGlobs: ['**/*.{html,js,css,svg,jpg}'],
       globIgnores: ['**/sw.js'],
       swSrc: 'src/client/sw.js',
-      swDest: `${clientOut}/sw.js`
+      swDest: `${CLIENT_OUT}/sw.js`
     });
     info('  ⚙️ Service worker generated 🛠');
   } catch (error) {
@@ -183,15 +181,15 @@ task('gen-sw', async () => {
 });
 
 task('fancy-fallbacks', async () => {
-  const pathsToCSS = await asyncGlob(`${clientOut}/**/*.css`);
+  const pathsToCSS = await asyncGlob(`${CLIENT_OUT}/**/*.css`);
 
   pathsToCSS.map(async cssFile => {
     const fileContent = await fs.readFile(cssFile, 'UTF-8');
     const result = await postcss([resembleImage({ selectors: ['header #hero-img'] })]).process(
       fileContent,
-      { from: `${clientOut}/styles.css`, to: `${clientOut}/styles.css` }
+      { from: `${CLIENT_OUT}/styles.css`, to: `${CLIENT_OUT}/styles.css` }
     );
-    fs.writeFile(`${clientOut}/styles.css`, result.css);
+    fs.writeFile(`${CLIENT_OUT}/styles.css`, result.css);
   });
 });
 
@@ -200,7 +198,7 @@ task('front-dev', ['client-clean', 'f:dev'], () =>
   info('The front end assets have been bundled. GET TO WORK!')
 );
 
-task('front-prod', ['client-clean', 'f:prod'], () =>
+task('front-prod', ['client-clean', 'f:prod', 'purify'], () =>
   info('The front end assets are optimized, bundled, and ready for production.')
 );
 
@@ -215,7 +213,7 @@ task('back-prod', async context => {
 });
 
 task('all', async () => {
-  fs.removeSync(join(__dirname, '/.fusebox/'));
+  fs.removeSync(join(__dirname, '.fusebox'));
   await exec('all:prod');
   info("THAT'S ALL FOLX");
 });
