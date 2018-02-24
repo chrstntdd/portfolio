@@ -167,6 +167,7 @@ initialModel =
             , demo = "https://quantified.netlify.com/"
             , description =
                 "Full stack React/Redux application with separate API powered by the Best Buy API that allows users to organize product data into a table."
+            , tagline = "A streamlined system for efficiently and accurately managing retail inventory"
             }
             [ { title = "VinylDB"
               , slug = "vinyldb"
@@ -190,6 +191,7 @@ initialModel =
               , demo = "https://obscure-island-83164.herokuapp.com/"
               , description =
                     "Full stack Javascript web application utilizing the Discogs API to manage/track user's vinyl collection."
+              , tagline = "Your personal vinyl discography, always at your fingertips"
               }
             , { title = "Roaster Nexus"
               , slug = "roaster-nexus"
@@ -209,6 +211,7 @@ initialModel =
               , demo = "https://chrstntdd.github.io/roaster-nexus/"
               , description =
                     "Web app powered by the Google Maps API and Jquery that connects users with local coffee roasters."
+              , tagline = "Explore and discover both local and non-local coffee roasters"
               }
             ]
     }

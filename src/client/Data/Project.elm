@@ -19,6 +19,7 @@ type alias Project =
     , description : String
     , repo : String
     , demo : String
+    , tagline : String
     }
 
 
@@ -38,7 +39,7 @@ viewProject slug projects =
             Nothing ->
                 projectNotFound
 
-            Just { title, repo, slug, demo, bgClass, description, imageData, techStack } ->
+            Just { title, repo, slug, demo, bgClass, description, imageData, techStack, tagline } ->
                 div [ class ("project-card__" ++ slug) ]
                     [ header [ class bgClass ]
                         [ div [ class "header-text" ]
@@ -49,7 +50,7 @@ viewProject slug projects =
                         ]
                     , section [ class "about-project" ]
                         [ div [ class "info-container" ]
-                            [ h1 [ class "project-tagline" ] [ text "Super catchy tagline that can span multiple lines" ]
+                            [ h1 [ class "project-tagline" ] [ text tagline ]
                             , div [ class "description" ]
                                 [ h3 [] [ text "About" ]
                                 , p [] [ text description ]
