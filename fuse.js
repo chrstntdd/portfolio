@@ -18,6 +18,7 @@ const { info } = console;
 const { promisify } = require('util');
 const { unlinkSync, renameSync, readFileSync, writeFileSync } = require('fs');
 const { gzipSync } = require('zlib');
+const tailwindcss = require('tailwindcss');
 const fs = require('fs-extra');
 const resembleImage = require('postcss-resemble-image').default;
 const postcss = require('postcss');
@@ -26,6 +27,7 @@ const asyncGlob = promisify(glob);
 
 const POSTCSS_PLUGINS = [
   require('postcss-flexbugs-fixes'),
+  tailwindcss('./tailwind.js'),
   autoprefixer({
     browsers: [
       'Chrome >= 52',

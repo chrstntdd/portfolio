@@ -334,7 +334,7 @@ about =
 projectsView : SelectList Project -> Html Msg
 projectsView projects =
     section [ id "projects" ]
-        [ div [ class ("bg-gif " ++ (projects |> Zip.selected |> .bgClass)) ] []
+        [ div [ class ("bg-center bg-no-repeat bg-cover bg-scroll h-screen w-screen " ++ (projects |> Zip.selected |> .bgClass)) ] []
         , h1 [ class "heading-font abs-center" ] [ projects |> Zip.selected |> .title |> text ]
         , div [ class "view-project-container" ]
             [ link
@@ -343,8 +343,8 @@ projectsView projects =
                 , label = "view project"
                 }
             ]
-        , button [ class "next-proj-btn", onClick (SwitchProject Next UserControlled 0) ] [ img [ src "/assets/icons/chevron.svg", alt "Next button" ] [] ]
-        , button [ class "prev-proj-btn", onClick (SwitchProject Back UserControlled 0) ] [ img [ src "/assets/icons/chevron.svg", alt "Back button" ] [] ]
+        , button [ class "next-proj-btn", onClick (SwitchProject Next UserControlled 0) ] [ img [ class "h-16 w-16", src "/assets/icons/chevron.svg", alt "Next button" ] [] ]
+        , button [ class "prev-proj-btn", onClick (SwitchProject Back UserControlled 0) ] [ img [ class "h-16 w-16", src "/assets/icons/chevron.svg", alt "Back button" ] [] ]
         ]
 
 
