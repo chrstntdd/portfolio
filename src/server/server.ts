@@ -2,11 +2,11 @@ import * as Hapi from 'hapi';
 import * as Boom from 'boom';
 import * as Inert from 'inert';
 import * as Good from 'good';
+import * as Underdog from 'underdog';
 import * as h2 from 'http2';
 import { makeExecutableSchema } from 'graphql-tools';
 import { graphqlHapi, graphiqlHapi } from 'apollo-server-hapi';
 import { importSchema } from 'graphql-import';
-import { print } from 'graphql/language/printer';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { IServerConfigurations } from './config';
@@ -14,13 +14,13 @@ import { IServerConfigurations } from './config';
 import resolvers from './graphql/resolvers';
 
 export async function init(configs: IServerConfigurations): Promise<Hapi.Server> {
-  const typeDefs = importSchema(join(__dirname, '/graphql/schema.graphql'));
+  const typeDefs = importSchema(join(__dirname, 'graphql/schema.graphql'));
 
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-  let listener = h2.createSecureServer({
-    key: readFileSync(join(__dirname, '/keys/key.pem'), 'UTF-8'),
-    cert: readFileSync(join(__dirname, '/keys/server.crt'), 'UTF-8')
+  const listener = h2.createSecureServer({
+    key: readFileSync(join(__dirname, 'keys/key.pem'), 'UTF-8'),
+    cert: readFileSync(join(__dirname, 'keys/server.crt'), 'UTF-8')
   });
 
   const port = configs.port;
@@ -84,7 +84,8 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
           ]
         }
       }
-    }
+    },
+    Underdog
   ]);
 
   /* FOR SERVING INDEX.HTML AND FRONT END ASSETS FOR ALL REQUESTS. */
@@ -101,33 +102,67 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     }
   });
 
-  /*  
-   *  ¯\_(ツ)_/¯
-   *  I GUESS BACKUP DEFINED ROUTES BECAUSE THE ABOVE SOLUTION WONT WORK  
-   *  MIGHT AS WELL GET A STATIC SITE GENERATOR UP IN THIS BITCH
-   *  ¯\_(ツ)_/¯ 
-   */
+  const index = readFileSync(join(__dirname, 'public/index.html')).toString();
+
+  server.route({
+    method: 'GET',
+    path: '/',
+    handler: (request, h) => {
+      const response = h.response(index);
+      h.push(response, ['/app.js', '/pure.css', '/assets/hero-bg.jpg'], {
+        'accept-encoding': 'gzip'
+      });
+
+      return response;
+    }
+  });
+
   server.route({
     method: 'GET',
     path: '/about',
-    handler: {
-      file: 'index.html'
+    handler: (request, h) => {
+      const response = h.response(index);
+      h.push(response, ['/app.js', '/pure.css', '/assets/portrait.jpg'], {
+        'accept-encoding': 'gzip'
+      });
+
+      return response;
     }
   });
 
   server.route({
     method: 'GET',
     path: '/projects/{param*}',
-    handler: {
-      file: 'index.html'
+    handler: (request, h) => {
+      const response = h.response(index);
+      h.push(
+        response,
+        ['/app.js', '/pure.css', '/assets/icons/chevron.svg', '/assets/gif/idea.gif'],
+        { 'accept-encoding': 'gzip' }
+      );
+
+      return response;
     }
   });
 
   server.route({
     method: 'GET',
     path: '/contact',
-    handler: {
-      file: 'index.html'
+    handler: (request, h) => {
+      const response = h.response(index);
+      h.push(
+        response,
+        [
+          '/app.js',
+          '/pure.css',
+          '/assets/icons/github.svg',
+          '/assets/icons/linkedin.svg',
+          '/assets/icons/twitter.svg'
+        ],
+        { 'accept-encoding': 'gzip' }
+      );
+
+      return response;
     }
   });
 

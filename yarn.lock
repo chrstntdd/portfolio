@@ -3844,6 +3844,12 @@ ultron@1.0.x:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/ultron/-/ultron-1.0.2.tgz#ace116ab557cd197386a4e88f4685378c8b2e4fa"
 
+underdog@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/underdog/-/underdog-2.0.1.tgz#3f4c8cfd5a509608c8d1e3099c0d5190f4f7674f"
+  dependencies:
+    hoek "5.x.x"
+
 unicode-canonical-property-names-ecmascript@^1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/unicode-canonical-property-names-ecmascript/-/unicode-canonical-property-names-ecmascript-1.0.3.tgz#f6119f417467593c0086357c85546b6ad5abc583"
