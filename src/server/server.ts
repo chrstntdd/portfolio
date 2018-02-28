@@ -29,9 +29,7 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     listener,
     tls: true,
     routes: {
-      files: {
-        relativeTo: join(__dirname, 'public')
-      }
+      files: { relativeTo: join(__dirname, 'public') }
     }
   });
 
@@ -41,27 +39,21 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
       options: {
         path: '/graphql',
         graphqlOptions: () => ({ pretty: true, schema }),
-        route: {
-          cors: true
-        }
+        route: { cors: true }
       }
     },
     {
       plugin: graphiqlHapi,
       options: {
         path: '/graphiql',
-        graphiqlOptions: {
-          endpointURL: '/graphql'
-        }
+        graphiqlOptions: { endpointURL: '/graphql' }
       }
     },
     Inert,
     {
       plugin: Good,
       options: {
-        ops: {
-          interval: 1000
-        },
+        ops: { interval: 1000 },
         reporters: {
           myConsoleReporter: [
             {
@@ -69,9 +61,7 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
               name: 'Squeeze',
               args: [{ log: '*', response: '*' }]
             },
-            {
-              module: 'good-console'
-            },
+            { module: 'good-console' },
             'stdout'
           ],
           myFileReporter: [
@@ -105,7 +95,8 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
       directory: {
         path: '.',
         index: true,
-        redirectToSlash: true
+        redirectToSlash: true,
+        lookupCompressed: true
       }
     }
   });

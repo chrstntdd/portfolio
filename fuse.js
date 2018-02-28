@@ -11,12 +11,13 @@ const { src, task, exec, context, tsc } = require('fuse-box/sparky');
 const { ElmPlugin } = require('fuse-box-elm-plugin');
 const autoprefixer = require('autoprefixer');
 const purify = require('purify-css');
-const { unlinkSync } = require('fs');
-const { join } = require('path');
+const { join, basename, dirname } = require('path');
 const express = require('express');
 const workbox = require('workbox-build');
 const { info } = console;
 const { promisify } = require('util');
+const { unlinkSync, renameSync, readFileSync, writeFileSync } = require('fs');
+const { gzipSync } = require('zlib');
 const fs = require('fs-extra');
 const resembleImage = require('postcss-resemble-image').default;
 const postcss = require('postcss');
@@ -41,7 +42,7 @@ const CLIENT_OUT = join(OUT_DIR, 'public');
 
 const TEMPLATE = join(__dirname, 'src/client/index.html');
 const TITLE = 'Christian Todd | Web Developer';
-const ALL_FILES = './**/**.*';
+const ALL = './**/**.*';
 
 context(
   class {
@@ -79,7 +80,7 @@ context(
     async compileServer() {
       await tsc('src/server', {
         target: 'esnext',
-        OUT_DIR: 'dist/',
+        outDir: 'dist/',
         listEmittedFiles: true,
         watch: !this.isProduction,
         sourceMap: !this.isProduction
@@ -122,11 +123,9 @@ task('client-dev-build', async context => {
 task('server-build', async context => await context.compileServer());
 
 /* TASKS TO COPY FILES */
-task('copy-static', () =>
-  src(ALL_FILES, { base: './src/client/assets/' }).dest(`${CLIENT_OUT}/assets`)
-);
+task('copy-static', () => src(ALL, { base: './src/client/assets/' }).dest(`${CLIENT_OUT}/assets`));
 
-task('copy-keys', () => src(ALL_FILES, { base: './src/server/keys/' }).dest(join(OUT_DIR, 'keys')));
+task('copy-keys', () => src(ALL, { base: './src/server/keys/' }).dest(join(OUT_DIR, 'keys')));
 
 task('copy-schema', () =>
   src('./**/*.graphql', { base: './src/server/graphql' }).dest(join(OUT_DIR, 'graphql'))
@@ -193,12 +192,44 @@ task('fancy-fallbacks', async () => {
   });
 });
 
+task('gzip', async () => {
+  /* OPTIONS:
+   * control over gzip
+   * hash filenames or not
+   * remove non-compressed files after
+   */
+  const compressibleAssets = ['.js', '.css', '.html'];
+  // const uniqueHash = createHash('md5')
+  //   .update(randomBytes(12))
+  //   .digest('hex')
+  //   .substring(0, 12);
+
+  try {
+    compressibleAssets.map(async asset => {
+      const filePaths = await asyncGlob(`${CLIENT_OUT}/**/*${asset}`);
+
+      filePaths.map(p => {
+        const originalFileName = basename(p);
+        const outputPath = dirname(p);
+
+        const fileContent = readFileSync(p, 'UTF-8');
+        const gzContent = gzipSync(fileContent);
+
+        writeFileSync(`${outputPath}/${originalFileName}.gz`, gzContent);
+      });
+    });
+    info('gZipped and ready 2 go!');
+  } catch (err) {
+    console.error(err);
+  }
+});
+
 /* MAIN BUILD TASK CHAINS */
 task('front-dev', ['client-clean', 'f:dev'], () =>
   info('The front end assets have been bundled. GET TO WORK!')
 );
 
-task('front-prod', ['client-clean', 'f:prod', 'purify'], () =>
+task('front-prod', ['client-clean', 'f:prod', 'purify', 'gzip'], () =>
   info('The front end assets are optimized, bundled, and ready for production.')
 );
 
@@ -213,7 +244,7 @@ task('back-prod', async context => {
 });
 
 task('all', async () => {
-  fs.removeSync(join(__dirname, '.fusebox'));
+  fs.removeSync(join(__dirname, '/.fusebox/'));
   await exec('all:prod');
   info("THAT'S ALL FOLX");
 });
