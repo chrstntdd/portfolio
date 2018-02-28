@@ -14,13 +14,13 @@ import { IServerConfigurations } from './config';
 import resolvers from './graphql/resolvers';
 
 export async function init(configs: IServerConfigurations): Promise<Hapi.Server> {
-  const typeDefs = importSchema(join(__dirname, '/graphql/schema.graphql'));
+  const typeDefs = importSchema(join(__dirname, 'graphql/schema.graphql'));
 
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
   const listener = h2.createSecureServer({
-    key: readFileSync(join(__dirname, '/keys/key.pem'), 'UTF-8'),
-    cert: readFileSync(join(__dirname, '/keys/server.crt'), 'UTF-8')
+    key: readFileSync(join(__dirname, 'keys/key.pem'), 'UTF-8'),
+    cert: readFileSync(join(__dirname, 'keys/server.crt'), 'UTF-8')
   });
 
   const port = configs.port;
@@ -109,7 +109,9 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     path: '/',
     handler: (request, h) => {
       const response = h.response(index);
-      h.push(response, ['/app.js', '/pure.css', '/assets/hero-bg.jpg']);
+      h.push(response, ['/app.js', '/pure.css', '/assets/hero-bg.jpg'], {
+        'accept-encoding': 'gzip'
+      });
 
       return response;
     }
@@ -120,7 +122,9 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     path: '/about',
     handler: (request, h) => {
       const response = h.response(index);
-      h.push(response, ['/app.js', '/pure.css', '/assets/portrait.jpg']);
+      h.push(response, ['/app.js', '/pure.css', '/assets/portrait.jpg'], {
+        'accept-encoding': 'gzip'
+      });
 
       return response;
     }
@@ -131,12 +135,11 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     path: '/projects/{param*}',
     handler: (request, h) => {
       const response = h.response(index);
-      h.push(response, [
-        '/app.js',
-        '/pure.css',
-        '/assets/icons/chevron.svg',
-        '/assets/gif/idea.gif'
-      ]);
+      h.push(
+        response,
+        ['/app.js', '/pure.css', '/assets/icons/chevron.svg', '/assets/gif/idea.gif'],
+        { 'accept-encoding': 'gzip' }
+      );
 
       return response;
     }
@@ -147,13 +150,17 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     path: '/contact',
     handler: (request, h) => {
       const response = h.response(index);
-      h.push(response, [
-        '/app.js',
-        '/pure.css',
-        '/assets/icons/github.svg',
-        '/assets/icons/linkedin.svg',
-        '/assets/icons/twitter.svg'
-      ]);
+      h.push(
+        response,
+        [
+          '/app.js',
+          '/pure.css',
+          '/assets/icons/github.svg',
+          '/assets/icons/linkedin.svg',
+          '/assets/icons/twitter.svg'
+        ],
+        { 'accept-encoding': 'gzip' }
+      );
 
       return response;
     }
