@@ -1,6 +1,5 @@
 port module Main exposing (..)
 
-import Date exposing (..)
 import Util exposing (unwrap, onClickLink)
 import Html exposing (Html, Attribute, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, program, section, span, text, ul)
 import Html.Attributes exposing (alt, class, for, href, id, placeholder, src, type_)
@@ -10,7 +9,6 @@ import Json.Decode.Pipeline exposing (decode, required)
 import Json.Encode as E exposing (..)
 import Navigation
 import Routes exposing (Route)
-import Task exposing (perform)
 import Time exposing (every)
 import SelectList as Zip exposing (fromLists, toList, select, selected, SelectList)
 import Data.Project exposing (Project)
@@ -235,16 +233,13 @@ view model =
         appShell rest =
             div [ class "__page-wrapper__" ]
                 ([ navBar navIsOpen viewportWidth ] |> List.append rest)
-
-        appFooter =
-            footer currentYear
     in
         case page of
             Routes.Home ->
                 appShell [ aboveTheFold navIsOpen ]
 
             Routes.About ->
-                appShell [ about, appFooter ]
+                appShell [ about ]
 
             Routes.Projects ->
                 appShell [ projectsView projects ]
@@ -253,7 +248,7 @@ view model =
                 appShell [ Data.Project.viewProject slug (Zip.toList projects) ]
 
             Routes.Contact ->
-                appShell [ contact, appFooter ]
+                appShell [ contact ]
 
             Routes.NotFound ->
                 appShell [ contact ]
@@ -372,13 +367,6 @@ contact =
         ]
 
 
-footer : Int -> Html Msg
-footer currentYear =
-    Html.footer [ class "content-info" ]
-        [ p [] [ text ("Christian Todd | " ++ toString currentYear) ]
-        ]
-
-
 
 {- UPDATE -}
 
@@ -390,34 +378,33 @@ type Msg
     | NavigateTo Route
     | Outside InfoForElm
     | LogErr String
-    | GetYear Date
     | SwitchProject Direction ProjectSwitchBehavior Time.Time
     | Tick Time.Time
 
 
-setRoute : Maybe Route -> Model -> List (Cmd Msg) -> ( Model, Cmd Msg )
-setRoute maybeRoute model cmds =
+setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
+setRoute maybeRoute model =
     case maybeRoute of
         Nothing ->
-            { model | page = Routes.NotFound } ! cmds
+            { model | page = Routes.NotFound } ! []
 
         Just Routes.Home ->
-            { model | page = Routes.Home } ! cmds
+            { model | page = Routes.Home } ! []
 
         Just Routes.About ->
-            { model | page = Routes.About } ! cmds
+            { model | page = Routes.About } ! []
 
         Just Routes.Projects ->
-            { model | page = Routes.Projects } ! cmds
+            { model | page = Routes.Projects } ! []
 
         Just (Routes.ActiveProject slug) ->
-            { model | page = Routes.ActiveProject slug } ! cmds
+            { model | page = Routes.ActiveProject slug } ! []
 
         Just Routes.Contact ->
-            { model | page = Routes.Contact } ! cmds
+            { model | page = Routes.Contact } ! []
 
         _ ->
-            { model | page = Routes.NotFound } ! cmds
+            { model | page = Routes.NotFound } ! []
 
 
 updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
@@ -436,7 +423,7 @@ update msg model =
             model ! []
 
         SetRoute maybeRoute ->
-            setRoute maybeRoute model []
+            setRoute maybeRoute model
 
         Outside infoForElm ->
             case infoForElm of
@@ -445,9 +432,6 @@ update msg model =
 
         LogErr err ->
             model ! [ sendInfoOutside (LogErrorToConsole err) ]
-
-        GetYear date ->
-            { model | currentYear = Date.year date } ! []
 
         NavigateTo page ->
             {- THE SECOND ARGUMENT TO routeToString IS A JWT FOR VALIDATION, IF NEEDED -}
@@ -521,7 +505,7 @@ init savedModel location =
         maybeRoute =
             location |> Routes.fromLocation
     in
-        setRoute maybeRoute initialModel [ perform GetYear Date.now ]
+        setRoute maybeRoute initialModel
 
 
 

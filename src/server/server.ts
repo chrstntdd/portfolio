@@ -29,9 +29,7 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     listener,
     tls: true,
     routes: {
-      files: {
-        relativeTo: join(__dirname, 'public')
-      }
+      files: { relativeTo: join(__dirname, 'public') }
     }
   });
 
@@ -55,9 +53,7 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     {
       plugin: Good,
       options: {
-        ops: {
-          interval: 1000
-        },
+        ops: { interval: 1000 },
         reporters: {
           myConsoleReporter: [
             {
@@ -65,9 +61,7 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
               name: 'Squeeze',
               args: [{ log: '*', response: '*' }]
             },
-            {
-              module: 'good-console'
-            },
+            { module: 'good-console' },
             'stdout'
           ],
           myFileReporter: [
