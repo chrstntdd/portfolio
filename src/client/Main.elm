@@ -126,7 +126,6 @@ type alias Model =
     { screenData : Maybe ScreenData
     , navIsOpen : Bool
     , page : Route
-    , currentYear : Int
     , autoSwitchProjectTimeout : Time.Time
     , switchProjectBehavior : ProjectSwitchBehavior
     , projects : SelectList Project
@@ -138,7 +137,6 @@ initialModel =
     { screenData = Nothing
     , navIsOpen = False
     , page = Routes.Home
-    , currentYear = 0
     , autoSwitchProjectTimeout = 5 -- seconds
     , switchProjectBehavior = Auto
     , projects =
@@ -222,7 +220,7 @@ initialModel =
 view : Model -> Html Msg
 view model =
     let
-        { page, projects, navIsOpen, screenData, currentYear } =
+        { page, projects, navIsOpen, screenData } =
             model
 
         viewportWidth : Int
@@ -231,7 +229,7 @@ view model =
 
         appShell : List (Html Msg) -> Html Msg
         appShell rest =
-            div [ class "__page-wrapper__" ]
+            div [ class "absolute pin-l h-full w-full" ]
                 ([ navBar navIsOpen viewportWidth ] |> List.append rest)
     in
         case page of
@@ -259,9 +257,9 @@ navBar navIsOpen viewportWidth =
     let
         navClass =
             if navIsOpen then
-                class "show"
+                class "show z-30"
             else
-                class ""
+                class "z-30"
     in
         nav
             [ id "main-nav", navClass ]
@@ -304,16 +302,16 @@ aboveTheFold navIsOpen =
     let
         overlayAttrs =
             if navIsOpen then
-                [ class "overlay on", onClick ToggleHamburger ]
+                [ class "h-full w-full overlay-bg-color opacity-100 trans-300ms-all z-20", onClick ToggleHamburger ]
             else
-                [ class "overlay" ]
+                [ class "h-full w-full overlay-bg-color opacity-0 trans-300ms-all" ]
     in
-        header []
+        header [ class "h-screen w-screen flex flex-col items-center justify-center" ]
             [ div overlayAttrs []
-            , div [ id "hero-img" ] []
-            , div [ id "hero-text" ]
-                [ h1 [] [ text "Christian Todd" ]
-                , h3 [] [ text "Web Developer" ]
+            , div [ id "hero-img", class "absolute bg-cover bg-center bg-no-repeat pin" ] []
+            , div [ id "hero-text", class "z-10 abs-center" ]
+                [ h1 [ class "text-white font-thin text-center leading-none whitespace-no-wrap text-5xl tracking-wide" ] [ text "Christian Todd" ]
+                , h3 [ class "text-white font-thin text-center italic" ] [ text "Web Developer" ]
                 ]
             ]
 
