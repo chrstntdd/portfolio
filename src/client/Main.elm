@@ -257,9 +257,9 @@ navBar navIsOpen viewportWidth =
     let
         navClass =
             if navIsOpen then
-                class "show z-30"
+                class "show z-30 fixed bg-black h-full md:w-full pin-t trans-300ms-all"
             else
-                class "z-30"
+                class "z-30 fixed bg-black h-full md:w-full pin-t trans-300ms-all"
     in
         nav
             [ id "main-nav", navClass ]
@@ -309,8 +309,8 @@ aboveTheFold navIsOpen =
         header [ class "h-screen w-screen flex flex-col items-center justify-center" ]
             [ div overlayAttrs []
             , div [ id "hero-img", class "absolute bg-cover bg-center bg-no-repeat pin" ] []
-            , div [ id "hero-text", class "z-10 abs-center" ]
-                [ h1 [ class "text-white font-thin text-center leading-none whitespace-no-wrap text-5xl tracking-wide" ] [ text "Christian Todd" ]
+            , div [ id "hero-text", class "z-10 kinda-center" ]
+                [ h1 [ class "text-white font-thin text-center leading-none whitespace-no-wrap sm:text-5xl md:text-massive tracking-wide" ] [ text "Christian Todd" ]
                 , h3 [ class "text-white font-thin text-center italic" ] [ text "Web Developer" ]
                 ]
             ]
@@ -333,7 +333,7 @@ projectsView : SelectList Project -> Html Msg
 projectsView projects =
     section [ id "projects" ]
         [ div [ class ("bg-center bg-no-repeat bg-cover bg-scroll h-screen w-screen " ++ (projects |> Zip.selected |> .bgClass)) ] []
-        , h1 [ class "heading-font abs-center" ] [ projects |> Zip.selected |> .title |> text ]
+        , h1 [ class "heading-font kinda-center" ] [ projects |> Zip.selected |> .title |> text ]
         , div [ class "view-project-container" ]
             [ link
                 { url = projects |> Zip.selected |> .slug |> Routes.ActiveProject

@@ -1,4 +1,3 @@
-@import '../../../node_modules/normalize.css/normalize';
 @import 'shared/utils';
 @import 'shared/breakpoints';
 @import 'shared/layout';
@@ -87,23 +86,22 @@
   background-color: rgba(0, 0, 0, 0.3);
 }
 
-:root {
-  font-size: 14px;
-  @media (min-width: $bp-xsmall) {
-    font-size: between(20px, 14px, $bp-medium, $bp-xsmall);
-  }
-  @media (min-width: $bp-medium) {
-    font-size: 20px;
-  }
+.kinda-center {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* NO OUTLINE RESET */
+
+textarea:focus,
+input:focus {
+  outline: none !important;
+}
+
+*:focus {
+  outline: none !important;
 }
 
 #hero-img {
@@ -154,13 +152,8 @@
 }
 
 #main-nav {
-  height: 100%;
   max-width: 500px;
-  top: 0;
-  position: fixed;
-  background: #000200;
   border-left: 1px solid $OFF_WHITE2;
-  transition: 0.3s ease-in-out all;
   display: flex;
   align-content: center;
   align-items: center;
@@ -176,14 +169,12 @@
     /* TABLET AND UP STYLES */
     max-width: none;
     position: fixed;
-    background: transparent;
     border: none;
-    left: 0;
-    top: 2%;
-    width: 100%;
-    height: 10%;
-    justify-content: flex-end;
-    background-color: transparent;
+    left: 0 !important;
+    top: 2% !important;
+    height: 10% !important;
+    justify-content: flex-end !important;
+    background: transparent !important;
     #nav-list {
       flex-direction: row;
       padding-right: 2rem;
@@ -206,7 +197,6 @@
   @media (min-width: $bp-small) {
     display: none;
   }
-  outline-color: transparent;
   position: absolute;
   top: 0;
   left: -6rem;
@@ -322,7 +312,6 @@
 @mixin project-nav-button($rotation,
 $translate) {
   height: 100%;
-  outline-color: transparent;
   border: none;
   position: absolute;
   background-color: transparent;
@@ -337,13 +326,6 @@ $translate) {
   &:hover {
     transform: translateX($translate);
   }
-}
-
-.abs-center {
-  position: absolute;
-  left: 50%;
-  top: 40%;
-  transform: translate(-50%, -50%);
 }
 
 #projects {
@@ -395,6 +377,14 @@ header {
   align-items: center;
   color: white;
   animation: fadeIn 0.5s;
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
   h2 {
     font-weight: 400;
   }
