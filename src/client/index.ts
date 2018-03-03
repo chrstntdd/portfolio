@@ -17,7 +17,7 @@ const throttle = (func, delay) => {
   };
 };
 
-app.ports.infoForOutside.subscribe(msg => {
+app.ports.infoForOutside.subscribe((msg) => {
   /* PATTERN MATCH ON THE INFO FOR OUTSIDE */
   switch (msg.tag) {
     case 'SaveModel':
@@ -42,21 +42,18 @@ app.ports.infoForOutside.subscribe(msg => {
 });
 
 const sendScreenData = () => {
-  const html = document.documentElement;
-  const body = document.body;
-
   const screenData = {
-    scrollTop: window.pageYOffset || html.scrollTop || body.scrollTop || 0,
-    pageHeight: 
-      Math.max(
-        body.scrollHeight,
-        body.offsetHeight,
-        html.clientHeight,
-        html.scrollHeight,
-        html.offsetHeight
-      ),
-    viewportHeight: html.clientHeight,
-    viewportWidth: html.clientWidth
+    scrollTop:
+      window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0,
+    pageHeight: Math.max(
+      document.body.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.clientHeight,
+      document.documentElement.scrollHeight,
+      document.documentElement.offsetHeight
+    ),
+    viewportHeight: document.documentElement.clientHeight,
+    viewportWidth: document.documentElement.clientWidth
   };
   app.ports.infoForElm.send({ tag: 'ScrollOrResize', data: screenData });
 };
