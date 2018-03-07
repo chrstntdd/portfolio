@@ -260,18 +260,21 @@ navBar navIsOpen viewportWidth =
                 class "show z-30 fixed bg-black h-full md:w-full pin-t trans-300ms-all"
             else
                 class "z-30 fixed bg-black h-full md:w-full pin-t trans-300ms-all"
+
+        linkClass =
+            class "no-underline uppercase text-center text-white"
     in
         nav
             [ id "main-nav", navClass ]
             [ ul [ id "nav-list" ]
                 [ li []
-                    [ link { url = Routes.Home, attrs = [], label = "Home" } ]
+                    [ link { url = Routes.Home, attrs = [ linkClass ], label = "Home" } ]
                 , li []
-                    [ link { url = Routes.About, attrs = [], label = "About" } ]
+                    [ link { url = Routes.About, attrs = [ linkClass ], label = "About" } ]
                 , li []
-                    [ link { url = Routes.Projects, attrs = [], label = "Projects" } ]
+                    [ link { url = Routes.Projects, attrs = [ linkClass ], label = "Projects" } ]
                 , li []
-                    [ link { url = Routes.Contact, attrs = [], label = "Contact" } ]
+                    [ link { url = Routes.Contact, attrs = [ linkClass ], label = "Contact" } ]
                 , if viewportWidth > 768 then
                     {- DONT SHOW HAMBURGER ON DESKTOP -}
                     Html.text ""
@@ -333,7 +336,7 @@ projectsView : SelectList Project -> Html Msg
 projectsView projects =
     section [ id "projects" ]
         [ div [ class ("bg-center bg-no-repeat bg-cover bg-scroll h-screen w-screen " ++ (projects |> Zip.selected |> .bgClass)) ] []
-        , h1 [ class "heading-font kinda-center" ] [ projects |> Zip.selected |> .title |> text ]
+        , h1 [ class "leading-loose whitespace-no-wrap text-white kinda-center" ] [ projects |> Zip.selected |> .title |> text ]
         , div [ class "view-project-container" ]
             [ link
                 { url = projects |> Zip.selected |> .slug |> Routes.ActiveProject
@@ -348,21 +351,31 @@ projectsView projects =
 
 contact : Html Msg
 contact =
-    section [ id "contact" ]
-        [ p [] [ text "Let's talk:" ]
-        , p [ class "email" ] [ text "christian.todd7@gmail.com" ]
-        , ul []
-            [ li []
-                [ a [ href "https://github.com/chrstntdd" ] [ img [ src "/assets/icons/github.svg", alt "Github mark icon" ] [] ]
-                ]
-            , li []
-                [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/" ] [ img [ src "/assets/icons/linkedin.svg", alt "LinkedIn text icon" ] [] ]
-                ]
-            , li []
-                [ a [ href "https://twitter.com/_chrstntdd?lang=en" ] [ img [ src "/assets/icons/twitter.svg", alt "twitter bird icon" ] [] ]
+    let
+        listClass =
+            "list-reset"
+
+        anchorClass =
+            "no-underline mb-0"
+
+        imgClass =
+            "m-3"
+
+        pClass =
+            "text-white mt-2 mb-2"
+    in
+        section [ id "contact", class "h-screen w-screen flex flex-col items-center justify-center" ]
+            [ p [ class pClass ] [ text "Let's talk:" ]
+            , p [ class (pClass ++ " font-semibold hover:text-grey trans-300ms-all") ] [ text "christian.todd7@gmail.com" ]
+            , ul [ class "pl-0 flex flex-col justify-center items-center" ]
+                [ li [ class listClass ]
+                    [ a [ href "https://github.com/chrstntdd", class anchorClass ] [ img [ src "/assets/icons/github.svg", alt "Github mark icon", class imgClass ] [] ] ]
+                , li [ class listClass ]
+                    [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/", class anchorClass ] [ img [ src "/assets/icons/linkedin.svg", alt "LinkedIn text icon", class imgClass ] [] ] ]
+                , li [ class listClass ]
+                    [ a [ href "https://twitter.com/_chrstntdd", class anchorClass ] [ img [ src "/assets/icons/twitter.svg", alt "twitter bird icon", class imgClass ] [] ] ]
                 ]
             ]
-        ]
 
 
 

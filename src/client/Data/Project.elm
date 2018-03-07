@@ -41,9 +41,9 @@ viewProject slug projects =
 
             Just { title, repo, slug, demo, bgClass, description, imageData, techStack, tagline } ->
                 div [ class ("project-card__" ++ slug) ]
-                    [ header [ class bgClass ]
-                        [ div [ class "header-text" ]
-                            [ h1 [ class "heading-font" ] [ text title ]
+                    [ header [ class (bgClass ++ " h-screen w-screen bg-cover bg-center bg-no-repeat pin ") ]
+                        [ div [ class "header-text-container kinda-center" ]
+                            [ h1 [ class "text-white leading-loose whitespace-no-wrap" ] [ text title ]
                             , span [] []
                             , h2 [] [ text "scroll to discover" ]
                             ]

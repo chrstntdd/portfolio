@@ -106,7 +106,8 @@ input:focus {
 
 #hero-img {
   background-color: linear-gradient(90deg, #070d0b 0%, #090e0e 25%, #0d1513 50%, #0a140f 75%);
-  background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('assets/hero-bg.jpg');
+  background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+    url('assets/hero-bg.jpg');
 }
 
 #hero-text {
@@ -142,12 +143,6 @@ input:focus {
     width: 100%;
     padding: 2rem;
     list-style: none;
-    a {
-      color: $OFF_WHITE2;
-      text-decoration: none;
-      text-transform: uppercase;
-      text-align: center;
-    }
   }
 }
 
@@ -309,8 +304,7 @@ input:focus {
   background: url('/assets/gif/idea.gif');
 }
 
-@mixin project-nav-button($rotation,
-$translate) {
+@mixin project-nav-button($rotation, $translate) {
   height: 100%;
   border: none;
   position: absolute;
@@ -348,29 +342,16 @@ $translate) {
     }
   }
   .next-proj-btn {
-    @include project-nav-button(0deg,
-    0.5rem);
+    @include project-nav-button(0deg, 0.5rem);
     right: 0;
   }
   .prev-proj-btn {
-    @include project-nav-button(180deg,
-    -0.5rem);
+    @include project-nav-button(180deg, -0.5rem);
     left: 0;
   }
 }
 
-header {
-  height: 100vh;
-  width: 100vw;
-}
-
-.heading-font {
-  color: white;
-  line-height: 16px;
-  white-space: nowrap;
-}
-
-.header-text {
+.header-text-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -405,58 +386,8 @@ header {
 }
 
 #contact {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
   background-color: $DARK_BG_COLOR;
-  height: 100%;
-  padding: 2rem 0.8rem 0.8rem 0.8rem;
-  p {
-    margin: 0.5rem auto;
-    color: $OFF_WHITE;
+  img {
+    max-height: 80px;
   }
-  .email {
-    font-style: italic;
-    color: $OFF_WHITE;
-    font-weight: 600;
-    transition: all 0.5s;
-    &:hover {
-      color: darken($OFF_WHITE, 40%);
-    }
-  }
-  ul {
-    padding-left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    li {
-      margin: auto 10%;
-      list-style: none;
-      a {
-        text-decoration: none;
-        font-size: 2.5rem;
-        color: $OFF_WHITE;
-        transition: all 0.5s;
-        margin-bottom: 0;
-        &:hover {
-          color: darken($OFF_WHITE, 40%);
-        }
-        img {
-          max-height: 80px;
-          margin: 0.8rem;
-        }
-      }
-    }
-  }
-}
-
-footer {
-  background-color: $DARK_BG_COLOR;
-  color: $OFF_WHITE;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
 }
