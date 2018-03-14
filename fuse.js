@@ -152,9 +152,26 @@ task('all:prod', ['&front-prod', '&back-prod']);
 
 /* CUSTOM BUILD TASKS */
 task('purge', () => {
+  class TailwindExtractor {
+    static extract(content) {
+      return content.match(/[A-z0-9-:\/]+/g);
+    }
+  }
+
   const purged = new Purgecss({
     content: ['src/client/**/*.elm', 'src/client/**/*.html'],
-    css: [`${CLIENT_OUT}/styles.css`]
+    css: [`${CLIENT_OUT}/styles.css`],
+    extractors: [
+      {
+        extractor: TailwindExtractor,
+        extensions: ['html', 'elm']
+      }
+    ],
+    whitelist: [
+      "project-card__vinyldb",
+      "project-card__quantified",
+      "project-card__roaster-nexus"
+    ]
   });
 
   const [result] = purged.purge();
