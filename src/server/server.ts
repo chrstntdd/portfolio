@@ -109,7 +109,7 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     path: '/',
     handler: (request, h) => {
       const response = h.response(index);
-      h.push(response, ['/app.js', '/pure.css', '/assets/hero-bg.jpg'], {
+      h.push(response, ['/app.js', '/styles.css', '/assets/hero-bg.jpg'], {
         'accept-encoding': 'gzip'
       });
 
@@ -122,7 +122,7 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
     path: '/about',
     handler: (request, h) => {
       const response = h.response(index);
-      h.push(response, ['/app.js', '/pure.css', '/assets/portrait.jpg'], {
+      h.push(response, ['/app.js', '/styles.css', '/assets/portrait.jpg'], {
         'accept-encoding': 'gzip'
       });
 
@@ -137,7 +137,7 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
       const response = h.response(index);
       h.push(
         response,
-        ['/app.js', '/pure.css', '/assets/icons/chevron.svg', '/assets/gif/idea.gif'],
+        ['/app.js', '/styles.css', '/assets/icons/chevron.svg', '/assets/gif/idea.gif'],
         { 'accept-encoding': 'gzip' }
       );
 
@@ -154,7 +154,7 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
         response,
         [
           '/app.js',
-          '/pure.css',
+          '/styles.css',
           '/assets/icons/github.svg',
           '/assets/icons/linkedin.svg',
           '/assets/icons/twitter.svg'
