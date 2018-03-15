@@ -42,6 +42,7 @@
     "bcrypt": "^1.0.3",
     "boom": "^7.1.1",
     "dotenv": "^5.0.0",
+    "elm-format": "^0.6.1-alpha",
     "good": "^8.0.1",
     "good-console": "^6.4.1",
     "good-squeeze": "^5.0.2",
