@@ -1,6 +1,5 @@
 @import 'shared/utils';
 @import 'shared/breakpoints';
-@import 'shared/layout';
 @import 'shared/colors';
 /* PROJECT DETAIL PAGES */
 
@@ -81,7 +80,6 @@
 /* UTIL CLASSES */
 
 // * { border:1px dashed red !important; }
-
 .overflow-x-hide {
   overflow-x: hidden !important;
 }
@@ -118,8 +116,7 @@ input:focus {
 
 #hero-img {
   background-color: linear-gradient(90deg, #070d0b 0%, #090e0e 25%, #0d1513 50%, #0a140f 75%);
-  background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-    url('assets/hero-bg.jpg');
+  background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('assets/hero-bg.jpg');
 }
 
 #hero-text {
@@ -261,7 +258,6 @@ input:focus {
   background-image: url('/assets/gif/idea.gif');
 }
 
-
 #projects {
   .view-project-container {
     position: absolute;
@@ -337,8 +333,6 @@ input:focus {
 
 /* SHARED UTILITY CLASSES FOR PROJECT DETAIL PAGES */
 
-
-
 .info-container {
   display: grid;
   grid-gap: 0.5rem;
@@ -399,7 +393,6 @@ input:focus {
 }
 
 .project-tagline {
-  padding: $INFO_CONTAINER_PADDING;
   @media (min-width: $bp-xsmall) {
     grid-column: 1 / -1;
     justify-self: start;
