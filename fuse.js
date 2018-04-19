@@ -167,11 +167,7 @@ task('purge', () => {
         extensions: ['html', 'elm']
       }
     ],
-    whitelist: [
-      "project-card__vinyldb",
-      "project-card__quantified",
-      "project-card__roaster-nexus"
-    ]
+    whitelist: ['project-card__vinyldb', 'project-card__quantified', 'project-card__roaster-nexus']
   });
 
   const [result] = purged.purge();
@@ -203,10 +199,9 @@ task('fancy-fallbacks', async () => {
 
   pathsToCSS.map(async cssFile => {
     const fileContent = await fs.readFile(cssFile, 'UTF-8');
-    const result = await postcss([resembleImage({ selectors: ['header #hero-img'] })]).process(
-      fileContent,
-      { from: `${CLIENT_OUT}/styles.css`, to: `${CLIENT_OUT}/styles.css` }
-    );
+    const result = await postcss([
+      resembleImage({ selectors: ['header #hero-img'] })
+    ]).process(fileContent, { from: `${CLIENT_OUT}/styles.css`, to: `${CLIENT_OUT}/styles.css` });
     fs.writeFile(`${CLIENT_OUT}/styles.css`, result.css);
   });
 });
