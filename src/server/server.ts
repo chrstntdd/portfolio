@@ -19,8 +19,8 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
   const listener = h2.createSecureServer({
-    key: readFileSync(join(__dirname, 'keys/key.pem'), 'UTF-8'),
-    cert: readFileSync(join(__dirname, 'keys/server.crt'), 'UTF-8')
+    key: readFileSync(join(__dirname, 'keys/server.pem'), 'UTF-8'),
+    cert: readFileSync(join(__dirname, 'keys/server.pem'), 'UTF-8')
   });
 
   const port = configs.port;
