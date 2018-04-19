@@ -1,9 +1,9 @@
 module Routes exposing (Route(..), fromLocation, href, routeToString)
 
-import Navigation
 import Html exposing (Attribute)
 import Html.Attributes as Attr
-import UrlParser exposing ((</>), s, string, top, Parser, oneOf, parsePath, map)
+import Navigation
+import UrlParser exposing ((</>), Parser, map, oneOf, parsePath, s, string, top)
 
 
 type alias JWT =
@@ -54,7 +54,7 @@ routeToString route jwt =
                 NotFound ->
                     [ "404" ]
     in
-        "/" ++ String.join "/" pieces
+    "/" ++ String.join "/" pieces
 
 
 

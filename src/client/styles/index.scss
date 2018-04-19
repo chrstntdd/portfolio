@@ -1,7 +1,5 @@
-@import '../../../node_modules/normalize.css/normalize';
 @import 'shared/utils';
 @import 'shared/breakpoints';
-@import 'shared/layout';
 @import 'shared/colors';
 /* PROJECT DETAIL PAGES */
 
@@ -10,200 +8,133 @@
 @import 'project-detail-page/vinyldb';
 /* FONT IMPORTS */
 
-@import url('https://fonts.googleapis.com/css?family=Carter+One');
+/**
+ * This injects Tailwind's base styles, which is a combination of
+ * Normalize.css and some additional base styles.
+ *
+ * You can see the styles here:
+ * https://github.com/tailwindcss/tailwindcss/blob/master/css/preflight.css
+ *
+ * If using `postcss-import`, you should import this line from it's own file:
+ *
+ * @import "./tailwind-preflight.css";
+ *
+ * See: https://github.com/tailwindcss/tailwindcss/issues/53#issuecomment-341413622
+ */
+
+@tailwind preflight;
+/**
+  * Here you would add any of your custom component classes; stuff that you'd
+  * want loaded *before* the utilities so that the utilities could still
+  * override them.
+  *
+  * Example:
+  *
+  * .btn { ... }
+  * .form-input { ... }
+  *
+  * Or if using a preprocessor or `postcss-import`:
+  *
+  * @import "components/buttons";
+  * @import "components/forms";
+  */
+
+/**
+  * This injects all of Tailwind's utility classes, generated based on your
+  * config file.
+  *
+  * If using `postcss-import`, you should import this line from it's own file:
+  *
+  * @import "./tailwind-utilities.css";
+  *
+  * See: https://github.com/tailwindcss/tailwindcss/issues/53#issuecomment-341413622
+  */
+
+@tailwind utilities;
+/**
+  * Here you would add any custom utilities you need that don't come out of the
+  * box with Tailwind.
+  *
+  * Example :
+  *
+  * .bg-pattern-graph-paper { ... }
+  * .skew-45 { ... }
+  *
+  * Or if using a preprocessor or `postcss-import`:
+  *
+  * @import "utilities/background-patterns";
+  * @import "utilities/skew-transforms";
+  */
+
 .elm-overlay {
   z-index: 9999999999;
 }
 
-:root {
-  font-size: 14px;
-  @media (min-width: $bp-xsmall) {
-    font-size: between(20px, 14px, $bp-medium, $bp-xsmall);
-  }
-  @media (min-width: $bp-medium) {
-    font-size: 20px;
-  }
+/* TAILWIND UTILS */
+
+.proj-btn {
+  @apply .h-full .border-0 .absolute .bg-transparent .pin-t .flex .items-center .justify-center .trans-300ms-all
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* UTIL CLASSES */
+
+// * { border:1px dashed red !important; }
+.overflow-x-hide {
+  overflow-x: hidden !important;
 }
 
-header {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100vw;
-  svg {
-    height: 4.5rem;
-    width: 4.5rem;
-    fill: $OFF_WHITE;
-    margin: 0 auto;
-    text-align: center;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, 320%);
-    animation: pulse 2s infinite;
-    @keyframes pulse {
-      0% {
-        fill: $OFF_WHITE;
-      }
-      50% {
-        fill: darken($OFF_WHITE, 50%);
-      }
-      100% {
-        fill: $OFF_WHITE;
-      }
-    }
-  }
-  #hero-img {
-    background-color: linear-gradient(90deg, #070d0b 0%, #090e0e 25%, #0d1513 50%, #0a140f 75%);
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('assets/hero-bg.jpg');
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: -1;
-  }
-  #hero-text {
-    z-index: 10;
-    position: absolute;
-    left: 50%;
-    top: 42%;
-    transform: translate(-50%, -50%);
-    h1,
-    h3 {
-      color: #f2f2f2;
-      text-align: center;
-      font-weight: 200;
-    }
-    h1 {
-      @media(min-width: $bp-xxsmall) {
-        font-size: between(42px, 90px, $bp-xxsmall, $bp-xlarge);
-        letter-spacing: between(3px, 20px, $bp-xxsmall, $bp-xlarge)
-      }
-      line-height: 1;
-      white-space: nowrap;
-      @supports (-webkit-background-clip: text) and (-webkit-text-fill-color: transparent) {
-        background: linear-gradient(to right, #feac5e, #c779d0, #57acc6, #76c93e);
-        background-size: 400% 400%;
-        width: 100%;
-        text-align: center;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: Gradient 5s ease infinite;
-        @keyframes Gradient {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-      }
-    }
-    h3 {
-      font-style: italic;
-    }
-  }
+.mirror {
+  transform: rotate(180deg);
 }
 
-#nav-list {
-  width: 60%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  li {
-    width: 100%;
-    padding: 2rem;
-    list-style: none;
-    a {
-      color: $OFF_WHITE2;
-      text-decoration: none;
-      text-transform: uppercase;
-      text-align: center;
-    }
-  }
+.trans-300ms-all {
+  transition: 300ms ease-in-out all;
 }
 
-.overlay {
-  height: 100%;
-  width: 100%;
+.overlay-bg-color {
   background-color: rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transition: 0.3s ease-in-out all;
-  &.on {
-    opacity: 1;
-    z-index: 11;
-  }
 }
 
-.__page-wrapper__ {
-  left: 0;
-  width: 100%;
-  height: 100%;
+.kinda-center {
   position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
 }
 
-#main-nav {
-  z-index: 12;
-  height: 100%;
-  max-width: 500px;
-  top: 0;
-  position: fixed;
-  background: #000200;
-  border-left: 1px solid $OFF_WHITE2;
-  transition: 0.3s ease-in-out all;
-  display: flex;
-  align-content: center;
-  align-items: center;
-  left: between(320px, 768px, $bp-xxsmall, $bp-small);
-  &.show {
-    @media (min-width: $bp-xxsmall) {
-      transform: translateX(-100%);
-    }
-  }
-  @media (min-width: $bp-small) {
-    /* TABLET AND UP STYLES */
-    max-width: none;
-    position: fixed;
-    background: transparent;
-    border: none;
-    left: 0;
-    top: 2%;
-    width: 100%;
-    height: 10%;
-    justify-content: flex-end;
-    background-color: transparent;
-    #nav-list {
-      flex-direction: row;
-      padding-right: 2rem;
-      width: auto;
-      li {
-        width: auto;
-        padding: 1rem;
-        display: flex;
-        align-content: center;
-        justify-items: center;
-        a {
-          margin: 0 auto;
+/* NO OUTLINE RESET */
+
+textarea:focus,
+input:focus {
+  outline: none !important;
+}
+
+*:focus {
+  outline: none !important;
+}
+
+#hero-img {
+  background-color: linear-gradient(90deg, #070d0b 0%, #090e0e 25%, #0d1513 50%, #0a140f 75%);
+  background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('assets/hero-bg.jpg');
+}
+
+#hero-text {
+  h1 {
+    @supports (-webkit-background-clip: text) and (-webkit-text-fill-color: transparent) {
+      background: linear-gradient(to right, #feac5e, #c779d0, #57acc6, #76c93e);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: Gradient 5s ease infinite;
+      @keyframes Gradient {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
         }
       }
     }
@@ -214,10 +145,9 @@ header {
   @media (min-width: $bp-small) {
     display: none;
   }
-  outline-color: $OFF_WHITE2;
   position: absolute;
   top: 0;
-  left: -40%;
+  left: -6rem;
   height: 66px;
   width: 66px;
   background: transparent;
@@ -315,58 +245,16 @@ header {
   }
 }
 
-@mixin bg-gif {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-attachment: scroll;
-  height: 100vh;
-  width: 100vw;
-}
-
 .rn-bg-gif {
-  background: url('/assets/gif/coffee.gif');
-  @include bg-gif();
+  background-image: url('/assets/gif/coffee.gif');
 }
 
 .vdb-bg-gif {
-  background: url('/assets/gif/records.gif');
-  @include bg-gif();
+  background-image: url('/assets/gif/records.gif');
 }
 
 .quant-bg-gif {
-  background: url('/assets/gif/idea.gif');
-  @include bg-gif();
-}
-
-@mixin project-nav-button($rotation,
-$translate) {
-  height: 100%;
-  outline-color: $OFF_WHITE2;
-  border: none;
-  position: absolute;
-  background-color: transparent;
-  top: 0;
-  display: flex;
-  align-content: center;
-  justify-items: center;
-  transition: all 0.2s ease-in-out;
-  img {
-    height: 4rem;
-    width: 4rem;
-    transform: rotate($rotation);
-  }
-  &:hover {
-    transform: translateX($translate);
-  }
-}
-
-.abs-center {
-  position: absolute;
-  left: 50%;
-  top: 40%;
-  position: absolute;
-  transform: translate(-50%, -50%);
+  background-image: url('/assets/gif/idea.gif');
 }
 
 #projects {
@@ -385,41 +273,38 @@ $translate) {
       text-decoration: none;
       color: white;
       font-size: 1.5rem;
-      font-family: 'Carter One', cursive;
     }
   }
-  .next-proj-btn {
-    @include project-nav-button(0deg,
-    0.5rem);
-    right: 0;
+  .next-btn {
+    right: 1.5rem;
+    img {
+      transform: rotate(0deg);
+    }
+    &:hover {
+      transform: translateX(0.5rem);
+    }
   }
-  .prev-proj-btn {
-    @include project-nav-button(180deg,
-    -0.5rem);
-    left: 0;
+  .prev-btn {
+    left: 1.5rem;
+    img {
+      transform: rotate(180deg);
+    }
+    &:hover {
+      transform: translateX(-0.5rem);
+    }
   }
 }
 
-header {
-  height: 100vh;
-  width: 100vw;
-}
-
-.heading-font {
-  color: white;
-  line-height: 16px;
-  white-space: nowrap;
-}
-
-.header-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.header-text-container {
   color: white;
   animation: fadeIn 0.5s;
-  h2 {
-    font-weight: 400;
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   span {
     height: 90px;
@@ -438,58 +323,83 @@ header {
 }
 
 #contact {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
   background-color: $DARK_BG_COLOR;
-  height: 100%;
-  padding: 2rem 0.8rem 0.8rem 0.8rem;
-  p {
-    margin: 0.5rem auto;
-    color: $OFF_WHITE;
+  img {
+    max-height: 80px;
   }
-  .email {
-    font-style: italic;
-    color: $OFF_WHITE;
-    font-weight: 600;
-    transition: all 0.5s;
+}
+
+/* SHARED UTILITY CLASSES FOR PROJECT DETAIL PAGES */
+
+.info-container {
+  display: grid;
+  grid-gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.links__container {
+  a {
+    transition: all cubic-bezier(0.55, 0, 0.1, 1) 0.5s;
     &:hover {
-      color: darken($OFF_WHITE, 40%);
-    }
-  }
-  ul {
-    padding-left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    li {
-      margin: auto 10%;
-      list-style: none;
-      a {
-        text-decoration: none;
-        font-size: 2.5rem;
-        color: $OFF_WHITE;
-        transition: all 0.5s;
-        margin-bottom: 0;
-        &:hover {
-          color: darken($OFF_WHITE, 40%);
-        }
-        img {
-          max-height: 80px;
-          margin: 0.8rem;
-        }
+      transform: translate3d(20px, 0, 0);
+      span {
+        transform: scaleX(0.5) translate3d(0, 0, 0);
       }
     }
   }
 }
 
-footer {
-  background-color: $DARK_BG_COLOR;
-  color: $OFF_WHITE;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+.link-accent {
+  position: relative;
+  display: inline-block;
+  left: -3px;
+  top: -4px;
+  content: '';
+  @media (min-width: $bp-xxsmall) {
+    width: between(30px, 90px, $bp-xxsmall, $bp-xxlarge);
+  }
+  height: 1px;
+  transform-origin: right;
+  transition: all cubic-bezier(0.55, 0, 0.1, 1) 0.5s;
+  transform: scaleX(1) translate3d(0, 0, 0);
+}
+
+.description {
+  grid-column: 1 / 2;
+  align-self: start;
+}
+
+.tech-container {
+  align-self: start;
+  @media (max-width: $bp-xsmall) {
+    h3 {
+      justify-self: flex-start;
+      text-align: center;
+    }
+  }
+  ul {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 2rem;
+    grid-row-gap: 0.5rem;
+    align-items: start;
+    @media (min-width: $bp-small) {
+      padding-left: 0.7rem;
+    }
+  }
+}
+
+.project-tagline {
+  @media (min-width: $bp-xsmall) {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+.proj-thumbnails {
+  img {
+    max-width: 98vw;
+    box-shadow: rgba(0, 0, 0, 0.55) 0px 20px 43px;
+  }
 }

@@ -10,7 +10,6 @@ const {
 const { src, task, exec, context, tsc } = require('fuse-box/sparky');
 const { ElmPlugin } = require('fuse-box-elm-plugin');
 const autoprefixer = require('autoprefixer');
-const purify = require('purify-css');
 const { join, basename, dirname } = require('path');
 const express = require('express');
 const workbox = require('workbox-build');
@@ -18,6 +17,8 @@ const { info } = console;
 const { promisify } = require('util');
 const { unlinkSync, renameSync, readFileSync, writeFileSync } = require('fs');
 const { gzipSync } = require('zlib');
+const tailwindcss = require('tailwindcss');
+const Purgecss = require('purgecss');
 const fs = require('fs-extra');
 const resembleImage = require('postcss-resemble-image').default;
 const postcss = require('postcss');
@@ -26,6 +27,7 @@ const asyncGlob = promisify(glob);
 
 const POSTCSS_PLUGINS = [
   require('postcss-flexbugs-fixes'),
+  tailwindcss('./tailwind.js'),
   autoprefixer({
     browsers: [
       'Chrome >= 52',
@@ -80,7 +82,7 @@ context(
     async compileServer() {
       await tsc('src/server', {
         target: 'esnext',
-        outDir: 'dist/',
+        outDir: OUT_DIR,
         listEmittedFiles: true,
         watch: !this.isProduction,
         sourceMap: !this.isProduction
@@ -134,7 +136,7 @@ task('copy-schema', () =>
 task('mv-sw', () =>
   src('workbox-sw.prod.v2.1.2.js', {
     base: './node_modules/workbox-sw/build/importScripts/'
-  }).dest(`${CLIENT_OUT}`)
+  }).dest(CLIENT_OUT)
 );
 
 /* TASKS TO CLEAN OUT OLD FILES BEFORE COMPILATION */
@@ -149,19 +151,32 @@ task('b:copy', ['&copy-keys', '&copy-schema']);
 task('all:prod', ['&front-prod', '&back-prod']);
 
 /* CUSTOM BUILD TASKS */
-task('purify', () => {
-  const content = ['src/client/**/*.elm', 'src/client/**/*.html'];
-  const css = [`${CLIENT_OUT}/styles.css`];
-  const options = {
-    output: `${CLIENT_OUT}/pure.css`,
-    minify: true,
-    info: true
-  };
-  purify(content, css, options);
+task('purge', () => {
+  class TailwindExtractor {
+    static extract(content) {
+      return content.match(/[A-z0-9-:\/]+/g);
+    }
+  }
+
+  const purged = new Purgecss({
+    content: ['src/client/**/*.elm', 'src/client/**/*.html'],
+    css: [`${CLIENT_OUT}/styles.css`],
+    extractors: [
+      {
+        extractor: TailwindExtractor,
+        extensions: ['html', 'elm']
+      }
+    ],
+    whitelist: ['project-card__vinyldb', 'project-card__quantified', 'project-card__roaster-nexus']
+  });
+
+  const [result] = purged.purge();
 
   unlinkSync(`${CLIENT_OUT}/styles.css`);
 
-  info('💎  ALL CSS IS PURE 💎');
+  writeFileSync(result.file, result.css, 'UTF-8');
+
+  info('💎  THE CSS HAS BEEN PURGED 💎');
 });
 
 task('gen-sw', async () => {
@@ -184,10 +199,9 @@ task('fancy-fallbacks', async () => {
 
   pathsToCSS.map(async cssFile => {
     const fileContent = await fs.readFile(cssFile, 'UTF-8');
-    const result = await postcss([resembleImage({ selectors: ['header #hero-img'] })]).process(
-      fileContent,
-      { from: `${CLIENT_OUT}/styles.css`, to: `${CLIENT_OUT}/styles.css` }
-    );
+    const result = await postcss([
+      resembleImage({ selectors: ['header #hero-img'] })
+    ]).process(fileContent, { from: `${CLIENT_OUT}/styles.css`, to: `${CLIENT_OUT}/styles.css` });
     fs.writeFile(`${CLIENT_OUT}/styles.css`, result.css);
   });
 });
@@ -229,7 +243,7 @@ task('front-dev', ['client-clean', 'f:dev'], () =>
   info('The front end assets have been bundled. GET TO WORK!')
 );
 
-task('front-prod', ['client-clean', 'f:prod', 'purify', 'gzip'], () =>
+task('front-prod', ['client-clean', 'f:prod', 'purge', 'gzip'], () =>
   info('The front end assets are optimized, bundled, and ready for production.')
 );
 
