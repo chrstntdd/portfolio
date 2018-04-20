@@ -73,7 +73,7 @@
 /* TAILWIND UTILS */
 
 .proj-btn {
-  @apply .h-full .border-0 .absolute .bg-transparent .pin-t .flex .items-center .justify-center .trans-300ms-all
+  @apply .h-full .border-0 .absolute .bg-transparent .pin-t .flex .items-center .justify-center .trans-300ms-all;
 }
 
 /* UTIL CLASSES */
@@ -113,9 +113,17 @@ input:focus {
   outline: none !important;
 }
 
+.massive-text {
+  font-size: 3rem;
+  @media (min-width: $bp-small) {
+    font-size: 5rem;
+  }
+}
+
 #hero-img {
   background-color: linear-gradient(90deg, #070d0b 0%, #090e0e 25%, #0d1513 50%, #0a140f 75%);
-  background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('assets/hero-bg.jpg');
+  background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+    url('assets/hero-bg.jpg');
 }
 
 #hero-text {
@@ -337,7 +345,7 @@ input:focus {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
-.links__container {
+.links-container {
   a {
     transition: all cubic-bezier(0.55, 0, 0.1, 1) 0.5s;
     &:hover {

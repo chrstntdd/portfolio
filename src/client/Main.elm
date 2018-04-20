@@ -232,24 +232,24 @@ view model =
             div []
                 ([ navBar navIsOpen viewportWidth ] |> List.append rest)
     in
-    case page of
-        Routes.Home ->
-            appShell [ aboveTheFold navIsOpen ]
+        case page of
+            Routes.Home ->
+                appShell [ aboveTheFold navIsOpen ]
 
-        Routes.About ->
-            appShell [ about ]
+            Routes.About ->
+                appShell [ about ]
 
-        Routes.Projects ->
-            appShell [ projectsView projects ]
+            Routes.Projects ->
+                appShell [ projectsView projects ]
 
-        Routes.ActiveProject slug ->
-            appShell [ viewProject slug (Zip.toList projects) ]
+            Routes.ActiveProject slug ->
+                appShell [ viewProject slug (Zip.toList projects) ]
 
-        Routes.Contact ->
-            appShell [ contact ]
+            Routes.Contact ->
+                appShell [ contact ]
 
-        Routes.NotFound ->
-            appShell [ contact ]
+            Routes.NotFound ->
+                appShell [ contact ]
 
 
 navBar : Bool -> Int -> Html Msg
@@ -260,10 +260,10 @@ navBar navIsOpen viewportWidth =
                 shared =
                     "fixed pin-t h-full md:transparent md:w-full md:h-auto trans-300ms-all"
             in
-            if navIsOpen then
-                class (shared ++ "show")
-            else
-                class shared
+                if navIsOpen then
+                    class (shared ++ "show")
+                else
+                    class shared
 
         linkClass =
             class "no-underline uppercase text-center text-white"
@@ -271,24 +271,24 @@ navBar navIsOpen viewportWidth =
         liClass =
             class "list-reset m-4"
     in
-    nav
-        [ navClass ]
-        [ ul [ class "pl-0 flex justify-end flex-col md:flex-row " ]
-            [ li [ liClass ]
-                [ link { url = Routes.Home, attrs = [ linkClass ], label = "Home" } ]
-            , li [ liClass ]
-                [ link { url = Routes.About, attrs = [ linkClass ], label = "About" } ]
-            , li [ liClass ]
-                [ link { url = Routes.Projects, attrs = [ linkClass ], label = "Projects" } ]
-            , li [ liClass ]
-                [ link { url = Routes.Contact, attrs = [ linkClass ], label = "Contact" } ]
-            , if viewportWidth > 768 then
-                {- DONT SHOW HAMBURGER ON DESKTOP -}
-                Html.text ""
-              else
-                hamburgerMenu navIsOpen
+        nav
+            [ navClass ]
+            [ ul [ class "pl-0 flex justify-end flex-col md:flex-row " ]
+                [ li [ liClass ]
+                    [ link { url = Routes.Home, attrs = [ linkClass ], label = "Home" } ]
+                , li [ liClass ]
+                    [ link { url = Routes.About, attrs = [ linkClass ], label = "About" } ]
+                , li [ liClass ]
+                    [ link { url = Routes.Projects, attrs = [ linkClass ], label = "Projects" } ]
+                , li [ liClass ]
+                    [ link { url = Routes.Contact, attrs = [ linkClass ], label = "Contact" } ]
+                , if viewportWidth > 768 then
+                    {- DONT SHOW HAMBURGER ON DESKTOP -}
+                    Html.text ""
+                  else
+                    hamburgerMenu navIsOpen
+                ]
             ]
-        ]
 
 
 hamburgerMenu : Bool -> Html Msg
@@ -300,11 +300,11 @@ hamburgerMenu navIsOpen =
             else
                 class "hamburger"
     in
-    button [ id "hamburger-button", onClick ToggleHamburger ]
-        [ span
-            [ hamburgerClass ]
-            [ span [ class "hamburger-inner" ] [] ]
-        ]
+        button [ id "hamburger-button", onClick ToggleHamburger ]
+            [ span
+                [ hamburgerClass ]
+                [ span [ class "hamburger-inner" ] [] ]
+            ]
 
 
 aboveTheFold : Bool -> Html Msg
@@ -316,14 +316,14 @@ aboveTheFold navIsOpen =
             else
                 [ class "h-full w-full overlay-bg-color opacity-0 trans-300ms-all" ]
     in
-    header [ class "h-screen w-screen flex flex-col items-center justify-center" ]
-        [ div overlayAttrs []
-        , div [ id "hero-img", class "absolute bg-cover bg-center bg-no-repeat pin" ] []
-        , div [ id "hero-text", class "z-10 kinda-center" ]
-            [ h1 [ class "text-white font-thin text-center leading-none whitespace-no-wrap sm:text-5xl md:text-massive tracking-wide" ] [ text "Christian Todd" ]
-            , h3 [ class "text-white font-thin text-center italic" ] [ text "Web Developer" ]
+        header [ class "h-screen w-screen flex flex-col items-center justify-center" ]
+            [ div overlayAttrs []
+            , div [ id "hero-img", class "absolute bg-cover bg-center bg-no-repeat pin" ] []
+            , div [ id "hero-text", class "z-10 kinda-center" ]
+                [ h1 [ class "text-white font-thin text-center leading-none whitespace-no-wrap massive-text tracking-wide" ] [ text "Christian Todd" ]
+                , h3 [ class "text-white font-thin text-center italic" ] [ text "Web Developer" ]
+                ]
             ]
-        ]
 
 
 about : Html Msg
@@ -371,18 +371,18 @@ contact =
         pClass =
             "text-white mt-2 mb-2"
     in
-    section [ id "contact", class "h-screen w-screen flex flex-col items-center justify-center" ]
-        [ p [ class pClass ] [ text "Let's talk:" ]
-        , p [ class (pClass ++ " font-semibold hover:text-grey trans-300ms-all") ] [ text "christian.todd7@gmail.com" ]
-        , ul [ class "pl-0 flex flex-col justify-center items-center" ]
-            [ li [ class listClass ]
-                [ a [ href "https://github.com/chrstntdd", class anchorClass ] [ img [ src "/assets/icons/github.svg", alt "Github mark icon", class imgClass ] [] ] ]
-            , li [ class listClass ]
-                [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/", class anchorClass ] [ img [ src "/assets/icons/linkedin.svg", alt "LinkedIn text icon", class imgClass ] [] ] ]
-            , li [ class listClass ]
-                [ a [ href "https://twitter.com/_chrstntdd", class anchorClass ] [ img [ src "/assets/icons/twitter.svg", alt "twitter bird icon", class imgClass ] [] ] ]
+        section [ id "contact", class "h-screen w-screen flex flex-col items-center justify-center" ]
+            [ p [ class pClass ] [ text "Let's talk:" ]
+            , p [ class (pClass ++ " font-semibold hover:text-grey trans-300ms-all") ] [ text "christian.todd7@gmail.com" ]
+            , ul [ class "pl-0 flex flex-col justify-center items-center" ]
+                [ li [ class listClass ]
+                    [ a [ href "https://github.com/chrstntdd", class anchorClass ] [ img [ src "/assets/icons/github.svg", alt "Github mark icon", class imgClass ] [] ] ]
+                , li [ class listClass ]
+                    [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/", class anchorClass ] [ img [ src "/assets/icons/linkedin.svg", alt "LinkedIn text icon", class imgClass ] [] ] ]
+                , li [ class listClass ]
+                    [ a [ href "https://twitter.com/_chrstntdd", class anchorClass ] [ img [ src "/assets/icons/twitter.svg", alt "twitter bird icon", class imgClass ] [] ] ]
+                ]
             ]
-        ]
 
 
 
@@ -431,7 +431,7 @@ updateWithStorage msg model =
         ( newModel, cmds ) =
             update msg model
     in
-    ( newModel, Cmd.batch [ sendInfoOutside (SaveModel newModel), cmds ] )
+        ( newModel, Cmd.batch [ sendInfoOutside (SaveModel newModel), cmds ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -487,27 +487,27 @@ update msg model =
                 nextProjectState =
                     Zip.select (\a -> a == nextProject) model.projects
             in
-            case projectSwitchBehavior of
-                Auto ->
-                    { model | projects = nextProjectState } ! []
+                case projectSwitchBehavior of
+                    Auto ->
+                        { model | projects = nextProjectState } ! []
 
-                UserControlled ->
-                    { model
-                        | projects = nextProjectState
-                        , autoSwitchProjectTimeout = 5 -- INIT VALUE TO RESET THE TIMEOUT
-                        , switchProjectBehavior = UserControlled
-                    }
-                        ! []
+                    UserControlled ->
+                        { model
+                            | projects = nextProjectState
+                            , autoSwitchProjectTimeout = 5 -- INIT VALUE TO RESET THE TIMEOUT
+                            , switchProjectBehavior = UserControlled
+                        }
+                            ! []
 
         Tick time ->
             let
                 newSeconds =
                     model.autoSwitchProjectTimeout - 1
             in
-            if newSeconds == -1 then
-                { model | autoSwitchProjectTimeout = 5, switchProjectBehavior = Auto } ! []
-            else
-                { model | autoSwitchProjectTimeout = newSeconds } ! []
+                if newSeconds == -1 then
+                    { model | autoSwitchProjectTimeout = 5, switchProjectBehavior = Auto } ! []
+                else
+                    { model | autoSwitchProjectTimeout = newSeconds } ! []
 
 
 
@@ -523,7 +523,7 @@ init savedModel location =
         maybeRoute =
             location |> Routes.fromLocation
     in
-    setRoute maybeRoute initialModel
+        setRoute maybeRoute initialModel
 
 
 

@@ -27,7 +27,7 @@ const asyncGlob = promisify(glob);
 
 const POSTCSS_PLUGINS = [
   require('postcss-flexbugs-fixes'),
-  tailwindcss('./tailwind.js'),
+  tailwindcss(join(__dirname, '/node_modules/tailwindcss/defaultConfig.js')),
   autoprefixer({
     browsers: [
       'Chrome >= 52',
@@ -58,7 +58,7 @@ context(
         cache: !this.isProduction,
         tsConfig: 'src/client/tsconfig.json',
         plugins: [
-          [SassPlugin(), PostCSSPlugin(POSTCSS_PLUGINS), CSSPlugin()],
+          [SassPlugin({ importer: true }), PostCSSPlugin(POSTCSS_PLUGINS), CSSPlugin()],
           this.isProduction ? ElmPlugin() : ElmPlugin({ warn: true, debug: true }),
           SVGPlugin(),
           WebIndexPlugin({
@@ -199,9 +199,10 @@ task('fancy-fallbacks', async () => {
 
   pathsToCSS.map(async cssFile => {
     const fileContent = await fs.readFile(cssFile, 'UTF-8');
-    const result = await postcss([
-      resembleImage({ selectors: ['header #hero-img'] })
-    ]).process(fileContent, { from: `${CLIENT_OUT}/styles.css`, to: `${CLIENT_OUT}/styles.css` });
+    const result = await postcss([resembleImage({ selectors: ['header #hero-img'] })]).process(
+      fileContent,
+      { from: `${CLIENT_OUT}/styles.css`, to: `${CLIENT_OUT}/styles.css` }
+    );
     fs.writeFile(`${CLIENT_OUT}/styles.css`, result.css);
   });
 });
