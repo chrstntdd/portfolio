@@ -52,7 +52,7 @@ context(
       return FuseBox.init({
         homeDir: 'src/client',
         output: `${CLIENT_OUT}/$name.js`,
-        log: true,
+        log: false,
         sourceMaps: !this.isProduction,
         target: 'browser@es5',
         cache: !this.isProduction,
