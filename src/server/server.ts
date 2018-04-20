@@ -15,13 +15,22 @@ import resolvers from './graphql/resolvers';
 
 export async function init(configs: IServerConfigurations): Promise<Hapi.Server> {
   const typeDefs = importSchema(join(__dirname, 'graphql/schema.graphql'));
-
   const schema = makeExecutableSchema({ typeDefs, resolvers });
+  let secureServerOpts;
 
-  const listener = h2.createSecureServer({
-    key: readFileSync(join(__dirname, 'keys/server.pem'), 'UTF-8'),
-    cert: readFileSync(join(__dirname, 'keys/server.pem'), 'UTF-8')
-  });
+  if (configs.env === 'production') {
+    secureServerOpts = {
+      key: readFileSync('/etc/letsencrypt/live/chrstntdd.com/privkey.pem', 'UTF-8'),
+      cert: readFileSync('/etc/letsencrypt/live/chrstntdd.com/privkey.pem', 'UTF-8')
+    };
+  } else {
+    secureServerOpts = {
+      key: readFileSync(join(__dirname, 'keys/server.pem'), 'UTF-8'),
+      cert: readFileSync(join(__dirname, 'keys/server.pem'), 'UTF-8')
+    };
+  }
+
+  const listener = h2.createSecureServer(secureServerOpts);
 
   const port = configs.port;
   const server = new Hapi.Server({
@@ -34,6 +43,7 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
   });
 
   await server.register([
+    Underdog,
     {
       plugin: graphqlHapi,
       options: {
@@ -84,23 +94,8 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
           ]
         }
       }
-    },
-    Underdog
-  ]);
-
-  /* FOR SERVING INDEX.HTML AND FRONT END ASSETS FOR ALL REQUESTS. */
-  server.route({
-    method: 'GET',
-    path: '/{param*}',
-    handler: {
-      directory: {
-        path: '.',
-        index: true,
-        redirectToSlash: true,
-        lookupCompressed: true
-      }
     }
-  });
+  ]);
 
   const index = readFileSync(join(__dirname, 'public/index.html')).toString();
 
@@ -163,6 +158,20 @@ export async function init(configs: IServerConfigurations): Promise<Hapi.Server>
       );
 
       return response;
+    }
+  });
+
+  /* FOR SERVING INDEX.HTML AND FRONT END ASSETS FOR ALL REQUESTS. */
+  server.route({
+    method: 'GET',
+    path: '/{param*}',
+    handler: {
+      directory: {
+        path: '.',
+        index: true,
+        redirectToSlash: true,
+        lookupCompressed: true
+      }
     }
   });
 

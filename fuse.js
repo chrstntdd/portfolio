@@ -84,7 +84,6 @@ context(
         target: 'esnext',
         outDir: OUT_DIR,
         listEmittedFiles: true,
-        watch: !this.isProduction,
         sourceMap: !this.isProduction
       });
     }

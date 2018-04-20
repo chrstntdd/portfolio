@@ -9,7 +9,8 @@
   },
   "scripts": {
     "watch": "node fuse.js",
-    "dist": "node fuse.js dist"
+    "dist": "node fuse.js dist",
+    "all:prod": "node fuse.js back-prod && node fuse.js front-prod && nodemon dist/index.js"
   },
   "devDependencies": {
     "@types/bcrypt": "^1.0.0",

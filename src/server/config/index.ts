@@ -1,6 +1,7 @@
 require('dotenv').load();
 
-const ENV = process.env.NODE_ENV;
+const ENV = process.env.NODE_ENV || 'development';
+
 const JWT_SECRET = 'HwgwUXpKWT4DKnCcGgKbhCPSnCSjZ3cf';
 let DATABASE_URL;
 let PORT;
