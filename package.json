@@ -1,23 +1,14 @@
 {
   "name": "portfolio",
   "version": "2.0.0",
-  "main": "index.js",
+  "main": "index.ts",
   "license": "MIT",
-  "engines": {
-    "node": "9.11.1",
-    "npm": "5.8.0"
-  },
   "scripts": {
     "watch": "node fuse.js",
     "dist": "node fuse.js dist",
     "all:prod": "node fuse.js back-prod && node fuse.js front-prod && nodemon dist/index.js"
   },
   "devDependencies": {
-    "@types/bcrypt": "^1.0.0",
-    "@types/boom": "^7.1.0",
-    "@types/joi": "^13.0.5",
-    "@types/jsonwebtoken": "^7.2.5",
-    "@types/node": "^9.3.0",
     "autoprefixer": "^7.2.3",
     "elm": "^0.18.0",
     "fs-extra": "^5.0.0",
@@ -30,37 +21,16 @@
     "postcss-resemble-image": "^2.1.1",
     "prettier": "^1.11.0",
     "purgecss": "^0.20.0",
-    "purify-css": "^1.2.5",
     "tailwindcss": "^0.4.1",
     "ts-node": "^4.1.0",
-    "typescript": "^2.6.2",
     "uglify-js": "^3.3.5",
     "workbox-build": "^2.1.2",
     "workbox-sw": "^2.1.2"
   },
   "dependencies": {
-    "apollo-server-hapi": "^1.3.2",
-    "bcrypt": "^1.0.3",
-    "boom": "^7.1.1",
-    "dotenv": "^5.0.0",
     "elm-format": "^0.6.1-alpha",
-    "good": "^8.0.1",
-    "good-console": "^6.4.1",
-    "good-squeeze": "^5.0.2",
-    "graphql": "^0.12.3",
-    "graphql-import": "^0.4.1",
-    "graphql-tools": "^2.18.0",
-    "hapi": "^17.2.0",
-    "hapi-auth-jwt2": "^7.4.1",
-    "hapi-swagger": "^9.0.2",
-    "inert": "^5.1.0",
-    "joi": "^13.1.0",
-    "jsonwebtoken": "^8.1.0",
-    "lodash.words": "^4.2.0",
-    "mongoose": "^5.0.0",
     "normalize.css": "^7.0.0",
-    "sanitizer": "^0.1.3",
     "smoothscroll-polyfill": "^0.4.0",
-    "underdog": "^2.0.1"
+    "typescript": "^2.9.1"
   }
 }
