@@ -4,9 +4,8 @@
   "main": "index.ts",
   "license": "MIT",
   "scripts": {
-    "watch": "node fuse.js",
-    "dist": "node fuse.js dist",
-    "all:prod": "node fuse.js back-prod && node fuse.js front-prod && nodemon dist/index.js"
+    "start": "node fuse.js front-dev",
+    "prod": "node fuse.js front-prod"
   },
   "devDependencies": {
     "autoprefixer": "^7.2.3",
@@ -22,7 +21,6 @@
     "prettier": "^1.11.0",
     "purgecss": "^0.20.0",
     "tailwindcss": "^0.4.1",
-    "ts-node": "^4.1.0",
     "uglify-js": "^3.3.5",
     "workbox-build": "^2.1.2",
     "workbox-sw": "^2.1.2"

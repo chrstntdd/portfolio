@@ -1,7 +1,7 @@
-import './styles/index.scss';
-import { Main } from './Main.elm';
-
 import 'smoothscroll-polyfill';
+
+import '@/styles/index.scss';
+import { Main } from '@/Main.elm';
 
 const app = Main.embed(document.getElementById('elm-root'));
 
@@ -17,7 +17,7 @@ const throttle = (func, delay) => {
   };
 };
 
-app.ports.infoForOutside.subscribe((msg) => {
+app.ports.infoForOutside.subscribe(msg => {
   /* PATTERN MATCH ON THE INFO FOR OUTSIDE */
   switch (msg.tag) {
     case 'SaveModel':

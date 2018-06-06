@@ -49,6 +49,10 @@ context(
         sourceMaps: !this.isProduction,
         target: 'browser@es5',
         cache: !this.isProduction,
+        allowSyntheticDefaultImports: true,
+        alias: {
+          '@': '~'
+        },
         plugins: [
           [SassPlugin({ importer: true }), PostCSSPlugin(POSTCSS_PLUGINS), CSSPlugin()],
           this.isProduction ? ElmPlugin() : ElmPlugin({ warn: true, debug: true }),
