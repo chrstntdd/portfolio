@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["dom", "es6", "es7", "es2017", "esnext"],
+    "module": "commonjs",
+    "noUnusedLocals": true,
+    "outDir": "dist/",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "pretty": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "target": "ES5"
+  },
+  "exclude": ["node_modules", "elm-stuff"],
+  "include": ["src/**/*.ts"]
+}

@@ -7,7 +7,7 @@ const {
   PostCSSPlugin,
   WebIndexPlugin
 } = require('fuse-box');
-const { src, task, exec, context, tsc } = require('fuse-box/sparky');
+const { src, task, exec, context } = require('fuse-box/sparky');
 const { ElmPlugin } = require('fuse-box-elm-plugin');
 const autoprefixer = require('autoprefixer');
 const { join, basename, dirname } = require('path');
@@ -29,20 +29,13 @@ const POSTCSS_PLUGINS = [
   require('postcss-flexbugs-fixes'),
   tailwindcss(join(__dirname, '/node_modules/tailwindcss/defaultConfig.js')),
   autoprefixer({
-    browsers: [
-      'Chrome >= 52',
-      'FireFox >= 44',
-      'Safari >= 7',
-      'Explorer 11',
-      'last 4 Edge versions'
-    ]
+    browsers: ['>0.25%', 'Explorer 11'],
+    grid: true
   })
 ];
 
 const OUT_DIR = join(__dirname, 'dist');
-const CLIENT_OUT = join(OUT_DIR, 'public');
-
-const TEMPLATE = join(__dirname, 'src/client/index.html');
+const TEMPLATE = join(__dirname, 'src/index.html');
 const TITLE = 'Christian Todd | Web Developer';
 const ALL = './**/**.*';
 
@@ -50,17 +43,19 @@ context(
   class {
     compileClient() {
       return FuseBox.init({
-        homeDir: 'src/client',
-        output: `${CLIENT_OUT}/$name.js`,
+        homeDir: 'src',
+        output: `${OUT_DIR}/$name.js`,
         log: false,
         sourceMaps: !this.isProduction,
         target: 'browser@es5',
         cache: !this.isProduction,
-        tsConfig: 'src/client/tsconfig.json',
+        allowSyntheticDefaultImports: true,
+        alias: {
+          '@': '~'
+        },
         plugins: [
           [SassPlugin({ importer: true }), PostCSSPlugin(POSTCSS_PLUGINS), CSSPlugin()],
           this.isProduction ? ElmPlugin() : ElmPlugin({ warn: true, debug: true }),
-          SVGPlugin(),
           WebIndexPlugin({
             template: TEMPLATE,
             title: TITLE,
@@ -76,15 +71,6 @@ context(
               css: true
             })
         ]
-      });
-    }
-
-    async compileServer() {
-      await tsc('src/server', {
-        target: 'esnext',
-        outDir: OUT_DIR,
-        listEmittedFiles: true,
-        sourceMap: !this.isProduction
       });
     }
   }
@@ -106,9 +92,9 @@ task('client-dev-build', async context => {
 
   fuse.dev({ root: false }, server => {
     const app = server.httpServer.app;
-    app.use(express.static(CLIENT_OUT));
+    app.use(express.static(OUT_DIR));
     app.get('*', (req, res) => {
-      res.sendFile(join(CLIENT_OUT, 'index.html'));
+      res.sendFile(join(OUT_DIR, 'index.html'));
     });
   });
 
@@ -121,33 +107,15 @@ task('client-dev-build', async context => {
   await fuse.run();
 });
 
-task('server-build', async context => await context.compileServer());
-
 /* TASKS TO COPY FILES */
-task('copy-static', () => src(ALL, { base: './src/client/assets/' }).dest(`${CLIENT_OUT}/assets`));
-
-task('copy-keys', () => src(ALL, { base: './src/server/keys/' }).dest(join(OUT_DIR, 'keys')));
-
-task('copy-schema', () =>
-  src('./**/*.graphql', { base: './src/server/graphql' }).dest(join(OUT_DIR, 'graphql'))
-);
-
-task('mv-sw', () =>
-  src('workbox-sw.prod.v2.1.2.js', {
-    base: './node_modules/workbox-sw/build/importScripts/'
-  }).dest(CLIENT_OUT)
-);
+task('copy-static', () => src(ALL, { base: './src/assets/' }).dest(`${OUT_DIR}/assets`));
 
 /* TASKS TO CLEAN OUT OLD FILES BEFORE COMPILATION */
-task('client-clean', () => src(`${CLIENT_OUT}/*`).clean(CLIENT_OUT));
-
-task('server-clean', () => src(`${OUT_DIR}/*`).clean(OUT_DIR));
+task('client-clean', () => src(`${OUT_DIR}/*`).clean(OUT_DIR));
 
 /* PARALLEL TASKS */
 task('f:dev', ['&client-dev-build', '&copy-static']);
 task('f:prod', ['&client-prod-build', '&copy-static']); // add mv-sw when using service worker
-task('b:copy', ['&copy-keys', '&copy-schema']);
-task('all:prod', ['&front-prod', '&back-prod']);
 
 /* CUSTOM BUILD TASKS */
 task('purge', () => {
@@ -158,8 +126,8 @@ task('purge', () => {
   }
 
   const purged = new Purgecss({
-    content: ['src/client/**/*.elm', 'src/client/**/*.html'],
-    css: [`${CLIENT_OUT}/styles.css`],
+    content: ['src/**/*.elm', 'src/**/*.html'],
+    css: [`${OUT_DIR}/styles.css`],
     extractors: [
       {
         extractor: TailwindExtractor,
@@ -171,7 +139,7 @@ task('purge', () => {
 
   const [result] = purged.purge();
 
-  unlinkSync(`${CLIENT_OUT}/styles.css`);
+  unlinkSync(`${OUT_DIR}/styles.css`);
 
   writeFileSync(result.file, result.css, 'UTF-8');
 
@@ -181,11 +149,11 @@ task('purge', () => {
 task('gen-sw', async () => {
   try {
     await workbox.injectManifest({
-      globDirectory: `${CLIENT_OUT}`,
+      globDirectory: `${OUT_DIR}`,
       staticFileGlobs: ['**/*.{html,js,css,svg,jpg}'],
       globIgnores: ['**/sw.js'],
-      swSrc: 'src/client/sw.js',
-      swDest: `${CLIENT_OUT}/sw.js`
+      swSrc: 'src/sw.js',
+      swDest: `${OUT_DIR}/sw.js`
     });
     info('  ⚙️ Service worker generated 🛠');
   } catch (error) {
@@ -194,15 +162,15 @@ task('gen-sw', async () => {
 });
 
 task('fancy-fallbacks', async () => {
-  const pathsToCSS = await asyncGlob(`${CLIENT_OUT}/**/*.css`);
+  const pathsToCSS = await asyncGlob(`${OUT_DIR}/**/*.css`);
 
   pathsToCSS.map(async cssFile => {
     const fileContent = await fs.readFile(cssFile, 'UTF-8');
     const result = await postcss([resembleImage({ selectors: ['header #hero-img'] })]).process(
       fileContent,
-      { from: `${CLIENT_OUT}/styles.css`, to: `${CLIENT_OUT}/styles.css` }
+      { from: `${OUT_DIR}/styles.css`, to: `${OUT_DIR}/styles.css` }
     );
-    fs.writeFile(`${CLIENT_OUT}/styles.css`, result.css);
+    fs.writeFile(`${OUT_DIR}/styles.css`, result.css);
   });
 });
 
@@ -220,7 +188,7 @@ task('gzip', async () => {
 
   try {
     compressibleAssets.map(async asset => {
-      const filePaths = await asyncGlob(`${CLIENT_OUT}/**/*${asset}`);
+      const filePaths = await asyncGlob(`${OUT_DIR}/**/*${asset}`);
 
       filePaths.map(p => {
         const originalFileName = basename(p);
@@ -246,19 +214,3 @@ task('front-dev', ['client-clean', 'f:dev'], () =>
 task('front-prod', ['client-clean', 'f:prod', 'purge', 'gzip'], () =>
   info('The front end assets are optimized, bundled, and ready for production.')
 );
-
-task('back-dev', ['server-clean', 'b:copy', 'server-build'], () => {
-  info('The back end code has been compiled. GET TO WORK!');
-});
-
-task('back-prod', async context => {
-  context.isProduction = true;
-  await exec('server-clean', 'b:copy', 'server-build');
-  info('The back end code has been compiled and is ready for production.');
-});
-
-task('all', async () => {
-  fs.removeSync(join(__dirname, '/.fusebox/'));
-  await exec('all:prod');
-  info("THAT'S ALL FOLX");
-});
