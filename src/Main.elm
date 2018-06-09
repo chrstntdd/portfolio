@@ -234,7 +234,7 @@ view model =
     in
     case page of
         Routes.Home ->
-            appShell [ aboveTheFold navIsOpen ]
+            appShell [ aboveTheFold ]
 
         Routes.About ->
             appShell [ about ]
@@ -258,10 +258,10 @@ navBar navIsOpen viewportWidth =
         navClass =
             let
                 shared =
-                    "fixed pin-t h-full md:transparent md:w-full md:h-auto trans-300ms-all"
+                    "main-nav fixed pin-t h-full md:transparent md:w-full md:h-auto trans-300ms-all"
             in
             if navIsOpen then
-                class (shared ++ "show")
+                class (shared ++ " show")
             else
                 class shared
 
@@ -307,18 +307,10 @@ hamburgerMenu navIsOpen =
         ]
 
 
-aboveTheFold : Bool -> Html Msg
-aboveTheFold navIsOpen =
-    let
-        overlayAttrs =
-            if navIsOpen then
-                [ class "h-full w-full overlay-bg-color opacity-100 trans-300ms-all z-20", onClick ToggleHamburger ]
-            else
-                [ class "h-full w-full overlay-bg-color opacity-0 trans-300ms-all" ]
-    in
+aboveTheFold : Html Msg
+aboveTheFold =
     header [ class "h-screen w-screen flex flex-col items-center justify-center" ]
-        [ div overlayAttrs []
-        , div [ id "hero-img", class "absolute bg-cover bg-center bg-no-repeat pin" ] []
+        [ div [ id "hero-img", class "absolute bg-cover bg-center bg-no-repeat pin" ] []
         , div [ id "hero-text", class "z-10 kinda-center" ]
             [ h1 [ class "text-white font-thin text-center leading-none whitespace-no-wrap massive-text tracking-wide" ] [ text "Christian Todd" ]
             , h3 [ class "text-white font-thin text-center italic" ] [ text "Web Developer" ]

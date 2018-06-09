@@ -1,5 +1,3 @@
-import 'smoothscroll-polyfill';
-
 import '@/styles/index.scss';
 import { Main } from '@/Main.elm';
 
@@ -23,10 +21,7 @@ app.ports.infoForOutside.subscribe(msg => {
     case 'SaveModel':
       /* EVENTUALLY PERSIST THE MODEL TO SESSION STORAGE */
       const model = msg.data;
-      window.sessionStorage.setItem(
-        'chrstntdd-persisted-session',
-        JSON.stringify(model)
-      );
+      window.sessionStorage.setItem('chrstntdd-persisted-session', JSON.stringify(model));
       break;
     case 'ScrollTo':
       const element = document.getElementById(msg.data);
@@ -47,10 +42,7 @@ app.ports.infoForOutside.subscribe(msg => {
 const sendScreenData = () => {
   const screenData = {
     scrollTop:
-      window.pageYOffset ||
-      document.documentElement.scrollTop ||
-      document.body.scrollTop ||
-      0,
+      window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0,
     pageHeight: Math.max(
       document.body.scrollHeight,
       document.body.offsetHeight,

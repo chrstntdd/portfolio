@@ -124,6 +124,9 @@ input:focus {
   background-color: linear-gradient(90deg, #070d0b 0%, #090e0e 25%, #0d1513 50%, #0a140f 75%);
   background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
     url('assets/hero-bg.jpg');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
 }
 
 #hero-text {
@@ -146,6 +149,18 @@ input:focus {
         }
       }
     }
+  }
+}
+
+.main-nav {
+  right: -8rem;
+  background-color: rgba(0, 0, 0, 0.7);
+  @media (min-width: 768px) {
+    right: unset;
+    background-color: transparent;
+  }
+  &.show {
+    transform: translateX(-8rem);
   }
 }
 
