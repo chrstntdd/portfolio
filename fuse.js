@@ -142,11 +142,11 @@ task('purge', () => {
 task('gen-sw', async () => {
   try {
     const stats = await workbox.injectManifest({
-      globDirectory: 'dist',
+      globDirectory: './dist',
       globPatterns: ['**/*.{html,js,css,png,svg,jpg,jpeg,gif}'],
       globIgnores: ['**/sw.js'],
-      swSrc: './src/sw.js',
-      swDest: './dist/sw.js'
+      swSrc: join('src','sw.js'),
+      swDest: join('dist', 'sw.js')
     });
 
     info(
