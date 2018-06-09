@@ -155,7 +155,7 @@ task('gen-sw', async () => {
       } files will be precached, totaling ${stats.size / 1000000.0} MB.`
     );
   } catch (error) {
-    info(red('  😒 There was an error generating the service worker 😒', error));
+    info('  😒 There was an error generating the service worker 😒', error);
   }
 });
 
