@@ -1,29 +1,21 @@
 const {
   FuseBox,
-  SVGPlugin,
   CSSPlugin,
   SassPlugin,
   QuantumPlugin,
   PostCSSPlugin,
   WebIndexPlugin
 } = require('fuse-box');
-const { src, task, exec, context } = require('fuse-box/sparky');
+const { src, task, context } = require('fuse-box/sparky');
 const { ElmPlugin } = require('fuse-box-elm-plugin');
 const autoprefixer = require('autoprefixer');
-const { join, basename, dirname } = require('path');
+const { join } = require('path');
 const express = require('express');
 const workbox = require('workbox-build');
 const { info } = console;
-const { promisify } = require('util');
-const { unlinkSync, renameSync, readFileSync, writeFileSync } = require('fs');
-const { gzipSync } = require('zlib');
+const { unlinkSync, writeFileSync } = require('fs');
 const tailwindcss = require('tailwindcss');
 const Purgecss = require('purgecss');
-const fs = require('fs-extra');
-const resembleImage = require('postcss-resemble-image').default;
-const postcss = require('postcss');
-const glob = require('glob');
-const asyncGlob = promisify(glob);
 
 const POSTCSS_PLUGINS = [
   require('postcss-flexbugs-fixes'),
@@ -58,10 +50,7 @@ context(
           this.isProduction ? ElmPlugin() : ElmPlugin({ warn: true, debug: true }),
           WebIndexPlugin({
             template: TEMPLATE,
-            title: TITLE,
-            path: '/',
-            pre: { relType: 'load' },
-            async: true
+            title: TITLE
           }),
           this.isProduction &&
             QuantumPlugin({
@@ -92,6 +81,10 @@ task('client-dev-build', async context => {
 
   fuse.dev({ root: false }, server => {
     const app = server.httpServer.app;
+    app.use(express.static(`${OUT_DIR}/css-sourcemaps/`));
+    app.use(express.static(`${OUT_DIR}/sw.js`));
+    app.use(express.static(`${OUT_DIR}/assets`));
+    app.use(express.static(`${OUT_DIR}/assets/favicons`));
     app.use(express.static(OUT_DIR));
     app.get('*', (req, res) => {
       res.sendFile(join(OUT_DIR, 'index.html'));
@@ -148,69 +141,29 @@ task('purge', () => {
 
 task('gen-sw', async () => {
   try {
-    await workbox.injectManifest({
-      globDirectory: `${OUT_DIR}`,
-      staticFileGlobs: ['**/*.{html,js,css,svg,jpg}'],
+    const stats = await workbox.injectManifest({
+      globDirectory: 'dist',
+      globPatterns: ['**/*.{html,js,css,png,svg,jpg,jpeg,gif}'],
       globIgnores: ['**/sw.js'],
       swSrc: 'src/sw.js',
-      swDest: `${OUT_DIR}/sw.js`
+      swDest: 'dist/sw.js'
     });
-    info('  ⚙️ Service worker generated 🛠');
-  } catch (error) {
-    info('  😒 There was an error generating the service worker 😒', error);
-  }
-});
 
-task('fancy-fallbacks', async () => {
-  const pathsToCSS = await asyncGlob(`${OUT_DIR}/**/*.css`);
-
-  pathsToCSS.map(async cssFile => {
-    const fileContent = await fs.readFile(cssFile, 'UTF-8');
-    const result = await postcss([resembleImage({ selectors: ['header #hero-img'] })]).process(
-      fileContent,
-      { from: `${OUT_DIR}/styles.css`, to: `${OUT_DIR}/styles.css` }
+    info(
+      ` ⚙️ Service worker generated 🛠 \n ${
+        stats.count
+      } files will be precached, totaling ${stats.size / 1000000.0} MB.`
     );
-    fs.writeFile(`${OUT_DIR}/styles.css`, result.css);
-  });
-});
-
-task('gzip', async () => {
-  /* OPTIONS:
-   * control over gzip
-   * hash filenames or not
-   * remove non-compressed files after
-   */
-  const compressibleAssets = ['.js', '.css', '.html'];
-  // const uniqueHash = createHash('md5')
-  //   .update(randomBytes(12))
-  //   .digest('hex')
-  //   .substring(0, 12);
-
-  try {
-    compressibleAssets.map(async asset => {
-      const filePaths = await asyncGlob(`${OUT_DIR}/**/*${asset}`);
-
-      filePaths.map(p => {
-        const originalFileName = basename(p);
-        const outputPath = dirname(p);
-
-        const fileContent = readFileSync(p, 'UTF-8');
-        const gzContent = gzipSync(fileContent);
-
-        writeFileSync(`${outputPath}/${originalFileName}.gz`, gzContent);
-      });
-    });
-    info('gZipped and ready 2 go!');
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    info(red('  😒 There was an error generating the service worker 😒', error));
   }
 });
 
 /* MAIN BUILD TASK CHAINS */
-task('front-dev', ['client-clean', 'f:dev'], () =>
+task('front-dev', ['client-clean', 'f:dev', 'gen-sw'], () =>
   info('The front end assets have been bundled. GET TO WORK!')
 );
 
-task('front-prod', ['client-clean', 'f:prod', 'purge', 'gzip'], () =>
+task('front-prod', ['client-clean', 'f:prod', 'purge', 'gen-sw'], () =>
   info('The front end assets are optimized, bundled, and ready for production.')
 );

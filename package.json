@@ -10,6 +10,7 @@
   "devDependencies": {
     "autoprefixer": "^7.2.3",
     "elm": "^0.18.0",
+    "elm-format": "^0.7.0-exp",
     "fs-extra": "^5.0.0",
     "fuse-box": "^3.2.2",
     "fuse-box-elm-plugin": "^1.1.1",
@@ -22,11 +23,10 @@
     "purgecss": "^0.20.0",
     "tailwindcss": "^0.4.1",
     "uglify-js": "^3.3.5",
-    "workbox-build": "^2.1.2",
-    "workbox-sw": "^2.1.2"
+    "workbox-build": "^3.2.0",
+    "workbox-sw": "^3.2.0"
   },
   "dependencies": {
-    "elm-format": "^0.6.1-alpha",
     "normalize.css": "^7.0.0",
     "smoothscroll-polyfill": "^0.4.0",
     "typescript": "^2.9.1"

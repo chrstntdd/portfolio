@@ -1,7 +1,7 @@
 module Util exposing (onClickLink, unwrap)
 
+import Html exposing (Attribute, Html, a, text)
 import Html.Events exposing (onWithOptions)
-import Html exposing (Attribute, Html, text, a)
 import Json.Decode as Decode exposing (..)
 
 
