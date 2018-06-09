@@ -3,10 +3,6 @@
   "version": "2.0.0",
   "main": "index.ts",
   "license": "MIT",
-  "scripts": {
-    "start": "node fuse.js front-dev",
-    "prod": "node fuse.js front-prod"
-  },
   "devDependencies": {
     "autoprefixer": "^7.2.3",
     "elm": "^0.18.0",
@@ -15,11 +11,13 @@
     "fuse-box": "^3.2.2",
     "fuse-box-elm-plugin": "^1.1.1",
     "glob": "^7.1.2",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.1.3",
     "node-sass": "^4.7.2",
     "postcss": "^6.0.17",
     "postcss-flexbugs-fixes": "^3.3.0",
     "postcss-resemble-image": "^2.1.1",
-    "prettier": "^1.11.0",
+    "prettier": "1.13.5",
     "purgecss": "^0.20.0",
     "tailwindcss": "^0.4.1",
     "uglify-js": "^3.3.5",
@@ -30,5 +28,17 @@
     "normalize.css": "^7.0.0",
     "smoothscroll-polyfill": "^0.4.0",
     "typescript": "^2.9.1"
+  },
+  "scripts": {
+    "start": "node fuse.js front-dev",
+    "prod": "node fuse.js front-prod",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "src/*.elm": ["./node_modules/.bin/elm-format src --yes", "git add"],
+    "src/*.{ts,js,scss}": ["./node_modules/.bin/prettier --write", "git add"]
+  },
+  "prettier": {
+    "printWidth": 100
   }
 }
