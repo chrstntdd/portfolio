@@ -145,8 +145,8 @@ task('gen-sw', async () => {
       globDirectory: 'dist',
       globPatterns: ['**/*.{html,js,css,png,svg,jpg,jpeg,gif}'],
       globIgnores: ['**/sw.js'],
-      swSrc: 'src/sw.js',
-      swDest: 'dist/sw.js'
+      swSrc: './src/sw.js',
+      swDest: './dist/sw.js'
     });
 
     info(
