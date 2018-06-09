@@ -142,10 +142,10 @@ task('purge', () => {
 task('gen-sw', async () => {
   try {
     const stats = await workbox.injectManifest({
-      globDirectory: './dist',
+      globDirectory: join(__dirname, 'dist'),
       globPatterns: ['**/*.{html,js,css,png,svg,jpg,jpeg,gif}'],
       globIgnores: ['**/sw.js'],
-      swSrc: join('src','sw.js'),
+      swSrc: join('src', 'sw.js'),
       swDest: join('dist', 'sw.js')
     });
 
@@ -160,7 +160,11 @@ task('gen-sw', async () => {
 });
 
 /* MAIN BUILD TASK CHAINS */
-task('front-dev', ['client-clean', 'f:dev', 'gen-sw'], () =>
+task('front-dev', ['client-clean', 'f:dev'], () =>
+  info('The front end assets have been bundled. GET TO WORK!')
+);
+
+task('front-debug-sw', ['client-clean', 'f:dev', 'gen-sw'], () =>
   info('The front end assets have been bundled. GET TO WORK!')
 );
 

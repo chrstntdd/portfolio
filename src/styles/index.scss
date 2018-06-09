@@ -121,25 +121,14 @@ input:focus {
 }
 
 #hero-img {
-  background-color: linear-gradient(
-    90deg,
-    #070d0b 0%,
-    #090e0e 25%,
-    #0d1513 50%,
-    #0a140f 75%
-  );
-  background-image: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0),
-      rgba(0, 0, 0, 0.6)
-    ),
+  background-color: linear-gradient(90deg, #070d0b 0%, #090e0e 25%, #0d1513 50%, #0a140f 75%);
+  background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
     url('assets/hero-bg.jpg');
 }
 
 #hero-text {
   h1 {
-    @supports (-webkit-background-clip: text) and
-      (-webkit-text-fill-color: transparent) {
+    @supports (-webkit-background-clip: text) and (-webkit-text-fill-color: transparent) {
       background: linear-gradient(to right, #feac5e, #c779d0, #57acc6, #76c93e);
       background-size: 400% 400%;
       -webkit-background-clip: text;
@@ -206,8 +195,7 @@ input:focus {
     .hamburger-inner:after {
       position: absolute;
       bottom: 12px;
-      transition: bottom 0.1s 0.14s ease,
-        transform 0.1s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+      transition: bottom 0.1s 0.14s ease, transform 0.1s cubic-bezier(0.55, 0.055, 0.675, 0.19);
     } // Active state styles
     &.is-open {
       .hamburger-inner {
@@ -223,8 +211,7 @@ input:focus {
       .hamburger-inner:after {
         bottom: 0;
         transform: rotate(-90deg);
-        transition: bottom 0.1s ease,
-          transform 0.1s 0.14s cubic-bezier(0.215, 0.61, 0.355, 1);
+        transition: bottom 0.1s ease, transform 0.1s 0.14s cubic-bezier(0.215, 0.61, 0.355, 1);
       }
     }
   }
