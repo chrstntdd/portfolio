@@ -16,18 +16,16 @@
     "node-sass": "^4.7.2",
     "postcss": "^6.0.17",
     "postcss-flexbugs-fixes": "^3.3.0",
-    "postcss-resemble-image": "^2.1.1",
     "prettier": "1.13.5",
     "purgecss": "^0.20.0",
     "tailwindcss": "^0.4.1",
-    "uglify-js": "^3.3.5",
-    "workbox-build": "^3.2.0",
-    "workbox-sw": "^3.2.0"
+    "uglify-js": "^3.3.5"
   },
   "dependencies": {
     "normalize.css": "^7.0.0",
     "smoothscroll-polyfill": "^0.4.0",
-    "typescript": "^2.9.1"
+    "typescript": "^2.9.1",
+    "workbox-build": "^3.2.0"
   },
   "scripts": {
     "start": "node fuse.js front-dev",
