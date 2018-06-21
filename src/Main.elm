@@ -1,6 +1,9 @@
 port module Main exposing (main)
 
+import AnimationFrame exposing (times)
+import Array exposing (fromList)
 import Data.Project exposing (Project, viewProject)
+import Debug exposing (log)
 import Html exposing (Attribute, Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, program, section, span, text, ul)
 import Html.Attributes exposing (alt, attribute, class, for, href, id, placeholder, src, type_)
 import Html.Events exposing (onClick)
@@ -8,6 +11,8 @@ import Json.Decode as D exposing (..)
 import Json.Decode.Pipeline exposing (decode, required)
 import Json.Encode as E exposing (..)
 import Navigation
+import Noise exposing (..)
+import Random exposing (initialSeed)
 import Routes exposing (Route)
 import SelectList as Zip exposing (SelectList, fromLists, select, selected, toList)
 import Time exposing (every)
@@ -124,6 +129,7 @@ type ProjectSwitchBehavior
 
 type alias Model =
     { screenData : Maybe ScreenData
+    , noise : Noise.PermutationTable
     , navIsOpen : Bool
     , page : Route
     , autoSwitchProjectTimeout : Time.Time
@@ -135,6 +141,10 @@ type alias Model =
 initialModel : Model
 initialModel =
     { screenData = Nothing
+    , noise =
+        { perm = Array.fromList [ 0 ]
+        , permMod12 = Array.fromList [ 0 ]
+        }
     , navIsOpen = False
     , page = Routes.Home
     , autoSwitchProjectTimeout = 5 -- seconds
@@ -390,6 +400,7 @@ type Msg
     | LogErr String
     | SwitchProject Direction ProjectSwitchBehavior Time.Time
     | Tick Time.Time
+    | GetNoise Time.Time
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -431,6 +442,19 @@ update msg model =
     case msg of
         NoOp ->
             model ! []
+
+        GetNoise time ->
+            let
+                ( permutatation, seed ) =
+                    permutationTable (Random.initialSeed (round time))
+
+                x =
+                    noise2d permutatation (time / 16) (time / 32)
+
+                _ =
+                    Debug.log "hey" x
+            in
+            { model | noise = permutatation } ! []
 
         SetRoute maybeRoute ->
             setRoute maybeRoute model
@@ -538,7 +562,7 @@ subscriptions model =
                     [ getInfoFromOutside Outside LogErr, every Time.second Tick ]
     else
         Sub.batch
-            [ getInfoFromOutside Outside LogErr ]
+            [ getInfoFromOutside Outside LogErr, AnimationFrame.times GetNoise ]
 
 
 
