@@ -1,9 +1,10 @@
-module Routes exposing (Route(..), routeToString)
+module Routes exposing (Route(..), fromUrl, href, routeToString)
 
 import Browser.Navigation as Navigation
 import Html exposing (Attribute)
 import Html.Attributes as Attr
-import Url.Parser exposing ((</>), Parser, map, oneOf, s, string, top)
+import Url exposing (Url)
+import Url.Parser as Parser exposing ((</>), Parser, map, oneOf, s, string, top)
 
 
 type alias JWT =
@@ -57,9 +58,20 @@ routeToString routeType jwt =
     "/" ++ String.join "/" pieces
 
 
+fromUrl : Url -> Maybe Route
+fromUrl url =
+    if url.path == "/" then
+        Just Home
+
+    else
+        Parser.parse routeParser url
+
+
 
 {- PUBLIC HELPERS -}
--- href : Route -> Attribute msg
--- href route =
---     {- BLANK STRING IS THE OPTIONAL JWT -}
---     Attr.href (routeToString route "")
+
+
+href : Route -> Attribute msg
+href route =
+    {- BLANK STRING IS THE OPTIONAL JWT -}
+    Attr.href (routeToString route "")

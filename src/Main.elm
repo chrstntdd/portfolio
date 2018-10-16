@@ -17,7 +17,7 @@ import Util exposing (unwrap)
 
 
 type alias LinkData msg =
-    { url : String
+    { url : Route
     , attrs : List (Attribute msg)
     , label : String
     }
@@ -26,7 +26,7 @@ type alias LinkData msg =
 link : LinkData Msg -> Html Msg
 link { url, attrs, label } =
     {- HELPER FUNCTION FOR SPA NAVIGATION -}
-    a (List.append attrs [ href url ]) [ text label ]
+    a (List.append attrs [ Routes.href url ]) [ text label ]
 
 
 
@@ -222,7 +222,7 @@ view model =
 body : Model -> Html Msg
 body model =
     let
-        { url, projects, navIsOpen, screenData } =
+        { page, projects, navIsOpen, screenData } =
             model
 
         viewportWidth : Int
@@ -234,23 +234,23 @@ body model =
             div []
                 ([ navBar navIsOpen viewportWidth ] |> List.append rest)
     in
-    case url.path of
-        "/" ->
+    case page of
+        Routes.Home ->
             appShell [ aboveTheFold ]
 
-        "/about" ->
+        Routes.About ->
             appShell [ about ]
 
-        "/projects" ->
+        Routes.Projects ->
             appShell [ projectsView projects ]
 
-        "/project" ->
-            appShell [ viewProject "vinyl-db" (Zip.toList projects) ]
+        Routes.ActiveProject slug ->
+            appShell [ viewProject slug (Zip.toList projects) ]
 
-        "/contact" ->
+        Routes.Contact ->
             appShell [ contact ]
 
-        _ ->
+        Routes.NotFound ->
             appShell [ contact ]
 
 
@@ -278,13 +278,13 @@ navBar navIsOpen viewportWidth =
         [ navClass ]
         [ ul [ class "pl-0 flex justify-end flex-col md:flex-row " ]
             [ li [ liClass ]
-                [ link { url = "/", attrs = [ linkClass ], label = "Home" } ]
+                [ link { url = Routes.Home, attrs = [ linkClass ], label = "Home" } ]
             , li [ liClass ]
-                [ link { url = "/about", attrs = [ linkClass ], label = "About" } ]
+                [ link { url = Routes.About, attrs = [ linkClass ], label = "About" } ]
             , li [ liClass ]
-                [ link { url = "/projects", attrs = [ linkClass ], label = "Projects" } ]
+                [ link { url = Routes.Projects, attrs = [ linkClass ], label = "Projects" } ]
             , li [ liClass ]
-                [ link { url = "/contact", attrs = [ linkClass ], label = "Contact" } ]
+                [ link { url = Routes.Contact, attrs = [ linkClass ], label = "Contact" } ]
             ]
         , if viewportWidth > 768 then
             {- DONT SHOW HAMBURGER ON DESKTOP -}
@@ -343,8 +343,7 @@ projectsView projects =
         , h1 [ class "leading-loose whitespace-no-wrap text-white kinda-center" ] [ projects |> Zip.selected |> .title |> text ]
         , div [ class "view-project-container" ]
             [ link
-                { --  url = projects |> Zip.selected |> .slug |> Routes.ActiveProject
-                  url = "/"
+                { url = projects |> Zip.selected |> .slug |> Routes.ActiveProject
                 , attrs = [ class "view-project-link" ]
                 , label = "view project"
                 }
@@ -389,9 +388,7 @@ contact =
 
 type Msg
     = NoOp
-      -- | SetRoute (Maybe Route)
     | ToggleHamburger
-      -- | NavigateTo Route
     | Outside InfoForElm
     | LogErr String
     | SwitchProject Direction ProjectSwitchBehavior Time.Posix
@@ -400,30 +397,29 @@ type Msg
     | LinkClicked Browser.UrlRequest
 
 
+changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
+changeRouteTo maybeRoute model =
+    case maybeRoute of
+        Just Routes.Home ->
+            ( { model | page = Routes.Home }, Cmd.none )
 
--- setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
--- setRoute maybeRoute model =
---     case maybeRoute of
---         Nothing ->
---             ( { model | page = Routes.NotFound }, Cmd.none )
---
---         Just Routes.Home ->
---             ( { model | page = Routes.Home }, Cmd.none )
---
---         Just Routes.About ->
---             ( { model | page = Routes.About }, Cmd.none )
---
---         Just Routes.Projects ->
---             ( { model | page = Routes.Projects }, Cmd.none )
---
---         Just (Routes.ActiveProject slug) ->
---             ( { model | page = Routes.ActiveProject slug }, Cmd.none )
---
---         Just Routes.Contact ->
---             ( { model | page = Routes.Contact }, Cmd.none )
---
---         _ ->
---             { model | page = Routes.NotFound } ! []
+        Just Routes.About ->
+            ( { model | page = Routes.About }, Cmd.none )
+
+        Just Routes.Projects ->
+            ( { model | page = Routes.Projects }, Cmd.none )
+
+        Just (Routes.ActiveProject slug) ->
+            ( { model | page = Routes.ActiveProject slug }, Cmd.none )
+
+        Just Routes.Contact ->
+            ( { model | page = Routes.Contact }, Cmd.none )
+
+        Nothing ->
+            ( { model | page = Routes.NotFound }, Cmd.none )
+
+        _ ->
+            ( { model | page = Routes.NotFound }, Cmd.none )
 
 
 updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
@@ -450,12 +446,8 @@ update msg model =
                     ( model, Navigation.load href )
 
         UrlChanged url ->
-            ( { model | url = url }
-            , Cmd.none
-            )
+            changeRouteTo (Routes.fromUrl url) model
 
-        -- SetRoute maybeRoute ->
-        --     setRoute maybeRoute model
         Outside dataForElm ->
             case dataForElm of
                 ScrollOrResize data ->
@@ -466,9 +458,6 @@ update msg model =
         LogErr err ->
             ( model, sendInfoOutside (LogErrorToConsole err) )
 
-        -- NavigateTo page ->
-        --     {- THE SECOND ARGUMENT TO routeToString IS A JWT FOR VALIDATION, IF NEEDED -}
-        --     ( { model | navIsOpen = False }, Navigation.newUrl (Routes.routeToString page "") )
         ToggleHamburger ->
             ( { model | navIsOpen = not model.navIsOpen }, Cmd.none )
 
@@ -537,12 +526,11 @@ update msg model =
 
 init : Maybe D.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
 init savedModel url key =
-    -- let
-    --     maybeRoute =
-    --         location |> Routes.fromLocation
-    -- in
-    -- setRoute maybeRoute initialModel
-    ( initialModel ( key, url ), Cmd.none )
+    let
+        maybeRoute =
+            url |> Routes.fromUrl
+    in
+    changeRouteTo maybeRoute (initialModel ( key, url ))
 
 
 
