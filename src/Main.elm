@@ -510,7 +510,7 @@ update msg model =
                 newMilliseconds =
                     Time.posixToMillis model.autoSwitchProjectTimeout - 1000
             in
-            if newMilliseconds == -1 then
+            if newMilliseconds == 0 then
                 ( { model | autoSwitchProjectTimeout = Time.millisToPosix 5000, switchProjectBehavior = Auto }, Cmd.none )
 
             else
