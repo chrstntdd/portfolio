@@ -30,10 +30,10 @@ projectNotFound =
 
 
 viewProject : String -> List Project -> Html msg
-viewProject slug projects =
+viewProject projectSlug projects =
     let
         currentProject =
-            List.filter (\p -> p.slug == slug) projects |> List.head
+            List.filter (\p -> p.slug == projectSlug) projects |> List.head
 
         anchorClass =
             class "leading-normal no-underline mb-2"
@@ -42,16 +42,16 @@ viewProject slug projects =
         Nothing ->
             projectNotFound
 
-        Just { title, repo, demo, bgClass, description, imageData, techStack, tagline } ->
-            div [ class ("project-card__" ++ " text-lg") ]
-                [ header [ class (bgClass ++ slug ++ " h-screen bg-cover bg-center bg-no-repeat ") ]
+        Just { title, repo, demo, bgClass, slug, description, imageData, techStack, tagline } ->
+            div [ class ("project-card__" ++ slug ++ " text-lg") ]
+                [ header [ class (bgClass ++ " h-screen bg-cover bg-center bg-no-repeat ") ]
                     [ div [ class "header-text-container kinda-center flex flex-col justify-center items-center" ]
                         [ h1 [ class "text-white leading-loose whitespace-no-wrap" ] [ text title ]
                         , span [] []
                         , h2 [ class "text-center whitespace-no-wrap font-normal" ] [ text "scroll to discover" ]
                         ]
                     ]
-                , section [ class ("about-project" ++ " " ++ "min-h-screen min-w-screen flex flex-col justify-center items-center") ]
+                , section [ class ("about-project" ++ " min-h-screen min-w-screen flex flex-col justify-center items-center") ]
                     [ div [ class "info-container justify-center items-center" ]
                         [ h1 [ class "project-tagline p-4" ] [ text tagline ]
                         , div [ class "description p-4 text-center sm:text-left" ]
@@ -62,7 +62,7 @@ viewProject slug projects =
                             [ h3 [ class "font-medium" ] [ text "Technology" ]
                             , ul [] (List.map (\tech -> li [] [ text tech ]) techStack)
                             ]
-                        , div [ class ("links" ++ " " ++ "flex flex-col h-full w-full p-4") ]
+                        , div [ class ("links" ++ " flex flex-col h-full w-full p-4") ]
                             [ h3 [ class "text-center sm:text-left font-medium" ] [ text "Links" ]
                             , div [ class "links-container flex justify-around sm:flex-col" ]
                                 [ a [ href repo, anchorClass ] [ span [ class "link-accent" ] [], text "view source" ]
