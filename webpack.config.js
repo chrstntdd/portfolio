@@ -5,6 +5,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const PurgecssPlugin = require('purgecss-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const InterpolateHtmlPlugin = require('interpolate-html-plugin');
+const InlineSourcePlugin = require('html-webpack-inline-source-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
@@ -44,7 +45,7 @@ module.exports = {
   mode: IS_PRODUCTION ? 'production' : 'development',
   entry: path.resolve(__dirname, 'src/index.ts'),
   output: {
-    // publicPath: '/',
+    publicPath: '/',
     path: path.resolve(__dirname, 'dist'),
     filename: 'static/js/[name].[chunkhash:8].js',
     chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
@@ -68,13 +69,6 @@ module.exports = {
   devtool: IS_PRODUCTION ? 'source-map' : 'cheap-module-source-map',
 
   optimization: {
-    // Automatically split vendor and commons
-    // https://twitter.com/wSokra/status/969633336732905474
-    // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
-    splitChunks: {
-      chunks: 'all',
-      name: false
-    },
     // Keep the runtime chunk separated to enable long term caching
     // https://twitter.com/wSokra/status/969679223278505985
     runtimeChunk: true,
@@ -121,8 +115,8 @@ module.exports = {
         // Enable file caching
         cache: true,
         sourceMap: true
-      })
-      // new OptimizeCSSAssetsPlugin({})
+      }),
+      new OptimizeCSSAssetsPlugin({})
     ]
   },
 
@@ -137,7 +131,7 @@ module.exports = {
 
   module: {
     noParse: /\.elm$/,
-    // strictExportPresence: true,
+    strictExportPresence: true,
     rules: [
       {
         test: /\.(ts|tsx)?$/,
@@ -162,9 +156,9 @@ module.exports = {
       {
         test: /\.(sa|sc|c)ss$/,
         use: [
-          IS_PRODUCTION ? MiniCssExtractPlugin.loader : 'style-loader',
-          'css-loader',
-          'postcss-loader',
+          IS_PRODUCTION ? MiniCssExtractPlugin.loader : require.resolve('style-loader'),
+          require.resolve('css-loader'),
+          require.resolve('postcss-loader'),
           { loader: require.resolve('sass-loader'), options: { sourceMap: true } }
         ]
       },
@@ -196,6 +190,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       title: 'Christian Todd | Web Developer',
+      inlineSource: 'runtime~.+\\.js',
       minify: IS_PRODUCTION && {
         removeComments: true,
         collapseWhitespace: true,
@@ -209,6 +204,7 @@ module.exports = {
         minifyURLs: true
       }
     }),
+    new InlineSourcePlugin(),
     new MiniCssExtractPlugin({
       filename: IS_PRODUCTION ? './static/css/main.[contenthash:8].css' : '[id].css',
       chunkFilename: IS_PRODUCTION ? './static/css/[id].[contenthash:8].css' : '[id].css'
