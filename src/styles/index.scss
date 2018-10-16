@@ -15,14 +15,21 @@
  * You can see the styles here:
  * https://github.com/tailwindcss/tailwindcss/blob/master/css/preflight.css
  *
- * If using `postcss-import`, you should import this line from it's own file:
+ * If using `postcss-import`, use this import instead:
  *
- * @import "./tailwind-preflight.css";
- *
- * See: https://github.com/tailwindcss/tailwindcss/issues/53#issuecomment-341413622
+ * @import "tailwindcss/preflight";
  */
-
 @tailwind preflight;
+
+/**
+  * This injects any component classes registered by plugins.
+  *
+  * If using `postcss-import`, use this import instead:
+  *
+  * @import "tailwindcss/components";
+  */
+@tailwind components;
+
 /**
   * Here you would add any of your custom component classes; stuff that you'd
   * want loaded *before* the utilities so that the utilities could still
@@ -43,14 +50,12 @@
   * This injects all of Tailwind's utility classes, generated based on your
   * config file.
   *
-  * If using `postcss-import`, you should import this line from it's own file:
+  * If using `postcss-import`, use this import instead:
   *
-  * @import "./tailwind-utilities.css";
-  *
-  * See: https://github.com/tailwindcss/tailwindcss/issues/53#issuecomment-341413622
+  * @import "tailwindcss/utilities";
   */
-
 @tailwind utilities;
+
 /**
   * Here you would add any custom utilities you need that don't come out of the
   * box with Tailwind.
@@ -123,7 +128,7 @@ input:focus {
 #hero-img {
   background-color: linear-gradient(90deg, #070d0b 0%, #090e0e 25%, #0d1513 50%, #0a140f 75%);
   background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-    url('assets/hero-bg.jpg');
+    url('/images/hero-bg.jpg');
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
@@ -269,15 +274,15 @@ input:focus {
 }
 
 .rn-bg-gif {
-  background-image: url('/assets/gif/coffee.gif');
+  background-image: url('/images/gif/coffee.gif');
 }
 
 .vdb-bg-gif {
-  background-image: url('/assets/gif/records.gif');
+  background-image: url('/images/gif/records.gif');
 }
 
 .quant-bg-gif {
-  background-image: url('/assets/gif/idea.gif');
+  background-image: url('/images/gif/idea.gif');
 }
 
 #projects {

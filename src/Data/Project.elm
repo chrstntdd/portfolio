@@ -42,8 +42,8 @@ viewProject slug projects =
         Nothing ->
             projectNotFound
 
-        Just { title, repo, slug, demo, bgClass, description, imageData, techStack, tagline } ->
-            div [ class ("project-card__" ++ slug ++ " text-lg") ]
+        Just { title, repo, demo, bgClass, description, imageData, techStack, tagline } ->
+            div [ class ("project-card__" ++ " text-lg") ]
                 [ header [ class (bgClass ++ " h-screen bg-cover bg-center bg-no-repeat ") ]
                     [ div [ class "header-text-container kinda-center flex flex-col justify-center items-center" ]
                         [ h1 [ class "text-white leading-loose whitespace-no-wrap" ] [ text title ]
