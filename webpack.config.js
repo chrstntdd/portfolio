@@ -8,54 +8,26 @@ const InterpolateHtmlPlugin = require('interpolate-html-plugin');
 const InlineSourcePlugin = require('html-webpack-inline-source-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const Stylish = require('webpack-stylish');
+const paths = require('./scripts/paths');
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const USE_SERVICE_WORKER = process.env.USE_SW;
-
-// const { sw } = require(path.join(__dirname, 'src/client/inline-sw'));'
-// Enable users to turn on dead code elimination.
-const deadCodeElimination = IS_PRODUCTION
-  ? {
-      dead_code: true,
-      pure_funcs: [
-        '_elm_lang$core$Native_Utils.update',
-        'A2',
-        'A3',
-        'A4',
-        'A5',
-        'A6',
-        'A7',
-        'A8',
-        'A9',
-        'F2',
-        'F3',
-        'F4',
-        'F5',
-        'F6',
-        'F7',
-        'F8',
-        'F9'
-      ]
-    }
-  : {};
 
 module.exports = {
   mode: IS_PRODUCTION ? 'production' : 'development',
   entry: path.resolve(__dirname, 'src/index.ts'),
   output: {
     publicPath: '/',
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'static/js/[name].[chunkhash:8].js',
-    chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
+    path: paths.build,
+    filename: 'main.[chunkhash:8].js',
     devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     devtoolFallbackModuleFilenameTemplate: '[absolute-resource-path]?[hash]'
   },
 
   devServer: {
     compress: true,
-    contentBase: path.resolve(__dirname, 'dist'),
+    contentBase: paths.build,
     historyApiFallback: true,
     useLocalIp: true,
     host: '0.0.0.0',
@@ -71,7 +43,7 @@ module.exports = {
   optimization: {
     // Keep the runtime chunk separated to enable long term caching
     // https://twitter.com/wSokra/status/969679223278505985
-    runtimeChunk: true,
+    // runtimeChunk: true,
     minimizer: [
       new TerserPlugin({
         terserOptions: {
@@ -96,7 +68,30 @@ module.exports = {
             // Pending futher investigation:
             // https://github.com/terser-js/terser/issues/120
             inline: 2,
-            ...deadCodeElimination
+            dead_code: true,
+            pure_funcs: [
+              '_elm_lang$core$Native_Utils.update',
+              'A2',
+              'A3',
+              'A4',
+              'A5',
+              'A6',
+              'A7',
+              'A8',
+              'A9',
+              'F2',
+              'F3',
+              'F4',
+              'F5',
+              'F6',
+              'F7',
+              'F8',
+              'F9'
+            ],
+            pure_getters: true,
+            keep_fargs: false,
+            unsafe_comps: true,
+            unsafe: true
           },
           mangle: {
             safari10: true
@@ -116,7 +111,14 @@ module.exports = {
         cache: true,
         sourceMap: true
       }),
-      new OptimizeCSSAssetsPlugin({})
+      new OptimizeCSSAssetsPlugin({
+        cssProcessorOptions: {
+          map: {
+            inline: false,
+            annotate: true
+          }
+        }
+      })
     ]
   },
 
@@ -135,13 +137,13 @@ module.exports = {
     rules: [
       {
         test: /\.(ts|tsx)?$/,
-        include: path.resolve(__dirname, 'src'),
-        use: [{ loader: require.resolve('awesome-typescript-loader') }]
+        include: paths.src,
+        use: [{ loader: require.resolve('awesome-typescript-loader'), options: { silent: true } }]
       },
 
       {
         test: /\.elm$/,
-        include: path.resolve(__dirname, 'src'),
+        include: paths.src,
         use: [
           {
             loader: require.resolve('elm-webpack-loader'),
@@ -157,7 +159,7 @@ module.exports = {
         test: /\.(sa|sc|c)ss$/,
         use: [
           IS_PRODUCTION ? MiniCssExtractPlugin.loader : require.resolve('style-loader'),
-          require.resolve('css-loader'),
+          { loader: require.resolve('css-loader'), options: { sourceMap: true } },
           require.resolve('postcss-loader'),
           { loader: require.resolve('sass-loader'), options: { sourceMap: true } }
         ]
@@ -186,11 +188,13 @@ module.exports = {
   },
 
   plugins: [
-    ...(IS_PRODUCTION ? [new CleanWebpackPlugin(['dist'])] : []),
+    new MiniCssExtractPlugin({
+      filename: IS_PRODUCTION ? 'main.[contenthash:8].css' : '[id].css'
+    }),
     new HtmlWebpackPlugin({
       template: './src/index.html',
       title: 'Christian Todd | Web Developer',
-      inlineSource: 'runtime~.+\\.js',
+      inlineSource: '.(js)$', // inline compiled elm code since its so small
       minify: IS_PRODUCTION && {
         removeComments: true,
         collapseWhitespace: true,
@@ -205,20 +209,32 @@ module.exports = {
       }
     }),
     new InlineSourcePlugin(),
-    new MiniCssExtractPlugin({
-      filename: IS_PRODUCTION ? './static/css/main.[contenthash:8].css' : '[id].css',
-      chunkFilename: IS_PRODUCTION ? './static/css/[id].[contenthash:8].css' : '[id].css'
-    }),
     new InterpolateHtmlPlugin({
-      SW: ''
+      INLINE_SW: IS_PRODUCTION && USE_SERVICE_WORKER ? require('./src/inline-sw.js') : ''
     }),
     ...(IS_PRODUCTION
       ? [
           new PurgecssPlugin({
-            paths: glob.sync(`src/**/*`, { nodir: true })
+            paths: glob.sync(`src/**/*.elm`, { nodir: true }),
+            extractors: [
+              {
+                extractor: class TailwindExtractor {
+                  static extract(content) {
+                    return content.match(/[A-z0-9-:\/]+/g);
+                  }
+                },
+                extensions: ['html', 'elm']
+              }
+            ],
+            whitelist: [
+              'project-card__vinyldb',
+              'project-card__quantified',
+              'project-card__roaster-nexus'
+            ]
           })
         ]
       : []),
+    ...(IS_PRODUCTION ? [] : [new Stylish()]),
     new Stylish(),
     new CopyWebpackPlugin([
       {
@@ -235,4 +251,5 @@ module.exports = {
     child_process: 'empty'
   },
   performance: false
+  // stats: 'none'
 };

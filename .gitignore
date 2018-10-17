@@ -3,6 +3,7 @@ node_modules/**
 .env
 .vscode
 dist/
+build/
 elm-stuff
 .vscode/
 .DS_Store
