@@ -1,17 +1,19 @@
 port module Main exposing (main)
 
+import Browser
+import Browser.Navigation as Navigation
 import Data.Project exposing (Project, viewProject)
-import Html exposing (Attribute, Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, program, section, span, text, ul)
+import Html exposing (Attribute, Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, section, span, text, ul)
 import Html.Attributes exposing (alt, attribute, class, for, href, id, placeholder, src, type_)
 import Html.Events exposing (onClick)
 import Json.Decode as D exposing (..)
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode.Pipeline exposing (required)
 import Json.Encode as E exposing (..)
-import Navigation
 import Routes exposing (Route)
 import SelectList as Zip exposing (SelectList, fromLists, select, selected, toList)
 import Time exposing (every)
-import Util exposing (onClickLink, unwrap)
+import Url
+import Util exposing (unwrap)
 
 
 type alias LinkData msg =
@@ -24,7 +26,7 @@ type alias LinkData msg =
 link : LinkData Msg -> Html Msg
 link { url, attrs, label } =
     {- HELPER FUNCTION FOR SPA NAVIGATION -}
-    a (List.append attrs [ Routes.href url, onClickLink (NavigateTo url) ]) [ text label ]
+    a (List.append attrs [ Routes.href url ]) [ text label ]
 
 
 
@@ -48,15 +50,6 @@ type InfoForOutside
 
 type InfoForElm
     = ScrollOrResize ScreenData
-
-
-screenDataDecoder : Decoder ScreenData
-screenDataDecoder =
-    decode ScreenData
-        |> required "scrollTop" D.float
-        |> required "pageHeight" D.int
-        |> required "viewportHeight" D.int
-        |> required "viewportWidth" D.int
 
 
 modelToValue : Model -> E.Value
@@ -84,16 +77,14 @@ getInfoFromOutside tagger onError =
     infoForElm
         (\outsideInfo ->
             case outsideInfo.tag of
-                "ScrollOrResize" ->
-                    case D.decodeValue screenDataDecoder outsideInfo.data of
-                        Ok screenData ->
-                            tagger <| ScrollOrResize screenData
-
-                        Err e ->
-                            onError e
-
+                -- "ScrollOrResize" ->
+                --     case D.decodeValue screenDataDecoder outsideInfo.data of
+                --         Ok screenData ->
+                --             tagger <| ScrollOrResize screenData
+                --         Err e ->
+                --             onError e
                 _ ->
-                    onError <| "Unexpected info from the outside: " ++ toString outsideInfo
+                    onError <| "Unexpected info from the outside: "
         )
 
 
@@ -124,29 +115,33 @@ type ProjectSwitchBehavior
 
 type alias Model =
     { screenData : Maybe ScreenData
+    , key : Navigation.Key
+    , url : Url.Url
     , navIsOpen : Bool
     , page : Route
-    , autoSwitchProjectTimeout : Time.Time
+    , autoSwitchProjectTimeout : Time.Posix
     , switchProjectBehavior : ProjectSwitchBehavior
     , projects : SelectList Project
     }
 
 
-initialModel : Model
-initialModel =
+initialModel : ( Navigation.Key, Url.Url ) -> Model
+initialModel ( navigationKey, navigationUrl ) =
     { screenData = Nothing
+    , key = navigationKey
+    , url = navigationUrl
     , navIsOpen = False
     , page = Routes.Home
-    , autoSwitchProjectTimeout = 5 -- seconds
+    , autoSwitchProjectTimeout = Time.millisToPosix 5000
     , switchProjectBehavior = Auto
     , projects =
         fromLists []
             { title = "Quantified"
             , slug = "quantified"
             , imageData =
-                [ { src = "/assets/screenshots/q1-ss-min.png", alt = "" }
-                , { src = "/assets/screenshots/q2-ss-min.png", alt = "" }
-                , { src = "/assets/screenshots/q3-ss-min.png", alt = "" }
+                [ { src = "/images/screenshots/q1-ss-min.png", alt = "" }
+                , { src = "/images/screenshots/q2-ss-min.png", alt = "" }
+                , { src = "/images/screenshots/q3-ss-min.png", alt = "" }
                 ]
             , bgClass = "quant-bg-gif"
             , techStack =
@@ -168,9 +163,9 @@ initialModel =
             [ { title = "VinylDB"
               , slug = "vinyldb"
               , imageData =
-                    [ { src = "/assets/screenshots/vdb-ss-1-min.png", alt = "desc" }
-                    , { src = "/assets/screenshots/vdb-ss-2-min.png", alt = "desc" }
-                    , { src = "/assets/screenshots/vdb-ss-3-min.png", alt = "desc" }
+                    [ { src = "/images/screenshots/vdb-ss-1-min.png", alt = "desc" }
+                    , { src = "/images/screenshots/vdb-ss-2-min.png", alt = "desc" }
+                    , { src = "/images/screenshots/vdb-ss-3-min.png", alt = "desc" }
                     ]
               , bgClass = "vdb-bg-gif"
               , techStack =
@@ -192,9 +187,9 @@ initialModel =
             , { title = "Roaster Nexus"
               , slug = "roaster-nexus"
               , imageData =
-                    [ { src = "/assets/screenshots/rn-ss-1-min.png", alt = "des" }
-                    , { src = "/assets/screenshots/rn-ss-2-min.png", alt = "des" }
-                    , { src = "/assets/screenshots/rn-ss-3-min.png", alt = "des" }
+                    [ { src = "/images/screenshots/rn-ss-1-min.png", alt = "des" }
+                    , { src = "/images/screenshots/rn-ss-2-min.png", alt = "des" }
+                    , { src = "/images/screenshots/rn-ss-3-min.png", alt = "des" }
                     ]
               , bgClass = "rn-bg-gif"
               , techStack =
@@ -217,8 +212,15 @@ initialModel =
 {- VIEW -}
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
+    { title = "Christian Todd | Web Developer"
+    , body = [ body model ]
+    }
+
+
+body : Model -> Html Msg
+body model =
     let
         { page, projects, navIsOpen, screenData } =
             model
@@ -262,6 +264,7 @@ navBar navIsOpen viewportWidth =
             in
             if navIsOpen then
                 class (shared ++ " show")
+
             else
                 class shared
 
@@ -286,6 +289,7 @@ navBar navIsOpen viewportWidth =
         , if viewportWidth > 768 then
             {- DONT SHOW HAMBURGER ON DESKTOP -}
             Html.text ""
+
           else
             hamburgerMenu navIsOpen
         ]
@@ -297,6 +301,7 @@ hamburgerMenu navIsOpen =
         hamburgerClass =
             if navIsOpen then
                 class "hamburger is-open"
+
             else
                 class "hamburger"
     in
@@ -324,7 +329,7 @@ about =
         [ section [ id "about" ]
             [ div [ id "about-container" ]
                 [ h1 [] [ text "About me" ]
-                , img [ src "/assets/portrait.jpg", alt "2017 Portrait of myself" ] []
+                , img [ src "/images/portrait.jpg", alt "2017 Portrait of myself" ] []
                 , p [] [ text "Hi, my name is Christian. I was first introduced to programming as a college student studying mechanical engineering.\n          I was initially fascinated by how vast the world of code is and everything there is to learn. I remain interested\n          by how there are countless ways to express a solution to a problem and the opportunities for constant iteration\n          upon what already exists. When I'm not busy programming, you can usually find me outside exploring the North End\n          beaches in my hometown of Virginia Beach. I also enjoy listening to my growing vinyl collection and sipping on\n          locally roasted coffee." ]
                 ]
             ]
@@ -343,8 +348,8 @@ projectsView projects =
                 , label = "view project"
                 }
             ]
-        , button [ attribute "aria-label" "Next project", class "next-btn proj-btn", onClick (SwitchProject Next UserControlled 0) ] [ img [ class "h-16 w-16", src "/assets/icons/chevron.svg", alt "Next project" ] [] ]
-        , button [ attribute "aria-label" "Previous project", class "prev-btn proj-btn", onClick (SwitchProject Back UserControlled 0) ] [ img [ class "h-16 w-16", src "/assets/icons/chevron.svg", alt "Previous project" ] [] ]
+        , button [ attribute "aria-label" "Next project", class "next-btn proj-btn", onClick (SwitchProject Next UserControlled (Time.millisToPosix 0)) ] [ img [ class "h-16 w-16", src "/images/icons/chevron.svg", alt "Next project" ] [] ]
+        , button [ attribute "aria-label" "Previous project", class "prev-btn proj-btn", onClick (SwitchProject Back UserControlled (Time.millisToPosix 0)) ] [ img [ class "h-16 w-16", src "/images/icons/chevron.svg", alt "Previous project" ] [] ]
         ]
 
 
@@ -368,11 +373,11 @@ contact =
         , p [ class (pClass ++ " font-semibold hover:text-grey trans-300ms-all") ] [ text "christian.todd7@gmail.com" ]
         , ul [ class "pl-0 flex flex-col justify-center items-center" ]
             [ li [ class listClass ]
-                [ a [ href "https://github.com/chrstntdd", class anchorClass ] [ img [ src "/assets/icons/github.svg", alt "Github mark icon", class imgClass ] [] ] ]
+                [ a [ href "https://github.com/chrstntdd", class anchorClass ] [ img [ src "/images/icons/github.svg", alt "Github mark icon", class imgClass ] [] ] ]
             , li [ class listClass ]
-                [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/", class anchorClass ] [ img [ src "/assets/icons/linkedin.svg", alt "LinkedIn text icon", class imgClass ] [] ] ]
+                [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/", class anchorClass ] [ img [ src "/images/icons/linkedin.svg", alt "LinkedIn text icon", class imgClass ] [] ] ]
             , li [ class listClass ]
-                [ a [ href "https://twitter.com/_chrstntdd", class anchorClass ] [ img [ src "/assets/icons/twitter.svg", alt "twitter bird icon", class imgClass ] [] ] ]
+                [ a [ href "https://twitter.com/_chrstntdd", class anchorClass ] [ img [ src "/images/icons/twitter.svg", alt "twitter bird icon", class imgClass ] [] ] ]
             ]
         ]
 
@@ -383,38 +388,38 @@ contact =
 
 type Msg
     = NoOp
-    | SetRoute (Maybe Route)
     | ToggleHamburger
-    | NavigateTo Route
     | Outside InfoForElm
     | LogErr String
-    | SwitchProject Direction ProjectSwitchBehavior Time.Time
-    | Tick Time.Time
+    | SwitchProject Direction ProjectSwitchBehavior Time.Posix
+    | Tick Time.Posix
+    | UrlChanged Url.Url
+    | LinkClicked Browser.UrlRequest
 
 
-setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
-setRoute maybeRoute model =
+changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
+changeRouteTo maybeRoute model =
     case maybeRoute of
-        Nothing ->
-            { model | page = Routes.NotFound } ! []
-
         Just Routes.Home ->
-            { model | page = Routes.Home } ! []
+            ( { model | page = Routes.Home }, Cmd.none )
 
         Just Routes.About ->
-            { model | page = Routes.About } ! []
+            ( { model | page = Routes.About }, Cmd.none )
 
         Just Routes.Projects ->
-            { model | page = Routes.Projects } ! []
+            ( { model | page = Routes.Projects }, Cmd.none )
 
         Just (Routes.ActiveProject slug) ->
-            { model | page = Routes.ActiveProject slug } ! []
+            ( { model | page = Routes.ActiveProject slug }, Cmd.none )
 
         Just Routes.Contact ->
-            { model | page = Routes.Contact } ! []
+            ( { model | page = Routes.Contact }, Cmd.none )
+
+        Nothing ->
+            ( { model | page = Routes.NotFound }, Cmd.none )
 
         _ ->
-            { model | page = Routes.NotFound } ! []
+            ( { model | page = Routes.NotFound }, Cmd.none )
 
 
 updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
@@ -430,25 +435,31 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
-            model ! []
+            ( model, Cmd.none )
 
-        SetRoute maybeRoute ->
-            setRoute maybeRoute model
+        LinkClicked urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Navigation.pushUrl model.key (Url.toString url) )
 
-        Outside infoForElm ->
-            case infoForElm of
+                Browser.External href ->
+                    ( model, Navigation.load href )
+
+        UrlChanged url ->
+            changeRouteTo (Routes.fromUrl url) model
+
+        Outside dataForElm ->
+            case dataForElm of
                 ScrollOrResize data ->
-                    { model | screenData = Just data } ! []
+                    ( { model | screenData = Just data }, Cmd.none )
 
+        -- _ ->
+        --     ( model, Cmd.none )
         LogErr err ->
-            model ! [ sendInfoOutside (LogErrorToConsole err) ]
-
-        NavigateTo page ->
-            {- THE SECOND ARGUMENT TO routeToString IS A JWT FOR VALIDATION, IF NEEDED -}
-            { model | navIsOpen = False } ! [ Navigation.newUrl (Routes.routeToString page "") ]
+            ( model, sendInfoOutside (LogErrorToConsole err) )
 
         ToggleHamburger ->
-            { model | navIsOpen = not model.navIsOpen } ! []
+            ( { model | navIsOpen = not model.navIsOpen }, Cmd.none )
 
         SwitchProject dir projectSwitchBehavior time ->
             let
@@ -463,6 +474,7 @@ update msg model =
                             if model.projects |> Zip.before |> List.isEmpty then
                                 -- RETURN THE LAST ITEM IN THE SELECT LIST
                                 model.projects |> Zip.after |> List.reverse |> getListHead
+
                             else
                                 -- RETURN THE LAST ITEM IN THE 'BEFORE' OF THE SELECT LIST
                                 model.projects |> Zip.before |> List.reverse |> getListHead
@@ -471,6 +483,7 @@ update msg model =
                             if model.projects |> Zip.after |> List.isEmpty then
                                 -- RETURN THE FIRST ITEM IN THE SELECT LIST
                                 model.projects |> Zip.before |> getListHead
+
                             else
                                 -- RETURN THE HEAD OF THE LIST
                                 model.projects |> Zip.after |> getListHead
@@ -481,25 +494,27 @@ update msg model =
             in
             case projectSwitchBehavior of
                 Auto ->
-                    { model | projects = nextProjectState } ! []
+                    ( { model | projects = nextProjectState }, Cmd.none )
 
                 UserControlled ->
-                    { model
+                    ( { model
                         | projects = nextProjectState
-                        , autoSwitchProjectTimeout = 5 -- INIT VALUE TO RESET THE TIMEOUT
+                        , autoSwitchProjectTimeout = Time.millisToPosix 5000 -- INIT VALUE TO RESET THE TIMEOUT
                         , switchProjectBehavior = UserControlled
-                    }
-                        ! []
+                      }
+                    , Cmd.none
+                    )
 
         Tick time ->
             let
-                newSeconds =
-                    model.autoSwitchProjectTimeout - 1
+                newMilliseconds =
+                    Time.posixToMillis model.autoSwitchProjectTimeout - 1000
             in
-            if newSeconds == -1 then
-                { model | autoSwitchProjectTimeout = 5, switchProjectBehavior = Auto } ! []
+            if newMilliseconds == 0 then
+                ( { model | autoSwitchProjectTimeout = Time.millisToPosix 5000, switchProjectBehavior = Auto }, Cmd.none )
+
             else
-                { model | autoSwitchProjectTimeout = newSeconds } ! []
+                ( { model | autoSwitchProjectTimeout = Time.millisToPosix newMilliseconds }, Cmd.none )
 
 
 
@@ -509,13 +524,13 @@ update msg model =
 -- Also, we have to convert the Zip List to a regular List for Javascript
 
 
-init : Maybe D.Value -> Navigation.Location -> ( Model, Cmd Msg )
-init savedModel location =
+init : Maybe D.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
+init savedModel url key =
     let
         maybeRoute =
-            location |> Routes.fromLocation
+            url |> Routes.fromUrl
     in
-    setRoute maybeRoute initialModel
+    changeRouteTo maybeRoute (initialModel ( key, url ))
 
 
 
@@ -530,12 +545,13 @@ subscriptions model =
             Auto ->
                 -- FOR AUTO BEHAVIOR, WE SEND A `SWITCHPROJECT` MSG TO ENABLE SWITCHING TO THE NEXT PROJECT
                 Sub.batch
-                    [ getInfoFromOutside Outside LogErr, every (5 * Time.second) (SwitchProject Next Auto) ]
+                    [ getInfoFromOutside Outside LogErr, every (5 * 1000) (SwitchProject Next Auto) ]
 
             UserControlled ->
                 -- FOR USER CONTROLLED BEHAVIOR, WE SEND A `TICK` MSG EVERY SECOND TO TRACK THE TIMEOUT
                 Sub.batch
-                    [ getInfoFromOutside Outside LogErr, every Time.second Tick ]
+                    [ getInfoFromOutside Outside LogErr, every 1000 Tick ]
+
     else
         Sub.batch
             [ getInfoFromOutside Outside LogErr ]
@@ -547,9 +563,11 @@ subscriptions model =
 
 main : Program (Maybe D.Value) Model Msg
 main =
-    Navigation.programWithFlags (Routes.fromLocation >> SetRoute)
+    Browser.application
         { init = init
         , view = view
         , update = updateWithStorage
         , subscriptions = subscriptions
+        , onUrlChange = UrlChanged
+        , onUrlRequest = LinkClicked
         }

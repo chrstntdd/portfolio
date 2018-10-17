@@ -5,8 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="shortcut icon" href="/assets/favicons/favicon.ico"> $css
-  <title>$title</title>
+  <link rel="shortcut icon" href="/favicons/favicon.ico">
   <style>
     *,
     *::after,
@@ -30,29 +29,19 @@
       background-color: black;
     }
   </style>
-  <script type='text/javascript'>
-  if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then(function(registration) {
-        console.log('SW registered: ', registration);
-      })
-      .catch(function(registrationError) {
-        console.log('SW registration failed: ', registrationError);
-      });
-  });
-}
-</script>
+
+  %INLINE_SW%
+
+
 </head>
 
 <body>
   <noscript>JavaScript is required to view this website.</noscript>
-  <div id='elm-root'></div>
+  <div id="elm-root"></div>
 </body>
 <script type="text/javascript">
-var storedState = sessionStorage.getItem('chrstntdd-persisted-session');
-var initState = storedState ? JSON.parse(storedState) : null;
-</script> $bundles
+  var storedState = sessionStorage.getItem('chrstntdd-persisted-session');
+  var initState = storedState ? JSON.parse(storedState) : null;
+</script>
 
 </html>

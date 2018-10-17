@@ -1,9 +1,10 @@
-module Routes exposing (Route(..), fromLocation, href, routeToString)
+module Routes exposing (Route(..), fromUrl, href, routeToString)
 
+import Browser.Navigation as Navigation
 import Html exposing (Attribute)
 import Html.Attributes as Attr
-import Navigation
-import UrlParser exposing ((</>), Parser, map, oneOf, parsePath, s, string, top)
+import Url exposing (Url)
+import Url.Parser as Parser exposing ((</>), Parser, map, oneOf, s, string, top)
 
 
 type alias JWT =
@@ -19,8 +20,8 @@ type Route
     | NotFound
 
 
-route : Parser (Route -> a) a
-route =
+routeParser : Parser (Route -> a) a
+routeParser =
     oneOf
         [ map Home (s "")
         , map About (s "about")
@@ -31,11 +32,11 @@ route =
 
 
 routeToString : Route -> JWT -> String
-routeToString route jwt =
+routeToString routeType jwt =
     {- JWT CAN BE PASSED IN FOR AUTHENTICATING ROUTES -}
     let
         pieces =
-            case route of
+            case routeType of
                 Home ->
                     [ "" ]
 
@@ -57,6 +58,15 @@ routeToString route jwt =
     "/" ++ String.join "/" pieces
 
 
+fromUrl : Url -> Maybe Route
+fromUrl url =
+    if url.path == "/" then
+        Just Home
+
+    else
+        Parser.parse routeParser url
+
+
 
 {- PUBLIC HELPERS -}
 
@@ -65,11 +75,3 @@ href : Route -> Attribute msg
 href route =
     {- BLANK STRING IS THE OPTIONAL JWT -}
     Attr.href (routeToString route "")
-
-
-fromLocation : Navigation.Location -> Maybe Route
-fromLocation location =
-    if String.isEmpty location.pathname then
-        Just Home
-    else
-        parsePath route location
