@@ -55,17 +55,27 @@ async function removeInlinedFiles() {
 
 (async () => {
   try {
-    const prevFileSizes = await getOriginalFileSizes(paths.build);
-    if (fs.existsSync(paths.build)) {
-      fs.emptyDirSync(paths.build);
+    // Dont measure file sizes on netlify builds
+    if (process.env.NETLIFY) {
+      await build();
+
+      await removeInlinedFiles();
+
+      await generateServiceWorker();
+    } else {
+      const prevFileSizes = await getOriginalFileSizes(paths.build);
+      if (fs.existsSync(paths.build)) {
+        fs.emptyDirSync(paths.build);
+      }
+
+      await build();
+
+      await removeInlinedFiles();
+
+      printFinalFileSizes(prevFileSizes, paths.build);
+
+      USE_SERVICE_WORKER && (await generateServiceWorker());
     }
-
-    await build();
-    await removeInlinedFiles();
-
-    printFinalFileSizes(prevFileSizes, paths.build);
-
-    USE_SERVICE_WORKER && (await generateServiceWorker());
   } catch (error) {
     console.log(error);
   }

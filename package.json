@@ -64,6 +64,7 @@
     "webpack": "cross-env NODE_ENV=production ./node_modules/.bin/webpack --display none -p --config webpack.config.js",
     "build": "cross-env NODE_ENV=production ts-node -T ./scripts/build.ts",
     "prod-build": "cross-env NODE_ENV=production USE_SW=true ts-node -T ./scripts/build.ts",
+    "netlify-build": "cross-env NODE_ENV=production NETLIFY=true ts-node -T ./scripts/build.ts",
     "check-build": "cross-env NODE_ENV=production ts-node ./scripts/build.ts && ts-node ./scripts/mock-server.ts"
   },
   "browserslist": [
