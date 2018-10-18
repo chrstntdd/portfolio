@@ -1,11 +1,11 @@
-const fs = require('fs-extra');
-const path = require('path');
-const webpack = require('webpack');
-const workbox = require('workbox-build');
+import fs from 'fs-extra';
+import path from 'path';
+import webpack from 'webpack';
+import workbox from 'workbox-build';
 
-const { recursiveReadDir } = require('./file-size');
-const config = require('../webpack.config');
-const paths = require('./paths');
+import { recursiveReadDir, getOriginalFileSizes, printFinalFileSizes } from './file-size';
+import config from '../webpack.config';
+import paths from './paths';
 
 const USE_SERVICE_WORKER = process.env.USE_SW;
 
@@ -42,23 +42,28 @@ async function generateServiceWorker() {
   }
 }
 
+async function removeInlinedFiles() {
+  const files = await recursiveReadDir(paths.build);
+  // delete the output js file since it is already inlined into the html
+  const filesToBeDeleted = files.filter(fileName => /\.(js)$/.test(fileName));
+  filesToBeDeleted.forEach(f => {
+    if (fs.existsSync(f)) {
+      fs.unlinkSync(f);
+    }
+  });
+}
+
 (async () => {
   try {
+    const prevFileSizes = await getOriginalFileSizes(paths.build);
     if (fs.existsSync(paths.build)) {
       fs.emptyDirSync(paths.build);
     }
 
     await build();
+    await removeInlinedFiles();
 
-    const files = await recursiveReadDir(paths.build);
-
-    const filesToBeDeleted = files.filter(fileName => /\.(js)$/.test(fileName));
-
-    filesToBeDeleted.forEach(f => {
-      if (fs.existsSync(f)) {
-        fs.unlinkSync(f);
-      }
-    });
+    printFinalFileSizes(prevFileSizes, paths.build);
 
     USE_SERVICE_WORKER && (await generateServiceWorker());
   } catch (error) {

@@ -1,10 +1,9 @@
-const express = require('express');
-const { join } = require('path');
-const bodyParser = require('body-parser');
-const compression = require('compression');
-const morgan = require('morgan');
+import express from 'express';
+import bodyParser from 'body-parser';
+import compression from 'compression';
+import morgan from 'morgan';
 
-const paths = require('./paths');
+import paths from './paths';
 
 const app = express();
 

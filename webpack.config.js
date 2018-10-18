@@ -235,7 +235,6 @@ module.exports = {
         ]
       : []),
     ...(IS_PRODUCTION ? [] : [new Stylish()]),
-    new Stylish(),
     new CopyWebpackPlugin([
       {
         from: 'src/public',
@@ -251,5 +250,4 @@ module.exports = {
     child_process: 'empty'
   },
   performance: false
-  // stats: 'none'
 };

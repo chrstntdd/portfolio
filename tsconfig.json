@@ -1,20 +1,36 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
+    "checkJs": true,
+    "declaration": false,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["dom", "es6", "es7", "es2017", "esnext"],
+    "importHelpers": true,
+    "jsx": "react",
+    "lib": ["dom", "esnext"],
+    "listEmittedFiles": false,
+    "listFiles": false,
     "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
     "noUnusedLocals": true,
     "outDir": "dist/",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/client/*"],
+      "packages/*": ["src/packages/*"]
     },
     "pretty": true,
     "removeComments": true,
     "sourceMap": true,
-    "target": "ES5"
+    "target": "es6",
+    "typeRoots": ["./node_modules/@types"]
   },
-  "exclude": ["node_modules", "elm-stuff"],
+  "exclude": ["node_modules/**/*", "src/**/*.spec.*", "elm-stuff/*"],
   "include": ["src/**/*.ts"]
 }
