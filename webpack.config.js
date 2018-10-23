@@ -38,7 +38,7 @@ module.exports = {
   },
 
   // Enable sourcemaps for debugging webpack's output.
-  devtool: IS_PRODUCTION ? 'source-map' : 'cheap-module-source-map',
+  devtool: IS_PRODUCTION ? 'none' : 'cheap-module-source-map',
 
   optimization: {
     // Keep the runtime chunk separated to enable long term caching
@@ -111,14 +111,7 @@ module.exports = {
         cache: true,
         sourceMap: true
       }),
-      new OptimizeCSSAssetsPlugin({
-        cssProcessorOptions: {
-          map: {
-            inline: false,
-            annotate: true
-          }
-        }
-      })
+      new OptimizeCSSAssetsPlugin({})
     ]
   },
 
@@ -194,7 +187,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       title: 'Christian Todd | Web Developer',
-      inlineSource: '.(js)$', // inline compiled elm code since its so small
+      inlineSource: '.(js|css)$',
       minify: IS_PRODUCTION && {
         removeComments: true,
         collapseWhitespace: true,

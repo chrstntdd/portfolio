@@ -45,7 +45,7 @@ async function generateServiceWorker() {
 async function removeInlinedFiles() {
   const files = await recursiveReadDir(paths.build);
   // delete the output js file since it is already inlined into the html
-  const filesToBeDeleted = files.filter(fileName => /\.(js)$/.test(fileName));
+  const filesToBeDeleted = files.filter(fileName => /\.(js|css)$/.test(fileName));
   filesToBeDeleted.forEach(f => {
     if (fs.existsSync(f)) {
       fs.unlinkSync(f);

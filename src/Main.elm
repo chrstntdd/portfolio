@@ -1,6 +1,7 @@
 port module Main exposing (main)
 
 import Browser
+import Browser.Events exposing (onResize)
 import Browser.Navigation as Navigation
 import Data.Project exposing (Project, viewProject)
 import Html exposing (Attribute, Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, section, span, text, ul)
@@ -13,7 +14,22 @@ import Routes exposing (Route)
 import SelectList as Zip exposing (SelectList, fromLists, select, selected, toList)
 import Time exposing (every)
 import Url
-import Util exposing (unwrap)
+
+
+
+{- MAIN PROGRAM -}
+
+
+main : Program D.Value Model Msg
+main =
+    Browser.application
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        , onUrlChange = UrlChanged
+        , onUrlRequest = LinkClicked
+        }
 
 
 type alias LinkData msg =
@@ -27,76 +43,6 @@ link : LinkData Msg -> Html Msg
 link { url, attrs, label } =
     {- HELPER FUNCTION FOR SPA NAVIGATION -}
     a (List.append attrs [ Routes.href url ]) [ text label ]
-
-
-
-{- PORT HELPERS -}
--- CURRENTLY DEFINED IN MAIN TO HAVE ACCESS TO `MODEL` TYPE WHEN PERSISTING STATE
-
-
-type alias ScreenData =
-    { scrollTop : Float
-    , pageHeight : Int
-    , viewportHeight : Int
-    , viewportWidth : Int
-    }
-
-
-type InfoForOutside
-    = SaveModel Model
-    | ScrollTo String
-    | LogErrorToConsole String
-
-
-type InfoForElm
-    = ScrollOrResize ScreenData
-
-
-modelToValue : Model -> E.Value
-modelToValue model =
-    E.object
-        [ ( "navIsOpen", E.bool model.navIsOpen )
-        ]
-
-
-sendInfoOutside : InfoForOutside -> Cmd msg
-sendInfoOutside info =
-    case info of
-        SaveModel newModel ->
-            infoForOutside { tag = "SaveModel", data = modelToValue newModel }
-
-        ScrollTo elementId ->
-            infoForOutside { tag = "ScrollTo", data = E.string elementId }
-
-        LogErrorToConsole err ->
-            infoForOutside { tag = "ErrorLogRequested", data = E.string err }
-
-
-getInfoFromOutside : (InfoForElm -> msg) -> (String -> msg) -> Sub msg
-getInfoFromOutside tagger onError =
-    infoForElm
-        (\outsideInfo ->
-            case outsideInfo.tag of
-                -- "ScrollOrResize" ->
-                --     case D.decodeValue screenDataDecoder outsideInfo.data of
-                --         Ok screenData ->
-                --             tagger <| ScrollOrResize screenData
-                --         Err e ->
-                --             onError e
-                _ ->
-                    onError <| "Unexpected info from the outside: "
-        )
-
-
-type alias GenericOutsideData =
-    {- COMMUNICATION IS HANDLED BY PATTERN MATCHING THE TAG FIELD AND SENDING SERIALIZED DATA -}
-    { tag : String, data : E.Value }
-
-
-port infoForOutside : GenericOutsideData -> Cmd msg
-
-
-port infoForElm : (GenericOutsideData -> msg) -> Sub msg
 
 
 
@@ -114,7 +60,7 @@ type ProjectSwitchBehavior
 
 
 type alias Model =
-    { screenData : Maybe ScreenData
+    { width : Int
     , key : Navigation.Key
     , url : Url.Url
     , navIsOpen : Bool
@@ -127,7 +73,7 @@ type alias Model =
 
 initialModel : ( Navigation.Key, Url.Url ) -> Model
 initialModel ( navigationKey, navigationUrl ) =
-    { screenData = Nothing
+    { width = 0
     , key = navigationKey
     , url = navigationUrl
     , navIsOpen = False
@@ -222,17 +168,13 @@ view model =
 body : Model -> Html Msg
 body model =
     let
-        { page, projects, navIsOpen, screenData } =
+        { page, projects, navIsOpen, width } =
             model
-
-        viewportWidth : Int
-        viewportWidth =
-            unwrap 0 .viewportWidth screenData
 
         appShell : List (Html Msg) -> Html Msg
         appShell rest =
-            div []
-                ([ navBar navIsOpen viewportWidth ] |> List.append rest)
+            div [ class "full-page" ]
+                ([ navBar navIsOpen width ] |> List.append rest)
     in
     case page of
         Routes.Home ->
@@ -389,12 +331,11 @@ contact =
 type Msg
     = NoOp
     | ToggleHamburger
-    | Outside InfoForElm
-    | LogErr String
     | SwitchProject Direction ProjectSwitchBehavior Time.Posix
     | Tick Time.Posix
     | UrlChanged Url.Url
     | LinkClicked Browser.UrlRequest
+    | Resize Int Int
 
 
 changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -422,20 +363,14 @@ changeRouteTo maybeRoute model =
             ( { model | page = Routes.NotFound }, Cmd.none )
 
 
-updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
-updateWithStorage msg model =
-    let
-        ( newModel, cmds ) =
-            update msg model
-    in
-    ( newModel, Cmd.batch [ sendInfoOutside (SaveModel newModel), cmds ] )
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
             ( model, Cmd.none )
+
+        Resize x y ->
+            ( { model | width = x }, Cmd.none )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -447,16 +382,6 @@ update msg model =
 
         UrlChanged url ->
             changeRouteTo (Routes.fromUrl url) model
-
-        Outside dataForElm ->
-            case dataForElm of
-                ScrollOrResize data ->
-                    ( { model | screenData = Just data }, Cmd.none )
-
-        -- _ ->
-        --     ( model, Cmd.none )
-        LogErr err ->
-            ( model, sendInfoOutside (LogErrorToConsole err) )
 
         ToggleHamburger ->
             ( { model | navIsOpen = not model.navIsOpen }, Cmd.none )
@@ -524,8 +449,8 @@ update msg model =
 -- Also, we have to convert the Zip List to a regular List for Javascript
 
 
-init : Maybe D.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
-init savedModel url key =
+init : D.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
+init flags url key =
     let
         maybeRoute =
             url |> Routes.fromUrl
@@ -539,35 +464,21 @@ init savedModel url key =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
+    let
+        sharedSubs =
+            [ onResize Resize ]
+    in
     if model.page == Routes.Projects then
         -- WE ONLY START THE SUBSCRIPTION TO CYCLE THROUGH PROJECTS IF WE'RE ON THE `PROJECTS` PAGE
         case model.switchProjectBehavior of
             Auto ->
                 -- FOR AUTO BEHAVIOR, WE SEND A `SWITCHPROJECT` MSG TO ENABLE SWITCHING TO THE NEXT PROJECT
-                Sub.batch
-                    [ getInfoFromOutside Outside LogErr, every (5 * 1000) (SwitchProject Next Auto) ]
+                Sub.batch (List.append sharedSubs [ every (5 * 1000) (SwitchProject Next Auto) ])
 
             UserControlled ->
                 -- FOR USER CONTROLLED BEHAVIOR, WE SEND A `TICK` MSG EVERY SECOND TO TRACK THE TIMEOUT
-                Sub.batch
-                    [ getInfoFromOutside Outside LogErr, every 1000 Tick ]
+                Sub.batch (List.append sharedSubs [ every 1000 Tick ])
 
     else
         Sub.batch
-            [ getInfoFromOutside Outside LogErr ]
-
-
-
-{- MAIN PROGRAM -}
-
-
-main : Program (Maybe D.Value) Model Msg
-main =
-    Browser.application
-        { init = init
-        , view = view
-        , update = updateWithStorage
-        , subscriptions = subscriptions
-        , onUrlChange = UrlChanged
-        , onUrlRequest = LinkClicked
-        }
+            sharedSubs
