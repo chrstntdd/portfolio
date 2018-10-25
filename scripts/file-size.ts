@@ -79,12 +79,15 @@ async function recursiveReadDir(dir: string): Promise<string[]> {
  * To get all static assets in the output directory, get file information,
  * and sort largest to smallest by the file's size measured in bytes.
  */
-const getStaticAssetStats = async (outDir: string): Promise<FileInfo[]> =>
-  (await Promise.all(
-    (await recursiveReadDir(outDir))
-      .filter(fileName => /\.(js|css|html)$/.test(fileName))
-      .map(async path => await getFileInfo(path))
-  )).sort((a, b) => b.sizeInBytes - a.sizeInBytes);
+const getStaticAssetStats = async (outDir: string): Promise<FileInfo[]> => {
+  const allFiles = await recursiveReadDir(outDir);
+  const staticFilesToMeasure = allFiles.filter(fileName => /\.(js|css|html)$/.test(fileName));
+  const assetInfo = await Promise.all(
+    staticFilesToMeasure.map(async path => await getFileInfo(path))
+  );
+
+  return assetInfo.sort((a, b) => b.sizeInBytes - a.sizeInBytes);
+};
 
 /**
  * @description
@@ -95,6 +98,7 @@ function formatBytes(bytes: number, decimals: number = 2): string {
   const k = 1024;
   const sizes = ['B', 'kB', 'mB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
+
   return `${parseFloat((bytes / k ** i).toFixed(decimals))} ${sizes[i]}`;
 }
 
