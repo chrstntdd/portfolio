@@ -15,15 +15,15 @@
     "body-parser": "^1.18.3",
     "compression": "^1.7.3",
     "express": "^4.16.4",
-    "husky": "^0.14.3",
-    "lint-staged": "^7.1.3",
+    "husky": "^1.1.2",
+    "lint-staged": "^7.3.0",
     "morgan": "^1.9.1",
-    "prettier": "1.13.5",
+    "prettier": "1.14.3",
     "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.9"
+    "webpack-dev-server": "^3.1.10"
   },
   "dependencies": {
-    "autoprefixer": "^9.2.0",
+    "autoprefixer": "^9.3.1",
     "awesome-typescript-loader": "^5.2.1",
     "bcrypt": "^3.0.2",
     "copy-webpack-plugin": "^4.5.3",
@@ -42,20 +42,18 @@
     "graphql-import": "^0.7.1",
     "graphql-tools": "^4.0.2",
     "helmet": "^3.14.0",
-    "html-minifier": "^3.5.20",
+    "html-minifier": "^3.5.21",
     "html-webpack-inline-source-plugin": "^0.0.10",
     "html-webpack-plugin": "^3.2.0",
     "interpolate-html-plugin": "^3.0.0",
     "jsonwebtoken": "^8.3.0",
     "mini-css-extract-plugin": "^0.4.4",
-    "mongoose": "^5.3.5",
-    "node-sass": "^4.7.2",
-    "normalize.css": "^7.0.0",
+    "mongoose": "^5.3.7",
+    "node-sass": "^4.9.4",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "postcss": "^7.0.5",
-    "postcss-flexbugs-fixes": "^3.3.0",
     "postcss-loader": "^3.0.0",
-    "purgecss": "^1.0.1",
+    "purgecss": "^1.1.0",
     "purgecss-webpack-plugin": "^1.3.1",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
@@ -65,29 +63,29 @@
     "typescript": "^3.1.3",
     "uglify-js": "^3.3.5",
     "url-loader": "^1.1.2",
-    "webpack": "^4.20.2",
+    "webpack": "^4.23.1",
     "webpack-stylish": "^0.1.8",
-    "workbox-build": "^3.6.2"
+    "workbox-build": "^3.6.3"
   },
   "scripts": {
-    "start": "node fuse.js front-dev",
-    "prod": "node fuse.js front-prod",
+    "start": "cross-env NODE_ENV=development ./node_modules/.bin/webpack-dev-server --quiet --color -d --config webpack.config.js",
+    "build": "cross-env NODE_ENV=production USE_SW=true ts-node -T ./scripts/build.ts",
+    "build-check": "yarn build && ts-node ./scripts/mock-server.ts",
+    "build-netlify": "cross-env NODE_ENV=production NETLIFY=true ts-node -T ./scripts/build.ts",
     "debug-sw": "node fuse.js front-debug-sw",
-    "precommit": "lint-staged",
-    "webpack-dev": "cross-env NODE_ENV=development ./node_modules/.bin/webpack-dev-server --quiet --color -d --config webpack.config.js",
-    "webpack": "cross-env NODE_ENV=production ./node_modules/.bin/webpack --display none -p --config webpack.config.js",
-    "build": "cross-env NODE_ENV=production ts-node -T ./scripts/build.ts",
-    "prod-build": "cross-env NODE_ENV=production USE_SW=true ts-node -T ./scripts/build.ts",
-    "netlify-build": "cross-env NODE_ENV=production NETLIFY=true ts-node -T ./scripts/build.ts",
-    "check-build": "yarn build && ts-node ./scripts/mock-server.ts",
     "s:prod": "cross-env NODE_ENV=production node fuse.js server-dev",
     "s:dev": "cross-env NODE_ENV=development node fuse.js server-dev",
     "pre:gql": "yarn s:prod && cross-env NODE_ENV=production yarn node ./build/server/index.js",
-    "gql": "./node_modules/.bin/elm-graphql http://localhost:3000/graphql --base RemoteData"
+    "gql": "./node_modules/.bin/elm-graphql http://localhost:3000/graphql --base GqlApi"
   },
   "browserslist": [
     ">= 2%"
   ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "lint-staged": {
     "**/*.elm": [
       "./node_modules/.bin/elm-format --yes",

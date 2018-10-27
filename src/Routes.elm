@@ -18,6 +18,7 @@ type Route
     | ActiveProject String
     | Contact
     | NotFound
+    | Entrance
 
 
 routeParser : Parser (Route -> a) a
@@ -28,6 +29,7 @@ routeParser =
         , map Projects (s "projects")
         , map ActiveProject (s "projects" </> string)
         , map Contact (s "contact")
+        , map Entrance (s "entrance")
         ]
 
 
@@ -54,6 +56,9 @@ routeToString routeType jwt =
 
                 NotFound ->
                     [ "404" ]
+
+                Entrance ->
+                    [ "entrance" ]
     in
     "/" ++ String.join "/" pieces
 

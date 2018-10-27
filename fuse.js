@@ -18,7 +18,6 @@ const tailwindcss = require('tailwindcss');
 const Purgecss = require('purgecss');
 
 const POSTCSS_PLUGINS = [
-  require('postcss-flexbugs-fixes'),
   tailwindcss(join(__dirname, '/node_modules/tailwindcss/defaultConfig.js')),
   autoprefixer({
     browsers: ['>0.25%', 'Explorer 11'],

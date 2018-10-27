@@ -195,6 +195,9 @@ body model =
         Routes.NotFound ->
             appShell [ contact ]
 
+        Routes.Entrance ->
+            appShell [ entrance ]
+
 
 navBar : Bool -> Int -> Html Msg
 navBar navIsOpen viewportWidth =
@@ -324,6 +327,15 @@ contact =
         ]
 
 
+entrance : Html Msg
+entrance =
+    main_ []
+        [ div []
+            [ p [] [ Html.text "the entrance" ]
+            ]
+        ]
+
+
 
 {- UPDATE -}
 
@@ -356,10 +368,13 @@ changeRouteTo maybeRoute model =
         Just Routes.Contact ->
             ( { model | page = Routes.Contact }, Cmd.none )
 
-        Nothing ->
+        Just Routes.Entrance ->
+            ( { model | page = Routes.Entrance }, Cmd.none )
+
+        Just Routes.NotFound ->
             ( { model | page = Routes.NotFound }, Cmd.none )
 
-        _ ->
+        Nothing ->
             ( { model | page = Routes.NotFound }, Cmd.none )
 
 
