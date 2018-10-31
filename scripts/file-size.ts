@@ -7,18 +7,6 @@ const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 const exec = promisify(require('child_process').exec);
 
-const searchString = (string, pattern) => {
-  let result = [];
-
-  const matches = string.match(new RegExp(pattern.source, pattern.flags));
-
-  for (let i = 0; i < matches.length; i++) {
-    result.push(new RegExp(pattern.source, pattern.flags).exec(matches[i]));
-  }
-
-  return result;
-};
-
 const Print = {
   heading: str => chalk.underline.bold(str),
 
@@ -102,9 +90,9 @@ function formatBytes(bytes: number, decimals: number = 2): string {
   return `${parseFloat((bytes / k ** i).toFixed(decimals))} ${sizes[i]}`;
 }
 
-const calcFileSize = sizeInBytes => formatBytes(Math.abs(sizeInBytes), 2);
+const calcFileSize = (sizeInBytes: number) => formatBytes(Math.abs(sizeInBytes), 2);
 
-const getGzipSize = async pathToFile =>
+const getGzipSize = async (pathToFile: string) =>
   Number((await exec(`gzip -c ${pathToFile} | wc -c`)).stdout);
 
 interface FileInfo {
