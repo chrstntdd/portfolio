@@ -81,6 +81,9 @@
   @apply .h-full .border-0 .absolute .bg-transparent .pin-t .flex .items-center .justify-center .trans-300ms-all;
 }
 
+.flex-col-down {
+  @apply .flex .flex-col .items-center .justify-center;
+}
 /* UTIL CLASSES */
 
 .full-page {
@@ -88,7 +91,6 @@
   width: 100vw;
 }
 
-// * { border:1px dashed red !important; }
 .overflow-x-hide {
   overflow-x: hidden !important;
 }
@@ -434,5 +436,51 @@ input:focus {
   img {
     max-width: 98vw;
     box-shadow: rgba(0, 0, 0, 0.55) 0px 20px 43px;
+  }
+}
+
+$LABEL_COLOR: hsla(195%, 55%, 46%, 1);
+
+.form-container {
+  width: between(300px, 560px, $bp-xxsmall, $bp-xxlarge);
+
+  .input-container {
+    text-align: center;
+    position: relative;
+    padding-top: 20px;
+    margin-bottom: 1.2rem;
+    min-width: 300px;
+
+    input {
+      border: none;
+      border-bottom: solid 1px #aaa;
+      width: 100%;
+      padding: 10px 0;
+      background-color: transparent;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:focus {
+        border-color: $LABEL-COLOR;
+      }
+
+      &:focus + label {
+        color: $LABEL-COLOR;
+      }
+
+      &:focus + label,
+      &.has-content + label {
+        transform: translateY(-30px);
+      }
+    }
+    label {
+      position: absolute;
+      top: 30px;
+      left: 0;
+      transition: transform 0.2s ease, color 0.2s ease;
+
+      &:hover {
+        cursor: text;
+      }
+    }
   }
 }

@@ -4,9 +4,9 @@ import Browser
 import Browser.Events exposing (onResize)
 import Browser.Navigation as Navigation
 import Data.Project exposing (Project, viewProject)
-import Html exposing (Attribute, Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, section, span, text, ul)
+import Html exposing (Attribute, Html, a, button, div, form, h1, h3, h4, header, i, img, input, label, legend, li, main_, nav, p, section, span, text, ul)
 import Html.Attributes exposing (alt, attribute, class, for, href, id, placeholder, src, type_)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as D exposing (..)
 import Json.Decode.Pipeline exposing (required)
 import Json.Encode as E exposing (..)
@@ -14,6 +14,15 @@ import Routes exposing (Route)
 import SelectList as Zip exposing (SelectList, fromLists, select, selected, toList)
 import Time exposing (every)
 import Url
+
+
+updateForm : (Form -> Form) -> Model -> ( Model, Cmd Msg )
+updateForm transform model =
+    ( { model | form = transform model.form }, Cmd.none )
+
+
+type alias Form =
+    { username : String, password : String }
 
 
 
@@ -61,6 +70,7 @@ type ProjectSwitchBehavior
 
 type alias Model =
     { width : Int
+    , form : Form
     , key : Navigation.Key
     , url : Url.Url
     , navIsOpen : Bool
@@ -74,6 +84,10 @@ type alias Model =
 initialModel : ( Navigation.Key, Url.Url ) -> Model
 initialModel ( navigationKey, navigationUrl ) =
     { width = 0
+    , form =
+        { username = ""
+        , password = ""
+        }
     , key = navigationKey
     , url = navigationUrl
     , navIsOpen = False
@@ -168,7 +182,7 @@ view model =
 body : Model -> Html Msg
 body model =
     let
-        { page, projects, navIsOpen, width } =
+        { page, projects, navIsOpen, width, form } =
             model
 
         appShell : List (Html Msg) -> Html Msg
@@ -196,7 +210,7 @@ body model =
             appShell [ contact ]
 
         Routes.Entrance ->
-            appShell [ entrance ]
+            appShell [ entrance form ]
 
 
 navBar : Bool -> Int -> Html Msg
@@ -327,11 +341,49 @@ contact =
         ]
 
 
-entrance : Html Msg
-entrance =
+entrance : Form -> Html Msg
+entrance formState =
+    let
+        usernameHasContent =
+            not (String.isEmpty formState.username)
+
+        passwordHasContent =
+            not (String.isEmpty formState.password)
+
+        usernameClass =
+            if usernameHasContent then
+                "has-content"
+
+            else
+                ""
+
+        passwordClass =
+            if passwordHasContent then
+                "has-content"
+
+            else
+                ""
+    in
     main_ []
-        [ div []
-            [ p [] [ Html.text "the entrance" ]
+        [ div [ class "h-screen w-screen bg-blue" ]
+            [ div [ class "h-50 w-50 p-2 shadow-md rounded kinda-center bg-white form-container flex-col-down" ]
+                [ form [ onSubmit SignIn ]
+                    [ legend [ class "text-xl my-2" ] [ Html.text "welcome" ]
+                    , div [ class "input-container" ]
+                        [ input [ id "username", type_ "text", onInput EnteredUsername, class usernameClass ] []
+                        , label [ for "username" ]
+                            [ Html.text "username"
+                            ]
+                        ]
+                    , div [ class "input-container" ]
+                        [ input [ id "password", type_ "password", onInput EnteredPassword, class passwordClass ] []
+                        , label [ for "password" ]
+                            [ Html.text "password"
+                            ]
+                        ]
+                    , button [ class "text-sm font-semibold rounded my-4 px-4 py-1 leading-normal bg-white border border-blue text-blue hover:bg-blue hover:text-white trans-300ms-all", type_ "submit" ] [ Html.text "enter" ]
+                    ]
+                ]
             ]
         ]
 
@@ -348,6 +400,9 @@ type Msg
     | UrlChanged Url.Url
     | LinkClicked Browser.UrlRequest
     | Resize Int Int
+    | EnteredUsername String
+    | EnteredPassword String
+    | SignIn
 
 
 changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -382,6 +437,15 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
+            ( model, Cmd.none )
+
+        EnteredPassword password ->
+            updateForm (\form -> { form | password = password }) model
+
+        EnteredUsername username ->
+            updateForm (\form -> { form | username = username }) model
+
+        SignIn ->
             ( model, Cmd.none )
 
         Resize x y ->
