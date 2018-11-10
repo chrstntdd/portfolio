@@ -5,6 +5,11 @@
 
   command = "yarn build-netlify"
 
+[build.environment]
+  USE_SW = true
+  NODE_ENV = "production"
+  YARN_VERSION = "1.12.3"
+
 # The following redirect is intended for use with most SPAs that handle
 # routing internally.
 [[redirects]]
