@@ -1,8 +1,4 @@
-[[Settings]]
-
-ID = "8882f154-976d-4880-899b-4c233f7ce0dc"
-
-[[build]]
+[build]
   base = "portfolio/"
 
   publish = "portfolio/build/client"
@@ -11,7 +7,7 @@ ID = "8882f154-976d-4880-899b-4c233f7ce0dc"
 
 # The following redirect is intended for use with most SPAs that handle
 # routing internally.
-[[redirects]]
+[redirects]
   from = "/*"
   to = "/index.html"
   status = 200
