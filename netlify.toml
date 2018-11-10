@@ -1,7 +1,7 @@
 [build]
-  base = "portfolio/"
+  base = "/"
 
-  publish = "portfolio/build/client"
+  publish = "/build/client"
 
   command = "yarn build-netlify"
 
