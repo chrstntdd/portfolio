@@ -22,6 +22,14 @@ function build() {
   });
 }
 
+async function copyNetlifyConfig() {
+  try {
+    fs.copy(path.join(__dirname, '../netlify.toml'), `${paths.build}/netlify.toml`);
+  } catch (error) {
+    console.error('Netlify config not found');
+  }
+}
+
 async function generateServiceWorker() {
   try {
     const stats = await workbox.injectManifest({
@@ -59,12 +67,15 @@ async function removeInlinedFiles() {
     if (process.env.NETLIFY) {
       await build();
 
+      await copyNetlifyConfig();
+
       await removeInlinedFiles();
 
       await generateServiceWorker();
     } else {
-      const prevFileSizes = await getOriginalFileSizes(paths.build);
+      let prevFileSizes;
       if (fs.existsSync(paths.build)) {
+        prevFileSizes = await getOriginalFileSizes(paths.build);
         fs.emptyDirSync(paths.build);
       }
 
@@ -72,7 +83,9 @@ async function removeInlinedFiles() {
 
       await removeInlinedFiles();
 
-      printFinalFileSizes(prevFileSizes, paths.build);
+      if (prevFileSizes) {
+        printFinalFileSizes(prevFileSizes, paths.build);
+      }
 
       USE_SERVICE_WORKER && (await generateServiceWorker());
     }

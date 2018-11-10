@@ -1,0 +1,13 @@
+[[build]]
+  base = "portfolio/"
+
+  publish = "portfolio/build/client"
+
+  command = "yarn netlify-build"
+
+# The following redirect is intended for use with most SPAs that handle
+# routing internally.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
