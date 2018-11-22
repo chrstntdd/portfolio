@@ -113,17 +113,11 @@ type Query {
 }
 
 type Mutation {
-  signUp(email: String!, username: String!, password: String!): Auth
+  signUp(username: String!, password: String!): Auth
 
   signIn(username: String!, password: String!): Auth
 
-  updateUser(
-    userId: ID!
-    username: String
-    email: String
-    firstName: String
-    lastName: String
-  ): User!
+  updateUser(userId: ID!): User!
 
   deleteUser(userId: ID!): User!
 
