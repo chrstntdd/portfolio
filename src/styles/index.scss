@@ -133,12 +133,42 @@ input:focus {
 }
 
 #hero-img {
-  background-color: linear-gradient(90deg, #070d0b 0%, #090e0e 25%, #0d1513 50%, #0a140f 75%);
   background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-    url('/images/hero-bg.jpg');
+    url('/images/hero-mobile.jpg');
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
+
+  @media (min-width: $bp-small) {
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+      url('/images/hero/hero-tablet.jpg');
+  }
+  @media (min-width: $bp-large) {
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+      url('/images/hero/hero-desktop.jpg');
+  }
+  @media (min-width: $bp-xlarge) {
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+      url('/images/hero/hero-full.jpg');
+  }
+
+  &.webP {
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+      url('/images/hero/hero-mobile.webp');
+
+    @media (min-width: $bp-small) {
+      background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+        url('/images/hero/hero-tablet.webp');
+    }
+    @media (min-width: $bp-large) {
+      background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+        url('/images/hero/hero-desktop.webp');
+    }
+    @media (min-width: $bp-xlarge) {
+      background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
+        url('/images/hero/hero-full.webp');
+    }
+  }
 }
 
 #hero-text {

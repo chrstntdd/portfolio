@@ -29,7 +29,7 @@ type alias Form =
 {- MAIN PROGRAM -}
 
 
-main : Program D.Value Model Msg
+main : Program Bool Model Msg
 main =
     Browser.application
         { init = init
@@ -70,6 +70,7 @@ type ProjectSwitchBehavior
 
 type alias Model =
     { width : Int
+    , canUseWebP : Bool
     , form : Form
     , key : Navigation.Key
     , url : Url.Url
@@ -84,6 +85,7 @@ type alias Model =
 initialModel : ( Navigation.Key, Url.Url ) -> Model
 initialModel ( navigationKey, navigationUrl ) =
     { width = 0
+    , canUseWebP = False
     , form =
         { username = ""
         , password = ""
@@ -182,7 +184,7 @@ view model =
 body : Model -> Html Msg
 body model =
     let
-        { page, projects, navIsOpen, width, form } =
+        { page, projects, navIsOpen, width, form, canUseWebP } =
             model
 
         appShell : List (Html Msg) -> Html Msg
@@ -192,7 +194,7 @@ body model =
     in
     case page of
         Routes.Home ->
-            appShell [ aboveTheFold ]
+            appShell [ aboveTheFold canUseWebP ]
 
         Routes.About ->
             appShell [ about ]
@@ -271,11 +273,19 @@ hamburgerMenu navIsOpen =
         ]
 
 
-aboveTheFold : Html Msg
-aboveTheFold =
+aboveTheFold : Bool -> Html Msg
+aboveTheFold canUseWebP =
+    let
+        bgImageClass =
+            if canUseWebP then
+                "webP"
+
+            else
+                ""
+    in
     header [ class "h-screen w-screen flex flex-col items-center justify-center" ]
-        [ div [ id "hero-img", class "absolute bg-cover bg-center bg-no-repeat pin" ] []
-        , div [ id "hero-text", class "z-10 kinda-center" ]
+        [ div [ id "hero-img", class ("absolute bg-cover bg-center bg-no-repeat pin " ++ bgImageClass) ] []
+        , div [ id "hero-text", class "kinda-center" ]
             [ h1 [ class "text-white font-thin text-center leading-none whitespace-no-wrap massive-text tracking-wide" ] [ text "Christian Todd" ]
             , h3 [ class "text-white font-thin text-center italic" ] [ text "Web Developer" ]
             ]
@@ -528,13 +538,19 @@ update msg model =
 -- Also, we have to convert the Zip List to a regular List for Javascript
 
 
-init : D.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
+init : Bool -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
         maybeRoute =
             url |> Routes.fromUrl
+
+        doesSupportWebP =
+            flags
+
+        partialModel =
+            initialModel ( key, url )
     in
-    changeRouteTo maybeRoute (initialModel ( key, url ))
+    changeRouteTo maybeRoute { partialModel | canUseWebP = doesSupportWebP }
 
 
 

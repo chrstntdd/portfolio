@@ -1,4 +1,5 @@
-import '@/styles/index.scss';
-import { Elm } from '@/Main.elm';
+import '@/styles/index.scss'
+import { Elm } from '@/Main.elm'
 
-Elm.Main.init(document.getElementById('😎'));
+//@ts-ignore
+Elm.Main.init({ node: document.getElementById('😎'), flags: window.CAN_USE_WEBP })
