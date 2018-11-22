@@ -1,25 +1,25 @@
-const path = require('path');
-const glob = require('glob');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const PurgecssPlugin = require('purgecss-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const InterpolateHtmlPlugin = require('interpolate-html-plugin');
-const InlineSourcePlugin = require('html-webpack-inline-source-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const Stylish = require('webpack-stylish');
-const paths = require('./scripts/paths');
+const path = require('path')
+const glob = require('glob')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const PurgecssPlugin = require('purgecss-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
+const InterpolateHtmlPlugin = require('interpolate-html-plugin')
+const InlineSourcePlugin = require('html-webpack-inline-source-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const Stylish = require('webpack-stylish')
+const { build, src } = require('./scripts/paths')
 
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-const USE_SERVICE_WORKER = process.env.USE_SW;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+const USE_SERVICE_WORKER = process.env.USE_SW
 
-module.exports = {
+export default {
   mode: IS_PRODUCTION ? 'production' : 'development',
   entry: path.resolve(__dirname, 'src/index.ts'),
   output: {
     publicPath: '/',
-    path: paths.build,
+    path: build,
     filename: 'main.[chunkhash:8].js',
     devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     devtoolFallbackModuleFilenameTemplate: '[absolute-resource-path]?[hash]'
@@ -27,7 +27,7 @@ module.exports = {
 
   devServer: {
     compress: true,
-    contentBase: paths.build,
+    contentBase: build,
     historyApiFallback: true,
     useLocalIp: true,
     host: '0.0.0.0',
@@ -130,13 +130,13 @@ module.exports = {
     rules: [
       {
         test: /\.(ts|tsx)?$/,
-        include: paths.src,
+        include: src,
         use: [{ loader: require.resolve('awesome-typescript-loader'), options: { silent: true } }]
       },
 
       {
         test: /\.elm$/,
-        include: paths.src,
+        include: src,
         use: [
           {
             loader: require.resolve('elm-webpack-loader'),
@@ -213,7 +213,7 @@ module.exports = {
               {
                 extractor: class TailwindExtractor {
                   static extract(content) {
-                    return content.match(/[A-z0-9-:\/]+/g);
+                    return content.match(/[A-z0-9-:\/]+/g)
                   }
                 },
                 extensions: ['html', 'elm']
@@ -243,4 +243,4 @@ module.exports = {
     child_process: 'empty'
   },
   performance: false
-};
+}

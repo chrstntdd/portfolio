@@ -62,12 +62,12 @@
     "ts-node": "^7.0.1",
     "typescript": "^3.1.6",
     "url-loader": "^1.1.2",
-    "webpack": "^4.25.1",
+    "webpack": "^4.26.0",
     "webpack-stylish": "^0.1.8",
     "workbox-build": "^3.6.3"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=development ./node_modules/.bin/webpack-dev-server --quiet --color -d --config webpack.config.js",
+    "start": "cross-env NODE_ENV=development ./node_modules/.bin/webpack-dev-server --quiet --color -d --config webpack.config.ts",
     "build": "cross-env NODE_ENV=production USE_SW=true ts-node -T ./scripts/build.ts",
     "build-check": "yarn build && ts-node ./scripts/mock-server.ts",
     "build-netlify": "cross-env NODE_ENV=production NETLIFY=true ts-node -T ./scripts/build.ts",
@@ -77,9 +77,6 @@
     "pre:gql": "yarn s:prod && cross-env NODE_ENV=production yarn node ./build/server/index.js",
     "gql": "./node_modules/.bin/elm-graphql http://localhost:3000/graphql --base GqlApi"
   },
-  "browserslist": [
-    ">= 2%"
-  ],
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
@@ -94,9 +91,5 @@
       "./node_modules/.bin/prettier --write",
       "git add"
     ]
-  },
-  "prettier": {
-    "printWidth": 100,
-    "singleQuote": true
   }
 }
