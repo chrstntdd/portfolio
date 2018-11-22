@@ -13,7 +13,6 @@ type alias JWT =
 
 type Route
     = Home
-    | About
     | Projects
     | ActiveProject String
     | Contact
@@ -25,7 +24,6 @@ routeParser : Parser (Route -> a) a
 routeParser =
     oneOf
         [ map Home (s "")
-        , map About (s "about")
         , map Projects (s "projects")
         , map ActiveProject (s "projects" </> string)
         , map Contact (s "contact")
@@ -41,9 +39,6 @@ routeToString routeType jwt =
             case routeType of
                 Home ->
                     [ "" ]
-
-                About ->
-                    [ "about" ]
 
                 Projects ->
                     [ "projects" ]

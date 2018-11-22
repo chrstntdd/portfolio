@@ -196,9 +196,6 @@ body model =
         Routes.Home ->
             appShell [ aboveTheFold canUseWebP ]
 
-        Routes.About ->
-            appShell [ about ]
-
         Routes.Projects ->
             appShell [ projectsView projects ]
 
@@ -240,8 +237,6 @@ navBar navIsOpen viewportWidth =
         [ ul [ class "pl-0 flex justify-end flex-col md:flex-row " ]
             [ li [ liClass ]
                 [ link { url = Routes.Home, attrs = [ linkClass ], label = "Home" } ]
-            , li [ liClass ]
-                [ link { url = Routes.About, attrs = [ linkClass ], label = "About" } ]
             , li [ liClass ]
                 [ link { url = Routes.Projects, attrs = [ linkClass ], label = "Projects" } ]
             , li [ liClass ]
@@ -292,19 +287,6 @@ aboveTheFold canUseWebP =
         ]
 
 
-about : Html Msg
-about =
-    main_ []
-        [ section [ id "about" ]
-            [ div [ id "about-container" ]
-                [ h1 [] [ text "About me" ]
-                , img [ src "/images/portrait.jpg", alt "2017 Portrait of myself" ] []
-                , p [] [ text "Hi, my name is Christian. I was first introduced to programming as a college student studying mechanical engineering.\n          I was initially fascinated by how vast the world of code is and everything there is to learn. I remain interested\n          by how there are countless ways to express a solution to a problem and the opportunities for constant iteration\n          upon what already exists. When I'm not busy programming, you can usually find me outside exploring the North End\n          beaches in my hometown of Virginia Beach. I also enjoy listening to my growing vinyl collection and sipping on\n          locally roasted coffee." ]
-                ]
-            ]
-        ]
-
-
 projectsView : SelectList Project -> Html Msg
 projectsView projects =
     section [ id "projects" ]
@@ -342,11 +324,11 @@ contact =
         , p [ class (pClass ++ " font-semibold hover:text-grey trans-300ms-all") ] [ text "christian.todd7@gmail.com" ]
         , ul [ class "pl-0 flex flex-col justify-center items-center" ]
             [ li [ class listClass ]
+                [ a [ href "https://twitter.com/_chrstntdd", class anchorClass ] [ img [ src "/images/icons/twitter.svg", alt "twitter bird icon", class imgClass ] [] ] ]
+            , li [ class listClass ]
                 [ a [ href "https://github.com/chrstntdd", class anchorClass ] [ img [ src "/images/icons/github.svg", alt "Github mark icon", class imgClass ] [] ] ]
             , li [ class listClass ]
                 [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/", class anchorClass ] [ img [ src "/images/icons/linkedin.svg", alt "LinkedIn text icon", class imgClass ] [] ] ]
-            , li [ class listClass ]
-                [ a [ href "https://twitter.com/_chrstntdd", class anchorClass ] [ img [ src "/images/icons/twitter.svg", alt "twitter bird icon", class imgClass ] [] ] ]
             ]
         ]
 
@@ -420,9 +402,6 @@ changeRouteTo maybeRoute model =
     case maybeRoute of
         Just Routes.Home ->
             ( { model | page = Routes.Home }, Cmd.none )
-
-        Just Routes.About ->
-            ( { model | page = Routes.About }, Cmd.none )
 
         Just Routes.Projects ->
             ( { model | page = Routes.Projects }, Cmd.none )

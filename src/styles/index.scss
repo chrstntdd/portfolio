@@ -86,6 +86,8 @@
 }
 /* UTIL CLASSES */
 
+// * { outline: 1px solid red; }
+
 .full-page {
   height: 100vh;
   width: 100vw;
@@ -270,42 +272,6 @@ input:focus {
         transform: rotate(-90deg);
         transition: bottom 0.1s ease, transform 0.1s 0.14s cubic-bezier(0.215, 0.61, 0.355, 1);
       }
-    }
-  }
-}
-
-#about {
-  min-height: 100vh;
-  width: 100vw;
-  background: $GRADIENT1;
-  color: $OFF_WHITE2;
-  padding: 5%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  #about-container {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    img {
-      height: 20rem;
-      width: 20rem;
-      border-radius: 50%;
-      margin-bottom: 2rem;
-    }
-    p {
-      line-height: 1.95;
-      font-size: 18px;
-      @media (min-width: $bp-xxsmall) {
-        width: between(310px, 960px, $bp-xxsmall, $bp-large);
-      }
-    }
-    h1 {
-      text-align: center;
-      text-transform: uppercase;
-      font-weight: 200;
-      font-size: 2.2rem;
-      color: darken($OFF_WHITE, 10%);
     }
   }
 }
