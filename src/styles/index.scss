@@ -89,8 +89,8 @@
 // * { outline: 1px solid red; }
 
 .full-page {
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
+  max-width: 100%;
 }
 
 .overflow-x-hide {
@@ -114,17 +114,6 @@
   left: 50%;
   top: 40%;
   transform: translate(-50%, -50%);
-}
-
-/* NO OUTLINE RESET */
-
-textarea:focus,
-input:focus {
-  outline: none !important;
-}
-
-*:focus {
-  outline: none !important;
 }
 
 .massive-text {
@@ -430,8 +419,11 @@ input:focus {
 
 .proj-thumbnails {
   img {
-    max-width: 98vw;
+    max-width: 90vw;
     box-shadow: rgba(0, 0, 0, 0.55) 0px 20px 43px;
+    @media (min-width: $bp-small) {
+      max-width: 95vw;
+    }
   }
 }
 
