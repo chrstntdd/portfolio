@@ -518,13 +518,10 @@ update msg model =
 
 
 init : Bool -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
-init flags url key =
+init doesSupportWebP url key =
     let
         maybeRoute =
             url |> Routes.fromUrl
-
-        doesSupportWebP =
-            flags
 
         partialModel =
             initialModel ( key, url )

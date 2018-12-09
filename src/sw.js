@@ -6,7 +6,7 @@ if (workbox) {
   workbox.routing.registerNavigationRoute('/index.html')
 
   workbox.routing.registerRoute(
-    /\.(?:png|gif|jpg|jpeg|svg)$/,
+    /\.(?:png|gif|jpg|jpeg|svg|webp)$/,
     workbox.strategies.cacheFirst({
       cacheName: 'images',
       plugins: [
