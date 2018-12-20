@@ -1,8 +1,3 @@
-# Personal
-A mostly static site with some selected work on display. No jQuery 😏
+# Portfolio
 
-### Technology
-+ Typescript
-+ HTML 5
-+ Sass
-+ FuseBox
+Source code for https://chrstntdd.com
