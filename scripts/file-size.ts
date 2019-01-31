@@ -1,23 +1,11 @@
-import fs from 'fs';
-import path from 'path';
-import chalk from 'chalk';
-import { promisify } from 'util';
+import fs from 'fs'
+import path from 'path'
+import chalk from 'chalk'
+import { promisify } from 'util'
 
-const readdir = promisify(fs.readdir);
-const stat = promisify(fs.stat);
-const exec = promisify(require('child_process').exec);
-
-const searchString = (string, pattern) => {
-  let result = [];
-
-  const matches = string.match(new RegExp(pattern.source, pattern.flags));
-
-  for (let i = 0; i < matches.length; i++) {
-    result.push(new RegExp(pattern.source, pattern.flags).exec(matches[i]));
-  }
-
-  return result;
-};
+const readdir = promisify(fs.readdir)
+const stat = promisify(fs.stat)
+const exec = promisify(require('child_process').exec)
 
 const Print = {
   heading: str => chalk.underline.bold(str),
@@ -31,9 +19,9 @@ const Print = {
     const percentChangeLabel = this.colorSizeLabel(
       `${percentChange.toFixed(2).toString()}%`,
       percentChange.toFixed(2)
-    );
+    )
 
-    const fileNameLabel = fileName.split('build')[1].substr(1);
+    const fileNameLabel = fileName.split('build')[1].substr(1)
 
     console.info(
       // @ts-ignore
@@ -43,7 +31,7 @@ const Print = {
       // @ts-ignore
       calcFileSize(diff).padEnd(8),
       `(${percentChangeLabel.padEnd(10)})`
-    );
+    )
   },
   /**
    * @description
@@ -56,22 +44,23 @@ const Print = {
    */
   colorSizeLabel: (label: string, size: number): string =>
     size > 0 ? chalk.yellow(label) : size < 0 ? chalk.green(label) : chalk.dim(label)
-};
+}
 
 /**
  * @description
  * Recursively search through a directory for all files
  */
 async function recursiveReadDir(dir: string): Promise<string[]> {
-  const subDirectories = await readdir(dir);
+  const subDirectories = await readdir(dir)
   const files = await Promise.all(
     subDirectories.map(async subdir => {
-      const res = path.resolve(dir, subdir);
-      return (await stat(res)).isDirectory() ? recursiveReadDir(res) : res;
+      const res = path.resolve(dir, subdir)
+
+      return (await stat(res)).isDirectory() ? recursiveReadDir(res) : res
     })
-  );
+  )
   // @ts-ignore
-  return files.reduce((a, f) => a.concat(f), []);
+  return files.reduce((a, f) => a.concat(f), [])
 }
 
 /**
@@ -80,49 +69,49 @@ async function recursiveReadDir(dir: string): Promise<string[]> {
  * and sort largest to smallest by the file's size measured in bytes.
  */
 const getStaticAssetStats = async (outDir: string): Promise<FileInfo[]> => {
-  const allFiles = await recursiveReadDir(outDir);
-  const staticFilesToMeasure = allFiles.filter(fileName => /\.(js|css|html)$/.test(fileName));
+  const allFiles = await recursiveReadDir(outDir)
+  const staticFilesToMeasure = allFiles.filter(fileName => /\.(js|css|html)$/.test(fileName))
   const assetInfo = await Promise.all(
     staticFilesToMeasure.map(async path => await getFileInfo(path))
-  );
+  )
 
-  return assetInfo.sort((a, b) => b.sizeInBytes - a.sizeInBytes);
-};
+  return assetInfo.sort((a, b) => b.sizeInBytes - a.sizeInBytes)
+}
 
 /**
  * @description
  * Format bytes to appropriate label
  */
 function formatBytes(bytes: number, decimals: number = 2): string {
-  if (bytes <= 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'kB', 'mB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  if (bytes <= 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'kB', 'mB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-  return `${parseFloat((bytes / k ** i).toFixed(decimals))} ${sizes[i]}`;
+  return `${parseFloat((bytes / k ** i).toFixed(decimals))} ${sizes[i]}`
 }
 
-const calcFileSize = sizeInBytes => formatBytes(Math.abs(sizeInBytes), 2);
+const calcFileSize = (sizeInBytes: number) => formatBytes(Math.abs(sizeInBytes), 2)
 
-const getGzipSize = async pathToFile =>
-  Number((await exec(`gzip -c ${pathToFile} | wc -c`)).stdout);
+const getGzipSize = async (pathToFile: string) =>
+  Number((await exec(`gzip -c ${pathToFile} | wc -c`)).stdout)
 
 interface FileInfo {
-  filePath: string;
-  gzipSizeInBytes: number;
-  sizeInBytes: number;
-  fileName: string;
-  id: string;
-  extension: string;
+  filePath: string
+  gzipSizeInBytes: number
+  sizeInBytes: number
+  fileName: string
+  id: string
+  extension: string
 }
 
 const getFileInfo = async (filePath: string): Promise<FileInfo> => {
   try {
-    const fileName = /([^\/]+$)/.exec(filePath)[0];
-    const id = /.+?(?=\.)/.exec(fileName)[0];
-    const extension = fileName.split('.').reverse()[0];
-    const gzipSizeInBytes = await getGzipSize(filePath);
-    const sizeInBytes = (await stat(filePath)).size;
+    const fileName = /([^\/]+$)/.exec(filePath)[0]
+    const id = /.+?(?=\.)/.exec(fileName)[0]
+    const extension = fileName.split('.').reverse()[0]
+    const gzipSizeInBytes = await getGzipSize(filePath)
+    const sizeInBytes = (await stat(filePath)).size
 
     return {
       filePath,
@@ -131,38 +120,38 @@ const getFileInfo = async (filePath: string): Promise<FileInfo> => {
       fileName,
       id,
       extension
-    };
+    }
   } catch (error) {
-    console.error(error);
+    console.error(error)
   }
-};
+}
 
 /**
  * @description
  * Measures the file sizes of js and css files for comparison later
  */
 const getOriginalFileSizes = async (outDir: string) => {
-  return await getStaticAssetStats(outDir);
-};
+  return await getStaticAssetStats(outDir)
+}
 
 const measureFileSizeDifference = (prevSizeInBytes, currentSizeInBytes) => {
-  const diff = currentSizeInBytes - prevSizeInBytes;
-  const avg = (currentSizeInBytes + prevSizeInBytes) / 2;
-  const percentDiff = (diff / avg) * 100;
+  const diff = currentSizeInBytes - prevSizeInBytes
+  const avg = (currentSizeInBytes + prevSizeInBytes) / 2
+  const percentDiff = (diff / avg) * 100
 
-  return { percentDiff, diff };
-};
+  return { percentDiff, diff }
+}
 
 const printFinalFileSizes = async (originalFileSizesArr, outDir) => {
-  let originalTotalSize = 0;
-  let currentTotalSize = 0;
+  let originalTotalSize = 0
+  let currentTotalSize = 0
 
   console.info(
     // @ts-ignore
     Print.heading(`${'Name'.padEnd(21)} ${'Gzip size'.padEnd(12)} ${'Delta'.padEnd(16)}`)
-  );
+  )
 
-  const currentStatsCollection = await getStaticAssetStats(outDir);
+  const currentStatsCollection = await getStaticAssetStats(outDir)
 
   currentStatsCollection.forEach(function printAllStat({
     gzipSizeInBytes: currentGzipSizeInBytes,
@@ -170,33 +159,33 @@ const printFinalFileSizes = async (originalFileSizesArr, outDir) => {
     id,
     fileName
   } = {}) {
-    const maybeMatch = originalFileSizesArr.find(f => f.id === id && f.extension === extension);
+    const maybeMatch = originalFileSizesArr.find(f => f.id === id && f.extension === extension)
 
     if (maybeMatch) {
-      const originalGzipSizeInBytes = maybeMatch.gzipSizeInBytes;
+      const originalGzipSizeInBytes = maybeMatch.gzipSizeInBytes
 
-      originalTotalSize += originalGzipSizeInBytes;
-      currentTotalSize += currentGzipSizeInBytes;
+      originalTotalSize += originalGzipSizeInBytes
+      currentTotalSize += currentGzipSizeInBytes
 
       const { diff, percentDiff } = measureFileSizeDifference(
         originalGzipSizeInBytes,
         currentGzipSizeInBytes
-      );
+      )
 
-      Print.singleFileInfo(fileName, calcFileSize(currentGzipSizeInBytes), diff, percentDiff);
+      Print.singleFileInfo(fileName, calcFileSize(currentGzipSizeInBytes), diff, percentDiff)
     } else {
       // A new file was added
-      currentTotalSize += currentGzipSizeInBytes;
+      currentTotalSize += currentGzipSizeInBytes
       Print.singleFileInfo(
         fileName,
         calcFileSize(currentGzipSizeInBytes),
         currentGzipSizeInBytes,
         100
-      );
+      )
     }
-  });
+  })
 
-  const { diff, percentDiff } = measureFileSizeDifference(originalTotalSize, currentTotalSize);
+  const { diff, percentDiff } = measureFileSizeDifference(originalTotalSize, currentTotalSize)
 
   console.log(
     Print.heading('\nOverall stats'),
@@ -209,13 +198,13 @@ const printFinalFileSizes = async (originalFileSizesArr, outDir) => {
     '   ',
     // @ts-ignore
     buildOverallDeltaLabel(percentDiff.toFixed(2))
-  );
-};
+  )
+}
 
 const buildOverallDeltaLabel = (percentDiff: number) => {
-  const label = `${percentDiff > 0 ? '+' : ''}${percentDiff}%`;
+  const label = `${percentDiff > 0 ? '+' : ''}${percentDiff}%`
 
-  return Print.colorSizeLabel(label, percentDiff);
-};
+  return Print.colorSizeLabel(label, percentDiff)
+}
 
-export { getOriginalFileSizes, printFinalFileSizes, recursiveReadDir, getStaticAssetStats };
+export { getOriginalFileSizes, printFinalFileSizes, recursiveReadDir, getStaticAssetStats }

@@ -1,44 +1,47 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="shortcut icon" href="/favicons/favicon.ico" />
+    <style>
+      *,
+      *::after,
+      *::before {
+        box-sizing: border-box;
+      }
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="shortcut icon" href="/favicons/favicon.ico">
-  <style>
-    *,
-    *::after,
-    *::before {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    }
+      * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
+        text-rendering: optimizeLegibility;
+      }
 
-    html * {
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+      html,
+      body {
+        font: 16px/1.8 system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+          Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+        scroll-behavior: smooth;
+        color: #444;
+        background-color: black;
+      }
+    </style>
+    <script>
+      window.CAN_USE_WEBP = (function() {
+        var e = document.createElement('canvas')
 
-    html,
-    body {
-      text-rendering: optimizeLegibility;
-      font: 16px/1.8 -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-        Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-      scroll-behavior: smooth;
-      color: #444;
-      background-color: black;
-    }
-  </style>
+        return !!(e.getContext && e.getContext('2d'))
+          ? e.toDataURL('image/webp').indexOf('data:image/webp') == 0
+          : false
+      })()
+    </script>
+    %INLINE_SW%
+  </head>
 
-  %INLINE_SW%
-
-
-</head>
-
-<body>
-  <noscript>JavaScript is required to view this website.</noscript>
-  <div id="😎"></div>
-</body>
-
-
+  <body>
+    <noscript>JavaScript is required to view this website.</noscript>
+    <div id="😎"></div>
+  </body>
 </html>

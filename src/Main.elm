@@ -4,9 +4,9 @@ import Browser
 import Browser.Events exposing (onResize)
 import Browser.Navigation as Navigation
 import Data.Project exposing (Project, viewProject)
-import Html exposing (Attribute, Html, a, button, div, h1, h3, h4, header, i, img, li, main_, nav, p, section, span, text, ul)
+import Html exposing (Attribute, Html, a, button, div, form, h1, h3, h4, header, i, img, input, label, legend, li, main_, nav, p, section, span, text, ul)
 import Html.Attributes exposing (alt, attribute, class, for, href, id, placeholder, src, type_)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as D exposing (..)
 import Json.Decode.Pipeline exposing (required)
 import Json.Encode as E exposing (..)
@@ -16,11 +16,20 @@ import Time exposing (every)
 import Url
 
 
+updateForm : (Form -> Form) -> Model -> ( Model, Cmd Msg )
+updateForm transform model =
+    ( { model | form = transform model.form }, Cmd.none )
+
+
+type alias Form =
+    { username : String, password : String }
+
+
 
 {- MAIN PROGRAM -}
 
 
-main : Program D.Value Model Msg
+main : Program Bool Model Msg
 main =
     Browser.application
         { init = init
@@ -61,6 +70,8 @@ type ProjectSwitchBehavior
 
 type alias Model =
     { width : Int
+    , canUseWebP : Bool
+    , form : Form
     , key : Navigation.Key
     , url : Url.Url
     , navIsOpen : Bool
@@ -74,6 +85,11 @@ type alias Model =
 initialModel : ( Navigation.Key, Url.Url ) -> Model
 initialModel ( navigationKey, navigationUrl ) =
     { width = 0
+    , canUseWebP = False
+    , form =
+        { username = ""
+        , password = ""
+        }
     , key = navigationKey
     , url = navigationUrl
     , navIsOpen = False
@@ -168,7 +184,7 @@ view model =
 body : Model -> Html Msg
 body model =
     let
-        { page, projects, navIsOpen, width } =
+        { page, projects, navIsOpen, width, form, canUseWebP } =
             model
 
         appShell : List (Html Msg) -> Html Msg
@@ -178,10 +194,7 @@ body model =
     in
     case page of
         Routes.Home ->
-            appShell [ aboveTheFold ]
-
-        Routes.About ->
-            appShell [ about ]
+            appShell [ aboveTheFold canUseWebP ]
 
         Routes.Projects ->
             appShell [ projectsView projects ]
@@ -194,6 +207,9 @@ body model =
 
         Routes.NotFound ->
             appShell [ contact ]
+
+        Routes.Entrance ->
+            appShell [ entrance form ]
 
 
 navBar : Bool -> Int -> Html Msg
@@ -221,8 +237,6 @@ navBar navIsOpen viewportWidth =
         [ ul [ class "pl-0 flex justify-end flex-col md:flex-row " ]
             [ li [ liClass ]
                 [ link { url = Routes.Home, attrs = [ linkClass ], label = "Home" } ]
-            , li [ liClass ]
-                [ link { url = Routes.About, attrs = [ linkClass ], label = "About" } ]
             , li [ liClass ]
                 [ link { url = Routes.Projects, attrs = [ linkClass ], label = "Projects" } ]
             , li [ liClass ]
@@ -254,26 +268,21 @@ hamburgerMenu navIsOpen =
         ]
 
 
-aboveTheFold : Html Msg
-aboveTheFold =
+aboveTheFold : Bool -> Html Msg
+aboveTheFold canUseWebP =
+    let
+        bgImageClass =
+            if canUseWebP then
+                "webP"
+
+            else
+                ""
+    in
     header [ class "h-screen w-screen flex flex-col items-center justify-center" ]
-        [ div [ id "hero-img", class "absolute bg-cover bg-center bg-no-repeat pin" ] []
-        , div [ id "hero-text", class "z-10 kinda-center" ]
+        [ div [ id "hero-img", class ("absolute bg-cover bg-center bg-no-repeat pin " ++ bgImageClass) ] []
+        , div [ id "hero-text", class "kinda-center" ]
             [ h1 [ class "text-white font-thin text-center leading-none whitespace-no-wrap massive-text tracking-wide" ] [ text "Christian Todd" ]
             , h3 [ class "text-white font-thin text-center italic" ] [ text "Web Developer" ]
-            ]
-        ]
-
-
-about : Html Msg
-about =
-    main_ []
-        [ section [ id "about" ]
-            [ div [ id "about-container" ]
-                [ h1 [] [ text "About me" ]
-                , img [ src "/images/portrait.jpg", alt "2017 Portrait of myself" ] []
-                , p [] [ text "Hi, my name is Christian. I was first introduced to programming as a college student studying mechanical engineering.\n          I was initially fascinated by how vast the world of code is and everything there is to learn. I remain interested\n          by how there are countless ways to express a solution to a problem and the opportunities for constant iteration\n          upon what already exists. When I'm not busy programming, you can usually find me outside exploring the North End\n          beaches in my hometown of Virginia Beach. I also enjoy listening to my growing vinyl collection and sipping on\n          locally roasted coffee." ]
-                ]
             ]
         ]
 
@@ -315,11 +324,58 @@ contact =
         , p [ class (pClass ++ " font-semibold hover:text-grey trans-300ms-all") ] [ text "christian.todd7@gmail.com" ]
         , ul [ class "pl-0 flex flex-col justify-center items-center" ]
             [ li [ class listClass ]
+                [ a [ href "https://twitter.com/_chrstntdd", class anchorClass ] [ img [ src "/images/icons/twitter.svg", alt "twitter bird icon", class imgClass ] [] ] ]
+            , li [ class listClass ]
                 [ a [ href "https://github.com/chrstntdd", class anchorClass ] [ img [ src "/images/icons/github.svg", alt "Github mark icon", class imgClass ] [] ] ]
             , li [ class listClass ]
                 [ a [ href "https://www.linkedin.com/in/christian-todd-b5b98513a/", class anchorClass ] [ img [ src "/images/icons/linkedin.svg", alt "LinkedIn text icon", class imgClass ] [] ] ]
-            , li [ class listClass ]
-                [ a [ href "https://twitter.com/_chrstntdd", class anchorClass ] [ img [ src "/images/icons/twitter.svg", alt "twitter bird icon", class imgClass ] [] ] ]
+            ]
+        ]
+
+
+entrance : Form -> Html Msg
+entrance formState =
+    let
+        usernameHasContent =
+            not (String.isEmpty formState.username)
+
+        passwordHasContent =
+            not (String.isEmpty formState.password)
+
+        usernameClass =
+            if usernameHasContent then
+                "has-content"
+
+            else
+                ""
+
+        passwordClass =
+            if passwordHasContent then
+                "has-content"
+
+            else
+                ""
+    in
+    main_ []
+        [ div [ class "h-screen w-screen bg-blue" ]
+            [ div [ class "h-50 w-50 p-2 shadow-md rounded kinda-center bg-white form-container flex-col-down" ]
+                [ form [ onSubmit SignIn ]
+                    [ legend [ class "text-xl my-2" ] [ Html.text "welcome" ]
+                    , div [ class "input-container" ]
+                        [ input [ id "username", type_ "text", onInput EnteredUsername, class usernameClass ] []
+                        , label [ for "username" ]
+                            [ Html.text "username"
+                            ]
+                        ]
+                    , div [ class "input-container" ]
+                        [ input [ id "password", type_ "password", onInput EnteredPassword, class passwordClass ] []
+                        , label [ for "password" ]
+                            [ Html.text "password"
+                            ]
+                        ]
+                    , button [ class "text-sm font-semibold rounded my-4 px-4 py-1 leading-normal bg-white border border-blue text-blue hover:bg-blue hover:text-white trans-300ms-all", type_ "submit" ] [ Html.text "enter" ]
+                    ]
+                ]
             ]
         ]
 
@@ -336,6 +392,9 @@ type Msg
     | UrlChanged Url.Url
     | LinkClicked Browser.UrlRequest
     | Resize Int Int
+    | EnteredUsername String
+    | EnteredPassword String
+    | SignIn
 
 
 changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -343,9 +402,6 @@ changeRouteTo maybeRoute model =
     case maybeRoute of
         Just Routes.Home ->
             ( { model | page = Routes.Home }, Cmd.none )
-
-        Just Routes.About ->
-            ( { model | page = Routes.About }, Cmd.none )
 
         Just Routes.Projects ->
             ( { model | page = Routes.Projects }, Cmd.none )
@@ -356,10 +412,13 @@ changeRouteTo maybeRoute model =
         Just Routes.Contact ->
             ( { model | page = Routes.Contact }, Cmd.none )
 
-        Nothing ->
+        Just Routes.Entrance ->
+            ( { model | page = Routes.Entrance }, Cmd.none )
+
+        Just Routes.NotFound ->
             ( { model | page = Routes.NotFound }, Cmd.none )
 
-        _ ->
+        Nothing ->
             ( { model | page = Routes.NotFound }, Cmd.none )
 
 
@@ -367,6 +426,15 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
+            ( model, Cmd.none )
+
+        EnteredPassword password ->
+            updateForm (\form -> { form | password = password }) model
+
+        EnteredUsername username ->
+            updateForm (\form -> { form | username = username }) model
+
+        SignIn ->
             ( model, Cmd.none )
 
         Resize x y ->
@@ -449,13 +517,16 @@ update msg model =
 -- Also, we have to convert the Zip List to a regular List for Javascript
 
 
-init : D.Value -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
-init flags url key =
+init : Bool -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
+init doesSupportWebP url key =
     let
         maybeRoute =
             url |> Routes.fromUrl
+
+        partialModel =
+            initialModel ( key, url )
     in
-    changeRouteTo maybeRoute (initialModel ( key, url ))
+    changeRouteTo maybeRoute { partialModel | canUseWebP = doesSupportWebP }
 
 
 
