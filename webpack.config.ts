@@ -129,9 +129,9 @@ export default {
     strictExportPresence: true,
     rules: [
       {
-        test: /\.(ts|tsx)?$/,
-        include: src,
-        use: [{ loader: require.resolve('awesome-typescript-loader'), options: { silent: true } }]
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        loader: 'ts-loader'
       },
 
       {
@@ -152,9 +152,9 @@ export default {
         test: /\.(sa|sc|c)ss$/,
         use: [
           IS_PRODUCTION ? MiniCssExtractPlugin.loader : require.resolve('style-loader'),
-          { loader: require.resolve('css-loader'), options: { sourceMap: true } },
+          { loader: require.resolve('css-loader'), options: { sourceMap: IS_PRODUCTION } },
           require.resolve('postcss-loader'),
-          { loader: require.resolve('sass-loader'), options: { sourceMap: true } }
+          { loader: require.resolve('sass-loader'), options: { sourceMap: IS_PRODUCTION } }
         ]
       },
       // "url" loader works just like "file" loader but it also embeds
