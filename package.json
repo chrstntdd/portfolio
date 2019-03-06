@@ -4,10 +4,10 @@
   "main": "index.ts",
   "license": "MIT",
   "scripts": {
-    "start": "cross-env NODE_ENV=development ./node_modules/.bin/webpack-dev-server --quiet --color -d --config webpack.config.ts",
-    "build": "cross-env NODE_ENV=production USE_SW=true ts-node -T ./scripts/build.ts",
+    "start": "cross-env NODE_ENV='development' ./node_modules/.bin/webpack-dev-server --quiet --color -d --config webpack.config.ts",
+    "build": "cross-env NODE_ENV='production' USE_SW=true ts-node -T ./scripts/build.ts",
     "build-check": "yarn build && ts-node ./scripts/mock-server.ts",
-    "build-netlify": "cross-env NODE_ENV=production NETLIFY=true ts-node -T ./scripts/build.ts",
+    "build-netlify": "cross-env NODE_ENV='production' NETLIFY=true ts-node -T ./scripts/build.ts",
     "check-deps": "yarn outdated && yarn audit",
     "debug-sw": "node fuse.js front-debug-sw"
   },
