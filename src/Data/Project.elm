@@ -1,5 +1,6 @@
 module Data.Project exposing (Project, viewProject)
 
+import Array exposing (Array)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, href, src, style)
 
@@ -29,11 +30,12 @@ projectNotFound =
         [ text "Project not found" ]
 
 
-viewProject : String -> List Project -> Html msg
+viewProject : String -> Array Project -> Html msg
 viewProject projectSlug projects =
     let
+        currentProject : Maybe Project
         currentProject =
-            List.filter (\p -> p.slug == projectSlug) projects |> List.head
+            Array.get 0 (Array.filter (\p -> p.slug == projectSlug) projects)
 
         anchorClass =
             class "leading-normal no-underline mb-2"
