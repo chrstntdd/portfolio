@@ -1,5 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
+import chalk from 'chalk'
 import webpack from 'webpack'
 import workbox from 'workbox-build'
 
@@ -68,7 +69,7 @@ async function generateServiceWorker() {
   }
 }
 
-async function removeInlinedFiles() {
+function removeInlinedFiles() {
   for (const file of walkSync(build)) {
     // delete the output js file since it is already inlined into the html
     if (/\.(js|css)$/.test(file)) {
@@ -87,13 +88,20 @@ async function removeInlinedFiles() {
 
       await copyNetlifyConfig()
 
-      await removeInlinedFiles()
+      removeInlinedFiles()
 
       await generateServiceWorker()
     } else {
+      fs.removeSync(build)
+      console.log(
+        `✨ Cleaned out all them there old files from ${chalk.dim(
+          './' + path.relative(process.cwd(), build) + '/'
+        )} for ya ✨\n`
+      )
+
       await run()
 
-      await removeInlinedFiles()
+      removeInlinedFiles()
 
       USE_SERVICE_WORKER && (await generateServiceWorker())
     }

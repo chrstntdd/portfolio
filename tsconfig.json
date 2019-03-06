@@ -1,32 +1,23 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
-    "checkJs": true,
-    "declaration": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
-    "jsx": "react",
     "lib": ["dom", "esnext"],
-    "listEmittedFiles": false,
-    "listFiles": false,
     "module": "commonjs",
+    "strict": true,
     "moduleResolution": "node",
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "outDir": "dist/",
     "paths": {
-      "@/*": ["src/client/*"],
-      "packages/*": ["src/packages/*"]
+      "@/*": ["src/client/*"]
     },
-    "pretty": true,
-    "removeComments": true,
     "sourceMap": true,
     "target": "es6",
     "typeRoots": ["./node_modules/@types"]
