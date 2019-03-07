@@ -1,3 +1,5 @@
+import { Server } from 'http'
+
 import express from 'express'
 import bodyParser from 'body-parser'
 import compression from 'compression'
@@ -21,7 +23,7 @@ app.get('*', (req, res) => {
   res.sendFile(build + '/index.html')
 })
 
-let server
+let server: Server
 
 const runServer = async (port = PORT) => {
   try {

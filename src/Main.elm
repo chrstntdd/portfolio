@@ -1,7 +1,7 @@
 port module Main exposing (main)
 
+import Array exposing (Array)
 import Browser
-import Browser.Events exposing (onResize)
 import Browser.Navigation as Navigation
 import Data.Project exposing (Project, viewProject)
 import Html exposing (Attribute, Html, a, button, div, form, h1, h3, h4, header, i, img, input, label, legend, li, main_, nav, p, section, span, text, ul)
@@ -11,7 +11,6 @@ import Json.Decode as D exposing (..)
 import Json.Decode.Pipeline exposing (required)
 import Json.Encode as E exposing (..)
 import Routes exposing (Route)
-import SelectList as Zip exposing (SelectList, fromLists, select, selected, toList)
 import Time exposing (every)
 import Url
 
@@ -69,8 +68,7 @@ type ProjectSwitchBehavior
 
 
 type alias Model =
-    { width : Int
-    , canUseWebP : Bool
+    { canUseWebP : Bool
     , form : Form
     , key : Navigation.Key
     , url : Url.Url
@@ -78,14 +76,14 @@ type alias Model =
     , page : Route
     , autoSwitchProjectTimeout : Time.Posix
     , switchProjectBehavior : ProjectSwitchBehavior
-    , projects : SelectList Project
+    , activeProjectIndex : Int
+    , projects : Array Project
     }
 
 
 initialModel : ( Navigation.Key, Url.Url ) -> Model
 initialModel ( navigationKey, navigationUrl ) =
-    { width = 0
-    , canUseWebP = False
+    { canUseWebP = False
     , form =
         { username = ""
         , password = ""
@@ -96,33 +94,34 @@ initialModel ( navigationKey, navigationUrl ) =
     , page = Routes.Home
     , autoSwitchProjectTimeout = Time.millisToPosix 5000
     , switchProjectBehavior = Auto
+    , activeProjectIndex = 0
     , projects =
-        fromLists []
-            { title = "Quantified"
-            , slug = "quantified"
-            , imageData =
-                [ { src = "/images/screenshots/q1-ss-min.png", alt = "" }
-                , { src = "/images/screenshots/q2-ss-min.png", alt = "" }
-                , { src = "/images/screenshots/q3-ss-min.png", alt = "" }
-                ]
-            , bgClass = "quant-bg-gif"
-            , techStack =
-                [ "HTML5"
-                , "React / Redux"
-                , "TypeScript / JavaScript"
-                , "Jest w/ Enzyme"
-                , "SCSS / CSS"
-                , "NodeJS / Express"
-                , "MongoDB / Mongoose"
-                , "Travis CI"
-                ]
-            , repo = "https://github.com/chrstntdd/bby-react"
-            , demo = "https://quantified.netlify.com/"
-            , description =
-                "Full stack React/Redux application with separate API powered by the Best Buy API that allows users to organize product data into a table."
-            , tagline = "A streamlined system for efficiently and accurately managing retail inventory"
-            }
-            [ { title = "VinylDB"
+        Array.fromList
+            [ { title = "Quantified"
+              , slug = "quantified"
+              , imageData =
+                    [ { src = "/images/screenshots/q1-ss-min.png", alt = "" }
+                    , { src = "/images/screenshots/q2-ss-min.png", alt = "" }
+                    , { src = "/images/screenshots/q3-ss-min.png", alt = "" }
+                    ]
+              , bgClass = "quant-bg-gif"
+              , techStack =
+                    [ "HTML5"
+                    , "React / Redux"
+                    , "TypeScript / JavaScript"
+                    , "Jest w/ Enzyme"
+                    , "SCSS / CSS"
+                    , "NodeJS / Express"
+                    , "MongoDB / Mongoose"
+                    , "Travis CI"
+                    ]
+              , repo = "https://github.com/chrstntdd/bby-react"
+              , demo = "https://quantified.netlify.com/"
+              , description =
+                    "Full stack React/Redux application with separate API powered by the Best Buy API that allows users to organize product data into a table."
+              , tagline = "A streamlined system for efficiently and accurately managing retail inventory"
+              }
+            , { title = "VinylDB"
               , slug = "vinyldb"
               , imageData =
                     [ { src = "/images/screenshots/vdb-ss-1-min.png", alt = "desc" }
@@ -184,23 +183,23 @@ view model =
 body : Model -> Html Msg
 body model =
     let
-        { page, projects, navIsOpen, width, form, canUseWebP } =
+        { page, activeProjectIndex, projects, navIsOpen, form, canUseWebP } =
             model
 
         appShell : List (Html Msg) -> Html Msg
         appShell rest =
             div [ class "full-page" ]
-                ([ navBar navIsOpen width ] |> List.append rest)
+                ([ navBar navIsOpen ] |> List.append rest)
     in
     case page of
         Routes.Home ->
             appShell [ aboveTheFold canUseWebP ]
 
         Routes.Projects ->
-            appShell [ projectsView projects ]
+            appShell [ projectsView projects activeProjectIndex ]
 
         Routes.ActiveProject slug ->
-            appShell [ viewProject slug (Zip.toList projects) ]
+            appShell [ viewProject slug projects ]
 
         Routes.Contact ->
             appShell [ contact ]
@@ -212,8 +211,8 @@ body model =
             appShell [ entrance form ]
 
 
-navBar : Bool -> Int -> Html Msg
-navBar navIsOpen viewportWidth =
+navBar : Bool -> Html Msg
+navBar navIsOpen =
     let
         navClass =
             let
@@ -242,12 +241,8 @@ navBar navIsOpen viewportWidth =
             , li [ liClass ]
                 [ link { url = Routes.Contact, attrs = [ linkClass ], label = "Contact" } ]
             ]
-        , if viewportWidth > 768 then
-            {- DONT SHOW HAMBURGER ON DESKTOP -}
-            Html.text ""
-
-          else
-            hamburgerMenu navIsOpen
+        , hamburgerMenu
+            navIsOpen
         ]
 
 
@@ -287,21 +282,26 @@ aboveTheFold canUseWebP =
         ]
 
 
-projectsView : SelectList Project -> Html Msg
-projectsView projects =
-    section [ id "projects" ]
-        [ div [ class ("bg-center bg-no-repeat bg-cover bg-scroll h-screen w-screen " ++ (projects |> Zip.selected |> .bgClass)) ] []
-        , h1 [ class "leading-loose whitespace-no-wrap text-white kinda-center" ] [ projects |> Zip.selected |> .title |> text ]
-        , div [ class "view-project-container" ]
-            [ link
-                { url = projects |> Zip.selected |> .slug |> Routes.ActiveProject
-                , attrs = [ class "view-project-link" ]
-                , label = "view project"
-                }
-            ]
-        , button [ attribute "aria-label" "Next project", class "next-btn proj-btn", onClick (SwitchProject Next UserControlled (Time.millisToPosix 0)) ] [ img [ class "h-16 w-16", src "/images/icons/chevron.svg", alt "Next project" ] [] ]
-        , button [ attribute "aria-label" "Previous project", class "prev-btn proj-btn", onClick (SwitchProject Back UserControlled (Time.millisToPosix 0)) ] [ img [ class "h-16 w-16", src "/images/icons/chevron.svg", alt "Previous project" ] [] ]
-        ]
+projectsView : Array Project -> Int -> Html Msg
+projectsView projects activeProjectIndex =
+    case Array.get activeProjectIndex projects of
+        Just project ->
+            section [ id "projects" ]
+                [ div [ class ("bg-center bg-no-repeat bg-cover bg-scroll h-screen w-screen " ++ project.bgClass) ] []
+                , h1 [ class "leading-loose whitespace-no-wrap text-white kinda-center" ] [ project.title |> text ]
+                , div [ class "view-project-container" ]
+                    [ link
+                        { url = project.slug |> Routes.ActiveProject
+                        , attrs = [ class "view-project-link" ]
+                        , label = "view project"
+                        }
+                    ]
+                , button [ attribute "aria-label" "Next project", class "next-btn proj-btn", onClick (SwitchProject Next UserControlled (Time.millisToPosix 0)) ] [ img [ class "h-16 w-16", src "/images/icons/chevron.svg", alt "Next project" ] [] ]
+                , button [ attribute "aria-label" "Previous project", class "prev-btn proj-btn", onClick (SwitchProject Back UserControlled (Time.millisToPosix 0)) ] [ img [ class "h-16 w-16", src "/images/icons/chevron.svg", alt "Previous project" ] [] ]
+                ]
+
+        Nothing ->
+            div [] [ text "WeLP" ]
 
 
 contact : Html Msg
@@ -391,7 +391,6 @@ type Msg
     | Tick Time.Posix
     | UrlChanged Url.Url
     | LinkClicked Browser.UrlRequest
-    | Resize Int Int
     | EnteredUsername String
     | EnteredPassword String
     | SignIn
@@ -437,9 +436,6 @@ update msg model =
         SignIn ->
             ( model, Cmd.none )
 
-        Resize x y ->
-            ( { model | width = x }, Cmd.none )
-
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
@@ -456,42 +452,30 @@ update msg model =
 
         SwitchProject dir projectSwitchBehavior time ->
             let
-                getListHead : List Project -> Project
-                getListHead projectList =
-                    projectList |> List.head |> Maybe.withDefault (Zip.selected model.projects)
-
-                nextProject : Project
-                nextProject =
+                nextActiveProjectIndex : Int
+                nextActiveProjectIndex =
                     case dir of
                         Back ->
-                            if model.projects |> Zip.before |> List.isEmpty then
-                                -- RETURN THE LAST ITEM IN THE SELECT LIST
-                                model.projects |> Zip.after |> List.reverse |> getListHead
+                            if model.activeProjectIndex == 0 then
+                                Array.length model.projects - 1
 
                             else
-                                -- RETURN THE LAST ITEM IN THE 'BEFORE' OF THE SELECT LIST
-                                model.projects |> Zip.before |> List.reverse |> getListHead
+                                model.activeProjectIndex - 1
 
                         Next ->
-                            if model.projects |> Zip.after |> List.isEmpty then
-                                -- RETURN THE FIRST ITEM IN THE SELECT LIST
-                                model.projects |> Zip.before |> getListHead
+                            if model.activeProjectIndex == Array.length model.projects - 1 then
+                                0
 
                             else
-                                -- RETURN THE HEAD OF THE LIST
-                                model.projects |> Zip.after |> getListHead
-
-                nextProjectState : SelectList Project
-                nextProjectState =
-                    Zip.select (\a -> a == nextProject) model.projects
+                                model.activeProjectIndex + 1
             in
             case projectSwitchBehavior of
                 Auto ->
-                    ( { model | projects = nextProjectState }, Cmd.none )
+                    ( { model | activeProjectIndex = nextActiveProjectIndex }, Cmd.none )
 
                 UserControlled ->
                     ( { model
-                        | projects = nextProjectState
+                        | activeProjectIndex = nextActiveProjectIndex
                         , autoSwitchProjectTimeout = Time.millisToPosix 5000 -- INIT VALUE TO RESET THE TIMEOUT
                         , switchProjectBehavior = UserControlled
                       }
@@ -535,21 +519,16 @@ init doesSupportWebP url key =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    let
-        sharedSubs =
-            [ onResize Resize ]
-    in
     if model.page == Routes.Projects then
         -- WE ONLY START THE SUBSCRIPTION TO CYCLE THROUGH PROJECTS IF WE'RE ON THE `PROJECTS` PAGE
         case model.switchProjectBehavior of
             Auto ->
                 -- FOR AUTO BEHAVIOR, WE SEND A `SWITCHPROJECT` MSG TO ENABLE SWITCHING TO THE NEXT PROJECT
-                Sub.batch (List.append sharedSubs [ every (5 * 1000) (SwitchProject Next Auto) ])
+                Sub.batch [ every (5 * 1000) (SwitchProject Next Auto) ]
 
             UserControlled ->
                 -- FOR USER CONTROLLED BEHAVIOR, WE SEND A `TICK` MSG EVERY SECOND TO TRACK THE TIMEOUT
-                Sub.batch (List.append sharedSubs [ every 1000 Tick ])
+                Sub.batch [ every 1000 Tick ]
 
     else
-        Sub.batch
-            sharedSubs
+        Sub.none
