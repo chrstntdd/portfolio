@@ -15,6 +15,7 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "outDir": "dist/",
+    "skipLibCheck": true,
     "paths": {
       "@/*": ["src/client/*"]
     },

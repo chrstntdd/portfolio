@@ -1,4 +1,4 @@
-import { resolve } from 'path'
+const { resolve } = require('path')
 
-export const build = resolve(__dirname, '../build')
-export const src = resolve(__dirname, '../src')
+module.exports.build = resolve(__dirname, '../build')
+module.exports.src = resolve(__dirname, '../src')

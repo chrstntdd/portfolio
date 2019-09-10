@@ -14,7 +14,7 @@ const { build, src } = require('./scripts/paths')
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 const USE_SERVICE_WORKER = process.env.USE_SW
 
-export default {
+module.exports = {
   mode: IS_PRODUCTION ? 'production' : 'development',
   entry: path.resolve(__dirname, 'src/index.ts'),
   output: {
