@@ -124,40 +124,34 @@
 }
 
 #hero-img {
-  background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-    url('/images/hero/hero-mobile.jpg');
+  --hero-gradient: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
+
+  background-image: var(--hero-gradient), url('/images/hero/hero-mobile.jpg');
   overflow: hidden;
   background-repeat: no-repeat;
   max-height: 100vh;
 
   @media (min-width: $bp-small) {
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-      url('/images/hero/hero-tablet.jpg');
+    background-image: var(--hero-gradient), url('/images/hero/hero-tablet.jpg');
   }
   @media (min-width: $bp-large) {
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-      url('/images/hero/hero-desktop.jpg');
+    background-image: var(--hero-gradient), url('/images/hero/hero-desktop.jpg');
   }
   @media (min-width: $bp-xlarge) {
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-      url('/images/hero/hero-full.jpg');
+    background-image: var(--hero-gradient), url('/images/hero/hero-full.jpg');
   }
 
   &.webP {
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-      url('/images/hero/hero-mobile.webp');
+    background-image: var(--hero-gradient), url('/images/hero/hero-mobile.webp');
 
     @media (min-width: $bp-small) {
-      background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-        url('/images/hero/hero-tablet.webp');
+      background-image: var(--hero-gradient), url('/images/hero/hero-tablet.webp');
     }
     @media (min-width: $bp-large) {
-      background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-        url('/images/hero/hero-desktop.webp');
+      background-image: var(--hero-gradient), url('/images/hero/hero-desktop.webp');
     }
     @media (min-width: $bp-xlarge) {
-      background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),
-        url('/images/hero/hero-full.webp');
+      background-image: var(--hero-gradient), url('/images/hero/hero-full.webp');
     }
   }
 }
@@ -206,8 +200,11 @@
   left: -6rem;
   height: 66px;
   width: 66px;
-  background: transparent;
+  // background: transparent;
   border: none;
+  background-color: seagreen;
+  border-radius: 50%;
+
   .hamburger {
     display: block;
     position: relative;
@@ -217,6 +214,7 @@
     transition-property: opacity, filter;
     transition-duration: 0.15s;
     transition-timing-function: linear;
+
     .hamburger-inner,
     .hamburger-inner:before,
     .hamburger-inner:after {

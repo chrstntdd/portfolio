@@ -9,7 +9,7 @@ const InlineSourcePlugin = require('html-webpack-inline-source-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const Stylish = require('webpack-stylish')
-const { build, src } = require('./scripts/paths')
+const { build, src } = require('./scripts/paths.ts')
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 const USE_SERVICE_WORKER = process.env.USE_SW
