@@ -198,7 +198,7 @@
   @media (min-width: $bp-small) {
     display: none;
   }
-  position: absolute;
+  position: fixed;
   bottom: 10%;
   right: 10%;
   height: 60px;
