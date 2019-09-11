@@ -25,6 +25,11 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
+"@chrstntdd/node@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@chrstntdd/node/-/node-0.0.3.tgz#1a2879fbe077007a44ce696eccd7d510edae87fc"
+  integrity sha512-ytE4qS04M+nBrMlfg1u0Z76xif4fbhPQjCz6aLYiKFD5k1HCbk0d0WIvVE81qGSy/z/XJdr7VKSqkJDxYdRXTg==
+
 "@hapi/address@2.x.x":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-2.1.1.tgz#61395b5ed94c4cb19c2dc4c85969cff3d40d583f"

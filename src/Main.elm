@@ -189,7 +189,7 @@ body model =
         appShell : List (Html Msg) -> Html Msg
         appShell rest =
             div [ class "full-page" ]
-                ([ navBar navIsOpen ] |> List.append rest)
+                ([ navBar navIsOpen, hamburgerMenu navIsOpen ] |> List.append rest)
     in
     case page of
         Routes.Home ->
@@ -241,25 +241,21 @@ navBar navIsOpen =
             , li [ liClass ]
                 [ link { url = Routes.Contact, attrs = [ linkClass ], label = "Contact" } ]
             ]
-        , hamburgerMenu
-            navIsOpen
         ]
 
 
 hamburgerMenu : Bool -> Html Msg
 hamburgerMenu navIsOpen =
     let
-        hamburgerClass =
+        menuToggleText =
             if navIsOpen then
-                class "hamburger is-open"
+                "close menu"
 
             else
-                class "hamburger"
+                "open menu"
     in
     button [ id "hamburger-button", onClick ToggleHamburger, attribute "aria-label" "Toggle navigation menu" ]
-        [ span
-            [ hamburgerClass ]
-            [ span [ class "hamburger-inner" ] [] ]
+        [ Html.text menuToggleText
         ]
 
 

@@ -27,6 +27,7 @@
     ]
   },
   "devDependencies": {
+    "@chrstntdd/node": "^0.0.3",
     "@types/fs-extra": "^5.0.5",
     "@types/node": "^12.7.4",
     "@types/webpack": "^4.39.1",
