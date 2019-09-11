@@ -27,7 +27,6 @@
     ]
   },
   "devDependencies": {
-    "@chrstntdd/node": "^0.0.3",
     "@types/fs-extra": "^5.0.5",
     "@types/node": "^12.7.4",
     "@types/webpack": "^4.39.1",
@@ -42,6 +41,7 @@
     "webpack-dev-server": "^3.8.0"
   },
   "dependencies": {
+    "@chrstntdd/node": "^0.0.3",
     "autoprefixer": "^9.6.1",
     "copy-webpack-plugin": "^5.0.4",
     "cross-env": "^5.2.0",
