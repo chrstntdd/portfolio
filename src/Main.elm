@@ -247,15 +247,17 @@ navBar navIsOpen =
 hamburgerMenu : Bool -> Html Msg
 hamburgerMenu navIsOpen =
     let
-        menuToggleText =
+        hamburgerClass =
             if navIsOpen then
-                "close menu"
+                class "hamburger is-open"
 
             else
-                "open menu"
+                class "hamburger"
     in
     button [ id "hamburger-button", onClick ToggleHamburger, attribute "aria-label" "Toggle navigation menu" ]
-        [ Html.text menuToggleText
+        [ span
+            [ hamburgerClass ]
+            [ span [ class "hamburger-inner" ] [] ]
         ]
 
 
