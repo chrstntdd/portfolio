@@ -4,8 +4,8 @@ import Array exposing (Array)
 import Browser
 import Browser.Navigation as Navigation
 import Data.Project exposing (Project, viewProject)
-import Html exposing (Attribute, Html, a, button, div, form, h1, h3, h4, header, i, img, input, label, legend, li, main_, nav, p, section, span, text, ul)
-import Html.Attributes exposing (alt, attribute, class, for, href, id, placeholder, src, type_)
+import Html exposing (Attribute, Html, a, button, div, form, h1, h3, h4, header, i, img, input, label, legend, li, main_, nav, node, p, section, source, span, text, ul)
+import Html.Attributes exposing (alt, attribute, class, for, href, id, media, placeholder, src, type_)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as D exposing (..)
 import Json.Decode.Pipeline exposing (required)
@@ -261,6 +261,40 @@ hamburgerMenu navIsOpen =
         ]
 
 
+makeHeroPictureSources : List (Html Msg)
+makeHeroPictureSources =
+    let
+        baseSrcUrls =
+            [ ( "/images/hero/hero-mobile", "(min-width: 320px) and (max-width: 1365px)" )
+            , ( "/images/hero/hero-tablet", "(min-width: 1366px) and (max-width: 1919px)" )
+            , ( "/images/hero/hero-full", "(min-width: 1920px)" )
+            ]
+    in
+    List.append
+        (List.map
+            (\( src, med ) ->
+                source
+                    [ attribute "srcset" (String.append src ".webp")
+                    , media med
+                    , type_ "image/webp"
+                    ]
+                    []
+            )
+            baseSrcUrls
+        )
+        (List.map
+            (\( src, med ) ->
+                source
+                    [ attribute "srcset" (String.append src ".jpg")
+                    , media med
+                    , type_ "image/jpg"
+                    ]
+                    []
+            )
+            baseSrcUrls
+        )
+
+
 aboveTheFold : Bool -> Html Msg
 aboveTheFold canUseWebP =
     let
@@ -272,7 +306,11 @@ aboveTheFold canUseWebP =
                 ""
     in
     header [ class "h-screen w-screen flex flex-col items-center justify-center" ]
-        [ div [ id "hero-img", class ("absolute bg-cover bg-center bg-no-repeat pin " ++ bgImageClass) ] []
+        [ node "picture"
+            [ id "hero-img", class "relative" ]
+            (makeHeroPictureSources
+                ++ [ img [ alt "hero background image", src "/images/hero/hero-mobile.jpg" ] [] ]
+            )
         , div [ id "hero-text", class "kinda-center" ]
             [ h1 [ class "text-white font-thin text-center leading-none whitespace-no-wrap massive-text tracking-wide" ] [ text "Christian Todd" ]
             , h3 [ class "text-white font-thin text-center italic" ] [ text "Web Developer" ]
