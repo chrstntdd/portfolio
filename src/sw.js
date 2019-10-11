@@ -19,7 +19,7 @@ if (workbox) {
   )
 
   workbox.routing.registerRoute(
-    /\.(?:js|css|html)$/,
+    /\.(?:js|css|html|br)$/,
     workbox.strategies.staleWhileRevalidate({
       cacheName: 'static-resources'
     })
