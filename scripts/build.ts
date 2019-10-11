@@ -65,7 +65,9 @@ function removeInlinedFiles() {
 }
 
 function compressStaticAssets() {
-  for (const { name } of walkSync(build, { filter: fileName => /\.html$/.test(fileName) })) {
+  for (const { name } of walkSync(build, { filter: fileName => /\.(js|html)$/.test(fileName) })) {
+    console.log(name)
+
     // delete the output js file since it is already inlined into the html
     const content = readFileSync(name)
     const compressedContent = brotliCompressSync(content)
@@ -83,9 +85,9 @@ function compressStaticAssets() {
 
       removeInlinedFiles()
 
-      compressStaticAssets()
-
       await generateServiceWorker()
+
+      compressStaticAssets()
     } else {
       fs.removeSync(build)
       console.log(
