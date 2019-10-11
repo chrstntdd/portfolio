@@ -1,5 +1,8 @@
-import fs from 'fs-extra'
 import path from 'path'
+import { readFileSync, writeFileSync } from 'fs'
+import { brotliCompressSync } from 'zlib'
+
+import fs from 'fs-extra'
 import chalk from 'chalk'
 import webpack from 'webpack'
 import workbox from 'workbox-build'
@@ -61,6 +64,15 @@ function removeInlinedFiles() {
   }
 }
 
+function compressStaticAssets() {
+  for (const { name } of walkSync(build, { filter: fileName => /\.html$/.test(fileName) })) {
+    // delete the output js file since it is already inlined into the html
+    const content = readFileSync(name)
+    const compressedContent = brotliCompressSync(content)
+    writeFileSync(`${name}.br`, compressedContent, 'UTF-8')
+  }
+}
+
 ;(async () => {
   try {
     // Dont measure file sizes on netlify builds
@@ -70,6 +82,8 @@ function removeInlinedFiles() {
       await copyNetlifyConfig()
 
       removeInlinedFiles()
+
+      compressStaticAssets()
 
       await generateServiceWorker()
     } else {
